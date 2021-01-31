@@ -13,9 +13,12 @@
 #include "toonz/txshlevel.h"
 #include "toonz/txshleveltypes.h"
 #include "toonz/tobjecthandle.h"
+#include "toonz/tstageobjecttree.h"
+#include "toonz/preferences.h"
+
 #include "toonzqt/tselectionhandle.h"
 #include "toonzqt/selection.h"
-#include "toonz/tstageobjecttree.h"
+#include "toonzqt/gutil.h"
 
 #include "tools/tool.h"
 
@@ -32,7 +35,7 @@ StatusBar::StatusBar(QWidget* parent) : QStatusBar(parent) {
   m_infoLabel = new StatusLabel(tr("Info goes here."), this);
   m_infoLabel->setObjectName("MainWindowPlainLabel");
   m_infoLabel->setMinimumWidth(1);
-  addWidget(m_infoLabel, 0);
+  addWidget(m_infoLabel, 1);
   addPermanentWidget(m_currentFrameLabel, 0);
 
   TApp* app                    = TApp::instance();
@@ -64,6 +67,40 @@ StatusBar::~StatusBar() {}
 //-----------------------------------------------------------------------------
 
 void StatusBar::showEvent(QShowEvent* event) {}
+
+//-----------------------------------------------------------------------------
+
+void StatusBar::resizeEvent(QResizeEvent *event) {
+  updateInfoText();
+}
+
+//-----------------------------------------------------------------------------
+
+void StatusBar::cropInfoText() {
+  QString fontName = Preferences::instance()->getInterfaceFont();
+  if (fontName == "") {
+#ifdef _WIN32
+    fontName = "Arial";
+#else
+    fontName = "Helvetica";
+#endif
+  }
+  static QFont font(fontName, -1, QFont::Normal);
+
+  QString text = m_infoLabel->text();
+
+  QFontMetrics metric(font);
+
+  int area = m_infoLabel->width() * 1.6;
+
+#if QT_VERSION >= 0x050500
+  QString elidaName = elideText(text, metric, area, "...");
+#else
+  QString elidaName = elideText(text, font, area, "...");
+#endif
+
+  m_infoLabel->setText(elidaName);
+}
 
 //-----------------------------------------------------------------------------
 
@@ -125,7 +162,9 @@ void StatusBar::updateInfoText() {
     i++;
   }
 
+  m_infoLabel->setToolTip(text);
   m_infoLabel->setText(text);
+  cropInfoText();
 }
 
 //-----------------------------------------------------------------------------

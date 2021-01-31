@@ -32,10 +32,14 @@ public:
 
   void updateFrameText(QString text);
 
+private:
+  void cropInfoText();
+
 protected:
   StatusLabel *m_currentFrameLabel, *m_infoLabel;
   std::unordered_map<std::string, QString> m_infoMap;
   void showEvent(QShowEvent*) override;
+  void resizeEvent(QResizeEvent *event);
   void makeMap();
 
 protected slots:
