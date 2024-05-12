@@ -55,6 +55,7 @@
 #include <QObject>
 #include <QDesktopServices>
 #include <QUrl>
+#include <QStandardPaths>
 
 //---------------------------------------------------------
 
