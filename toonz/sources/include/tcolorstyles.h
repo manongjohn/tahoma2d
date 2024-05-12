@@ -33,7 +33,6 @@ class TVectorRenderData;
 class TInputStreamInterface;
 class TOutputStreamInterface;
 class TRasterStyleFx;
-class QStringList;
 
 //=================================================
 
