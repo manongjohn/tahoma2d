@@ -45,9 +45,6 @@
 
 // TnzQt includes
 #include <QApplication>
-#ifdef _WIN32
-#include <QtPlatformHeaders/QWindowsWindowFunctions>
-#endif
 
 // boost includes
 #include <boost/iterator/transform_iterator.hpp>
@@ -1060,11 +1057,6 @@ bool FullScreenWidget::toggleFullScreen(
 #else
             this->setWindowFlags(this->windowFlags() | Qt::Window);
             this->window()->windowHandle()->setScreen(ptrScreenThisWindowIsOn);
-
-            // http://doc.qt.io/qt-5/windows-issues.html#fullscreen-opengl-based-windows
-            QWindowsWindowFunctions::setHasBorderInFullScreen(
-                this->windowHandle(), true);
-
             this->showFullScreen();
 #endif
           }
