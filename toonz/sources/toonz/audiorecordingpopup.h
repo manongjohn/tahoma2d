@@ -5,7 +5,7 @@
 
 #include "toonzqt/dvdialog.h"
 #include "tsystem.h"
-#include <QAudioInput>
+#include <QAudioSource>
 #include <QObject>
 #include <QLabel>
 #include <QMediaPlayer>
@@ -34,7 +34,7 @@ class AudioRecordingPopup : public DVGui::Dialog {
   QPushButton *m_recordButton, *m_refreshDevicesButton, *m_playButton,
       *m_pauseRecordingButton, *m_pausePlaybackButton, *m_saveButton;
   QComboBox *m_deviceListCB;
-  QAudioInput *m_audioInput;
+  QAudioSource *m_audioInput;
   AudioWriterWAV *m_audioWriterWAV;
   QLabel *m_duration, *m_playDuration;
   QCheckBox *m_playXSheetCB;
@@ -80,7 +80,7 @@ private slots:
   void onPausePlaybackButtonPressed();
   void onPlayStateChanged(bool playing);
   void onPlayXSheetCBChanged(int status);
-  void onMediaStateChanged(QMediaPlayer::State state);
+  void onMediaStateChanged(QMediaPlayer::PlaybackState state);
   void onInputDeviceChanged();
   void onRefreshButtonPressed();
   void onAudioSettingChanged();

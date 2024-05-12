@@ -32,8 +32,6 @@
 #include <QMainWindow>
 #include <QAudio>
 #include <QMediaRecorder>
-#include <QAudioProbe>
-#include <QAudioRecorder>
 #include <QAudioFormat>
 #include <QWidget>
 #include <QAudioBuffer>
@@ -47,9 +45,11 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QGridLayout>
-#include <QMultimedia>
 #include <QPainter>
 #include <QElapsedTimer>
+#include <QMediaDevices>
+#include <QAudioDevice>
+#include <QAudioOutput>
 
 #ifndef WAVE_FORMAT_PCM
 #define WAVE_FORMAT_PCM 1
@@ -100,8 +100,8 @@ AudioRecordingPopup::AudioRecordingPopup()
   m_comboSamplefmt->addItem(tr("Stereo 8-Bits"), QVariant::fromValue(10));
   m_comboSamplefmt->addItem(tr("Mono 16-Bits"), QVariant::fromValue(17));
   m_comboSamplefmt->addItem(tr("Stereo 16-Bits"), QVariant::fromValue(18));
-  m_comboSamplefmt->addItem(tr("Mono 24-Bits"), QVariant::fromValue(25));
-  m_comboSamplefmt->addItem(tr("Stereo 24-Bits"), QVariant::fromValue(26));
+//  m_comboSamplefmt->addItem(tr("Mono 24-Bits"), QVariant::fromValue(25));
+//  m_comboSamplefmt->addItem(tr("Stereo 24-Bits"), QVariant::fromValue(26));
   m_comboSamplefmt->addItem(tr("Mono 32-Bits"), QVariant::fromValue(33));
   m_comboSamplefmt->addItem(tr("Stereo 32-Bits"), QVariant::fromValue(34));
   m_comboSamplefmt->setCurrentIndex(2);  // Mono 16-Bits
@@ -142,18 +142,19 @@ AudioRecordingPopup::AudioRecordingPopup()
 
   // Enumerate devices and initialize default device
   enumerateAudioDevices("");
-  QAudioDeviceInfo m_audioDeviceInfo = QAudioDeviceInfo::defaultInputDevice();
+  QAudioDevice m_audioDeviceInfo = QMediaDevices::defaultAudioInput();
   QAudioFormat format;
   format.setSampleRate(44100);
   format.setChannelCount(1);
-  format.setSampleSize(16);
-  format.setSampleType(QAudioFormat::SignedInt);
-  format.setByteOrder(QAudioFormat::LittleEndian);
-  format.setCodec("audio/pcm");
+  format.setSampleFormat(QAudioFormat::Int16);
+//  format.setByteOrder(QAudioFormat::LittleEndian);
+//  format.setCodec("audio/pcm");
   if (!m_audioDeviceInfo.isFormatSupported(format)) {
-    format = m_audioDeviceInfo.nearestFormat(format);
+    format.setSampleRate(
+        std::min(44100, m_audioDeviceInfo.maximumSampleRate()));
+    format.setSampleFormat(m_audioDeviceInfo.supportedSampleFormats().last());
   }
-  m_audioInput = new QAudioInput(m_audioDeviceInfo, format);
+  m_audioInput = new QAudioSource(m_audioDeviceInfo, format);
 
   // WAV Writter
   m_audioWriterWAV = new AudioWriterWAV(format);
@@ -405,14 +406,17 @@ void AudioRecordingPopup::updatePlaybackDuration(qint64 duration) {
 //-----------------------------------------------------------------------------
 
 void AudioRecordingPopup::onPlayButtonPressed() {
-  if (m_player->state() == QMediaPlayer::StoppedState) {
-    m_player->setMedia(QUrl::fromLocalFile(m_filePath.getQString()));
-    m_player->setVolume(50);
-    m_player->setNotifyInterval(20);
+  if (m_player->playbackState() == QMediaPlayer::StoppedState) {
+    m_player->setSource(QUrl::fromLocalFile(m_filePath.getQString()));
+    auto audioOut = new QAudioOutput{};
+    audioOut->setDevice(QMediaDevices::defaultAudioOutput());
+    audioOut->setVolume(50);
+    m_player->setAudioOutput(audioOut);
+    //      m_player->setNotifyInterval(20);
     connect(m_player, SIGNAL(positionChanged(qint64)), this,
             SLOT(updatePlaybackDuration(qint64)));
-    connect(m_player, SIGNAL(stateChanged(QMediaPlayer::State)), this,
-            SLOT(onMediaStateChanged(QMediaPlayer::State)));
+    connect(m_player, SIGNAL(playbackStateChanged(QMediaPlayer::PlaybackState)),
+            this, SLOT(onMediaStateChanged(QMediaPlayer::PlaybackState)));
     m_playButton->setIcon(m_stopIcon);
     m_recordButton->setDisabled(true);
     m_saveButton->setDisabled(true);
@@ -471,9 +475,9 @@ void AudioRecordingPopup::onPauseRecordingButtonPressed() {
 //-----------------------------------------------------------------------------
 
 void AudioRecordingPopup::onPausePlaybackButtonPressed() {
-  if (m_player->state() == QMediaPlayer::StoppedState) {
+  if (m_player->playbackState() == QMediaPlayer::StoppedState) {
     return;
-  } else if (m_player->state() == QMediaPlayer::PausedState) {
+  } else if (m_player->playbackState() == QMediaPlayer::PausedState) {
     m_player->play();
     m_pausePlaybackButton->setIcon(m_pauseIcon);
     if (m_syncPlayback && !m_isPlaying && !m_stoppedAtEnd) {
@@ -492,7 +496,7 @@ void AudioRecordingPopup::onPausePlaybackButtonPressed() {
 
 //-----------------------------------------------------------------------------
 
-void AudioRecordingPopup::onMediaStateChanged(QMediaPlayer::State state) {
+void AudioRecordingPopup::onMediaStateChanged(QMediaPlayer::PlaybackState state) {
   // stopping can happen through the stop button or the file ending
   if (state == QMediaPlayer::StoppedState) {
     m_audioLevelsDisplay->setLevel(-1, -1);
@@ -528,11 +532,11 @@ void AudioRecordingPopup::onPlayXSheetCBChanged(int status) {
 //-----------------------------------------------------------------------------
 
 void AudioRecordingPopup::onRefreshButtonPressed() {
-  QAudioDeviceInfo m_audioDeviceInfo =
+  QAudioDevice m_audioDeviceInfo =
       m_deviceListCB->itemData(m_deviceListCB->currentIndex())
-          .value<QAudioDeviceInfo>();
+          .value<QAudioDevice>();
 
-  enumerateAudioDevices(m_audioDeviceInfo.deviceName());
+  enumerateAudioDevices(m_audioDeviceInfo.description());
 }
 
 //-----------------------------------------------------------------------------
@@ -550,7 +554,7 @@ void AudioRecordingPopup::onSaveButtonPressed() {
     m_audioInput->stop();
     m_audioLevelsDisplay->setLevel(-1, -1);
   }
-  if (m_player->state() != QMediaPlayer::StoppedState) {
+  if (m_player->playbackState() != QMediaPlayer::StoppedState) {
     m_player->stop();
     m_audioLevelsDisplay->setLevel(-1, -1);
   }
@@ -640,7 +644,7 @@ void AudioRecordingPopup::hideEvent(QHideEvent *event) {
     m_audioInput->stop();
     m_audioWriterWAV->stop();
   }
-  if (m_player->state() != QMediaPlayer::StoppedState) {
+  if (m_player->playbackState() != QMediaPlayer::StoppedState) {
     m_player->stop();
   }
   // make sure the file is freed before deleting
@@ -659,19 +663,18 @@ void AudioRecordingPopup::hideEvent(QHideEvent *event) {
 
 void AudioRecordingPopup::enumerateAudioDevices(
     const QString &selectedDeviceName) {
-  const QAudioDeviceInfo &defaultDeviceInfo =
-      QAudioDeviceInfo::defaultInputDevice();
+  const QAudioDevice &defaultDeviceInfo = QMediaDevices::defaultAudioInput();
 
   m_blockAudioSettings = true;
   m_deviceListCB->clear();
-  m_deviceListCB->addItem(defaultDeviceInfo.deviceName(),
+  m_deviceListCB->addItem(defaultDeviceInfo.description(),
                           QVariant::fromValue(defaultDeviceInfo));
 
   for (auto &deviceInfo :
-       QAudioDeviceInfo::availableDevices(QAudio::AudioInput)) {
+       QMediaDevices::audioInputs()) {
     if (deviceInfo != defaultDeviceInfo &&
-        m_deviceListCB->findText(deviceInfo.deviceName()) == -1) {
-      m_deviceListCB->addItem(deviceInfo.deviceName(),
+        m_deviceListCB->findText(deviceInfo.description()) == -1) {
+      m_deviceListCB->addItem(deviceInfo.description(),
                               QVariant::fromValue(deviceInfo));
     }
   }
@@ -686,9 +689,9 @@ void AudioRecordingPopup::enumerateAudioDevices(
 void AudioRecordingPopup::reinitAudioInput() {
   if (m_blockAudioSettings) return;
 
-  QAudioDeviceInfo m_audioDeviceInfo =
+  QAudioDevice m_audioDeviceInfo =
       m_deviceListCB->itemData(m_deviceListCB->currentIndex())
-          .value<QAudioDeviceInfo>();
+          .value<QAudioDevice>();
   int samplerate =
       m_comboSamplerate->itemData(m_comboSamplerate->currentIndex())
           .value<int>();
@@ -700,24 +703,28 @@ void AudioRecordingPopup::reinitAudioInput() {
   QAudioFormat format;
   format.setSampleRate(samplerate);
   format.setChannelCount(channels);
-  format.setSampleSize(bitdepth);
+//  format.setSampleSize(bitdepth);
   if (bitdepth == 32)
-    format.setSampleType(QAudioFormat::Float);
+    format.setSampleFormat(QAudioFormat::Float);
   else if (bitdepth == 8)
-    format.setSampleType(QAudioFormat::UnSignedInt);
+    format.setSampleFormat(QAudioFormat::UInt8);
   else
-    format.setSampleType(QAudioFormat::SignedInt);
-  format.setByteOrder(QAudioFormat::LittleEndian);
-  format.setCodec("audio/pcm");
+    format.setSampleFormat(QAudioFormat::Int16);
+//  format.setByteOrder(QAudioFormat::LittleEndian);
+//  format.setCodec("audio/pcm");
   if (!m_audioDeviceInfo.isFormatSupported(format)) {
     DVGui::warning(tr(
         "Audio format unsupported:\nNearest format will be internally used."));
-    format = m_audioDeviceInfo.nearestFormat(format);
+    format.setSampleRate(
+        std::min(samplerate, m_audioDeviceInfo.maximumSampleRate()));
+    format.setChannelCount(
+        std::min(channels, m_audioDeviceInfo.maximumChannelCount()));
+    format.setSampleFormat(m_audioDeviceInfo.supportedSampleFormats().last());
   }
 
   // Recreate input
   delete m_audioInput;
-  m_audioInput = new QAudioInput(m_audioDeviceInfo, format);
+  m_audioInput = new QAudioSource(m_audioDeviceInfo, format);
   m_audioWriterWAV->reset(format);
 }
 
@@ -744,12 +751,12 @@ bool AudioWriterWAV::reset(const QAudioFormat &format) {
   m_format = format;
 
   int samplesPerSec = m_format.sampleRate() * m_format.channelCount();
-  if (m_format.sampleSize() == 8) {
+  if (m_format.sampleFormat() == QAudioFormat::UInt8) {
     m_rbytesms = 1000.0 / samplesPerSec;
-  } else if (m_format.sampleSize() == 16) {
+  } else if (m_format.sampleFormat() == QAudioFormat::Int16) {
     m_rbytesms = 1000.0 / 2.0 / samplesPerSec;
-  } else if (m_format.sampleSize() == 24) {
-    m_rbytesms = 1000.0 / 3.0 / samplesPerSec;
+//  } else if (m_format.sampleSize() == 24) {
+//    m_rbytesms = 1000.0 / 3.0 / samplesPerSec;
   } else {  // 32-bits
     m_rbytesms = 1000.0 / 4.0 / samplesPerSec;
   }
@@ -821,9 +828,13 @@ bool AudioWriterWAV::stop() {
 }
 
 void AudioWriterWAV::writeWAVHeader(QFile &file) {
-  quint16 channels   = m_format.channelCount();
-  quint32 samplerate = m_format.sampleRate();
-  quint16 bitrate    = m_format.sampleSize();
+  quint16 channels                        = m_format.channelCount();
+  quint32 samplerate                      = m_format.sampleRate();
+  QAudioFormat::SampleFormat sampelFormat = m_format.sampleFormat();
+  quint16 bitrate = (sampelFormat == QAudioFormat::Int32 ||
+                     sampelFormat == QAudioFormat::Float)
+                        ? 32
+                        : (sampelFormat == QAudioFormat::UInt8 ? 8 : 16);
 
   qint64 pos = file.pos();
   file.seek(0);
@@ -834,7 +845,9 @@ void AudioWriterWAV::writeWAVHeader(QFile &file) {
   out << (quint32)(m_wrRawB + AWWAV_HEADER_SIZE);
   out.writeRawData("WAVEfmt ", 8);
   out << (quint32)16;  // Chunk size
-  out << (quint16)(bitrate == 32 ? WAVE_FORMAT_IEEE_FLOAT : WAVE_FORMAT_PCM);
+  out << (quint16)((bitrate == 32 && sampelFormat == QAudioFormat::Float)
+                       ? WAVE_FORMAT_IEEE_FLOAT
+                       : WAVE_FORMAT_PCM);
   out << channels << samplerate;
   out << quint32(samplerate * channels * bitrate / 8);
   out << quint16(channels * bitrate / 8);
@@ -853,7 +866,7 @@ qint64 AudioWriterWAV::writeData(const char *data, qint64 len) {
   int tmp, peak = 0.0;
 
   // Measure peak
-  if (m_format.sampleSize() == 8) {
+  if (m_format.sampleFormat() == QAudioFormat::UInt8) {
     const quint8 *sdata = (const quint8 *)data;
     int slen            = len;
     for (int i = 0; i < slen; ++i) {
@@ -861,7 +874,7 @@ qint64 AudioWriterWAV::writeData(const char *data, qint64 len) {
       if (tmp > peak) peak = tmp;
     }
     m_level = qreal(peak) / 127.0;
-  } else if (m_format.sampleSize() == 16) {
+  } else if (m_format.sampleFormat() == QAudioFormat::Int16) {
     const qint16 *sdata = (const qint16 *)data;
     int slen            = len / 2;
     for (int i = 0; i < slen; ++i) {
@@ -869,14 +882,14 @@ qint64 AudioWriterWAV::writeData(const char *data, qint64 len) {
       if (tmp > peak) peak = tmp;
     }
     m_level = qreal(peak) / 32767.0;
-  } else if (m_format.sampleSize() == 24) {
-    const qint8 *sdata = (const qint8 *)data;
-    int slen           = len / 3;
-    for (int i = 0; i < slen; ++i) {
-      tmp = qAbs<int>(sdata[i * 3 + 2]);
-      if (tmp > peak) peak = tmp;
-    }
-    m_level = qreal(peak) / 127.0;
+//  } else if (m_format.sampleSize() == 24) {
+//    const qint8 *sdata = (const qint8 *)data;
+//    int slen           = len / 3;
+//    for (int i = 0; i < slen; ++i) {
+//      tmp = qAbs<int>(sdata[i * 3 + 2]);
+//      if (tmp > peak) peak = tmp;
+//    }
+//    m_level = qreal(peak) / 127.0;
   } else {  // 32-bits
     const float *sdata = (const float *)data;
     int slen           = len / 4;
