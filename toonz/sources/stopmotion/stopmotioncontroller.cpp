@@ -494,7 +494,7 @@ QString formatString(QString inStr, int charNum) {
 
   QString numStr, postStr;
   // find the first non-digit character
-  int index = inStr.indexOf(QRegExp("[^0-9]"), 0);
+  int index = inStr.indexOf(QRegularExpression("[^0-9]"), 0);
 
   if (index == -1)  // only digits
     numStr = inStr;
@@ -580,7 +580,8 @@ void StopMotionSaveInFolderPopup::onOkPressed() {
     return;
   }
 
-  int index = subFolderName.indexOf(QRegExp("[\\]:;|=,\\[\\*\\.\"/\\\\]"), 0);
+  int index = subFolderName.indexOf(
+      QRegularExpression("[\\]:;|=,\\[\\*\\.\"/\\\\]"), 0);
   if (index >= 0) {
     DVGui::MsgBox(DVGui::WARNING,
                   tr("Subfolder name should not contain following "
@@ -681,14 +682,16 @@ FrameNumberLineEdit::FrameNumberLineEdit(QWidget *parent, TFrameId fId,
     : LineEdit(parent) {
   if (acceptLetter) {
     QString regExpStr   = QString("^%1$").arg(TFilePath::fidRegExpStr());
-    m_regexpValidator   = new QRegExpValidator(QRegExp(regExpStr), this);
+    m_regexpValidator =
+        new QRegularExpressionValidator(QRegularExpression(regExpStr), this);
     TProjectManager *pm = TProjectManager::instance();
     pm->addListener(this);
   } else
-    m_regexpValidator = new QRegExpValidator(QRegExp("^\\d{1,4}$"), this);
+    m_regexpValidator =
+        new QRegularExpressionValidator(QRegularExpression("^\\d{1,4}$"), this);
 
-  m_regexpValidator_alt =
-      new QRegExpValidator(QRegExp("^\\d{1,3}[A-Ia-i]?$"), this);
+  m_regexpValidator_alt = new QRegularExpressionValidator(
+      QRegularExpression("^\\d{1,3}[A-Ia-i]?$"), this);
 
   updateValidator();
   updateSize();
@@ -753,22 +756,23 @@ TFrameId FrameNumberLineEdit::getValue() {
     return TFrameId(f);
   } else {
     QString regExpStr = QString("^%1$").arg(TFilePath::fidRegExpStr());
-    QRegExp rx(regExpStr);
-    int pos = rx.indexIn(text());
-    if (pos < 0) return TFrameId();
-    if (rx.cap(2).isEmpty())
-      return TFrameId(rx.cap(1).toInt());
+    QRegularExpression re(regExpStr);
+    QRegularExpressionMatch rx = re.match(text());
+    if (!rx.hasMatch()) return TFrameId();
+    if (rx.captured(2).isEmpty())
+      return TFrameId(rx.captured(1).toInt());
     else
-      return TFrameId(rx.cap(1).toInt(), rx.cap(2));
+      return TFrameId(rx.captured(1).toInt(), rx.captured(2));
   }
 }
 
 //-----------------------------------------------------------------------------
 
 void FrameNumberLineEdit::onProjectSwitched() {
-  QRegExpValidator *oldValidator = m_regexpValidator;
+  QRegularExpressionValidator *oldValidator = m_regexpValidator;
   QString regExpStr = QString("^%1$").arg(TFilePath::fidRegExpStr());
-  m_regexpValidator = new QRegExpValidator(QRegExp(regExpStr), this);
+  m_regexpValidator =
+      new QRegularExpressionValidator(QRegularExpression(regExpStr), this);
   updateValidator();
   if (oldValidator) delete oldValidator;
   updateSize();
@@ -795,8 +799,8 @@ LevelNameLineEdit::LevelNameLineEdit(QWidget *parent)
     : DVGui::LineEdit(parent), m_textOnFocusIn("") {
   // Exclude all character which cannot fit in a filepath (Win).
   // Dots are also prohibited since they are internally managed by Toonz.
-  QRegExp rx("[^\\\\/:?*.\"<>|]+");
-  setValidator(new QRegExpValidator(rx, this));
+  QRegularExpression rx("[^\\\\/:?*.\"<>|]+");
+  setValidator(new QRegularExpressionValidator(rx, this));
   setObjectName("LargeSizedText");
 
   connect(this, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
