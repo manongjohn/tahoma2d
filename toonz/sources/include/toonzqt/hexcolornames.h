@@ -61,7 +61,7 @@ public:
     bool m_mutable;
 
   public:
-    inline iterator() : m_it(nullptr), m_mutable(false) {}
+    inline iterator() : m_mutable(false) {}
     inline iterator(iterator *it)
         : m_it(it->m_it), m_mutable(it->m_mutable) {}
     inline iterator(QMap<QString, QString>::iterator it, bool isMutable)
