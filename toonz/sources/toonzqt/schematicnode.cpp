@@ -92,7 +92,7 @@ void SchematicName::setName(const QString &name) {
 
 void SchematicName::acceptName(const QString &name) {
   m_curName = name;
-  m_curName.remove(QRegExp("[\\n\\r]"));  // remove all newlines
+  m_curName.remove(QRegularExpression("[\\n\\r]"));  // remove all newlines
   setPlainText(m_curName);
 }
 
@@ -231,7 +231,7 @@ void SchematicName::onPaste() {
   QTextCursor cursor    = textCursor();
   QString plainText     = toPlainText();
   QString clipboardText = clipboard->text();
-  clipboardText.remove(QRegExp("[\\n\\r]"));  // remove all newlines
+  clipboardText.remove(QRegularExpression("[\\n\\r]"));  // remove all newlines
 
   int n, p = cursor.position();
   if (cursor.hasSelection()) {

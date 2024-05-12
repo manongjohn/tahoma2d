@@ -850,10 +850,10 @@ void RenderCommand::doRender(bool isPreview) {
     TFilePath dir = m_fp.getParentDir();
     QDir qDir(QString::fromStdWString(dir.getWideString()));
     QString levelName =
-        QRegExp::escape(QString::fromStdWString(m_fp.getWideName()));
+        QRegularExpression::escape(QString::fromStdWString(m_fp.getWideName()));
     QString levelType = QString::fromStdString(m_fp.getType());
     QString exp(levelName + ".[0-9]{1,4}." + levelType);
-    QRegExp regExp(exp);
+    QRegularExpression regExp(exp);
     QStringList list        = qDir.entryList(QDir::Files);
     QStringList levelFrames = list.filter(regExp);
 

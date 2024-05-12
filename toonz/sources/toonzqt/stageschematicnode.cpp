@@ -39,7 +39,7 @@
 
 // Qt includes
 #include <QPixmap>
-#include <QRegExpValidator>
+#include <QRegularExpressionValidator>
 #include <QGraphicsSceneMouseEvent>
 #include <QFocusEvent>
 #include <QTimer>

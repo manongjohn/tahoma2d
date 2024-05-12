@@ -27,7 +27,7 @@ const char wauxslash = '\\';
 
 // QT
 #include <QObject>
-#include <QRegExp>
+#include <QRegularExpression>
 
 bool TFilePath::m_underscoreFormatAllowed = true;
 
@@ -1103,7 +1103,7 @@ TFilePath::TFilePathInfo TFilePath::analyzePath() const {
 
   // ignore frame numbers on non-sequential (i.e. movie) extension case :
   // hoge_0001.mp4
-  // QRegExp rx_mf("^" + levelNameRegExp + "\\." + extensionRegExp + "$");
+  // QRegularExpression rx_mf("^" + levelNameRegExp + "\\." + extensionRegExp + "$");
   // if (rx_mf.indexIn(levelName) != -1) {
   //  QString ext = rx_mf.cap(2);
   //  if (!checkForSeqNum(ext)) {
@@ -1118,40 +1118,41 @@ TFilePath::TFilePathInfo TFilePath::analyzePath() const {
   // hogehoge.0001a.jpg
   // empty frame case : hogehoge..jpg
   // empty level name case : ..jpg   .0001a.jpg
-  QRegExp rx("^(?:" + levelNameRegExp + ")?" + sepCharRegExp +
+  QRegularExpression re("^(?:" + levelNameRegExp + ")?" + sepCharRegExp +
              "(?:" + fIdRegExp + ")?" + "\\." + extensionRegExp + "$");
-  if (rx.indexIn(fileName) != -1) {
+  QRegularExpressionMatch rx = re.match(fileName);
+  if (rx.hasMatch()) {
     assert(rx.captureCount() == 5);
-    info.levelName = rx.cap(1);
-    info.sepChar   = rx.cap(2)[0];
-    info.extension = rx.cap(5);
+    info.levelName = rx.captured(1);
+    info.sepChar   = rx.captured(2)[0];
+    info.extension = rx.captured(5);
     // ignore frame numbers on non-sequential (i.e. movie) extension case :
     // hoge_0001.mp4
     if (!checkForSeqNum(info.extension)) {
-      info.levelName = rx.cap(1) + rx.cap(2);
-      if (!rx.cap(3).isEmpty()) info.levelName += rx.cap(3);
-      if (!rx.cap(4).isEmpty()) info.levelName += rx.cap(4);
+      info.levelName = rx.captured(1) + rx.captured(2);
+      if (!rx.captured(3).isEmpty()) info.levelName += rx.captured(3);
+      if (!rx.captured(4).isEmpty()) info.levelName += rx.captured(4);
       info.sepChar = QChar();
       info.fId = TFrameId(TFrameId::NO_FRAME, 0, 0);  // initialize with NO_PAD
     } else {
-      QString numberStr = rx.cap(3);
+      QString numberStr = rx.captured(3);
       if (numberStr.isEmpty())  // empty frame case : hogehoge..jpg
         info.fId =
             TFrameId(TFrameId::EMPTY_FRAME, 0, 4, info.sepChar.toLatin1());
       else {
         int number  = numberStr.toInt();
         int padding = 0;
-        if (numberStr[0] == "0")  // with padding
+        if (numberStr[0] == '0')  // with padding
           padding = numberStr.count();
         QString suffix;
-        if (!rx.cap(4).isEmpty()) suffix = rx.cap(4);
+        if (!rx.captured(4).isEmpty()) suffix = rx.captured(4);
         info.fId = TFrameId(number, suffix, padding, info.sepChar.toLatin1());
       }
     }
     return info;
   }
 
-  // QRegExp rx_ef("^" + levelNameRegExp + sepCharRegExp + "\\." +
+  // QRegularExpression rx_ef("^" + levelNameRegExp + sepCharRegExp + "\\." +
   // extensionRegExp + "$"); if (rx_ef.indexIn(levelName) != -1) {
   //  info.levelName = rx_ef.cap(1);
   //  info.sepChar = rx_ef.cap(2)[0];
@@ -1162,12 +1163,13 @@ TFilePath::TFilePathInfo TFilePath::analyzePath() const {
 
   // no frame case : hogehoge.jpg
   // no level name case : .jpg
-  QRegExp rx_nf("^(?:" + levelNameRegExp + ")?\\." + extensionRegExp + "$");
-  if (rx_nf.indexIn(fileName) != -1) {
-    if (!rx_nf.cap(1).isEmpty()) info.levelName = rx_nf.cap(1);
+  QRegularExpression re_nf("^(?:" + levelNameRegExp + ")?\\." + extensionRegExp + "$");
+  QRegularExpressionMatch rx_nf = re_nf.match(fileName);
+  if (rx_nf.hasMatch()) {
+    if (!rx_nf.captured(1).isEmpty()) info.levelName = rx_nf.captured(1);
     info.sepChar = QChar();
     info.fId = TFrameId(TFrameId::NO_FRAME, 0, 0);  // initialize with NO_PAD
-    info.extension = rx_nf.cap(2);
+    info.extension = rx_nf.captured(2);
     return info;
   }
 

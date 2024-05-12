@@ -41,7 +41,7 @@
 #include <QMessageBox>
 #include <QList>
 #include <QStringList>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QPainter>
 #include <QTextStream>
 #include <QString>
@@ -483,13 +483,14 @@ bool CameraSettingsWidget::parsePresetString(const QString &str, QString &name,
   b = str.lastIndexOf(",", b - 1);
   if (b <= 0) return false;
 
-  QRegExp rx(" *([0-9]+)x([0-9]+) *, *(\\d*(\\.\\d+)?|\\d+/\\d+) *");
-  if (!rx.exactMatch(str.mid(b + 1))) return false;
+  QRegularExpression re(" *([0-9]+)x([0-9]+) *, *(\\d*(\\.\\d+)?|\\d+/\\d+) *");
+  QRegularExpressionMatch rx = re.match(str.mid(b + 1));
+  if (!rx.hasMatch()) return false;
 
   name = b > 0 ? str.left(b).trimmed() : "";
-  xres = rx.cap(1).toInt();
-  yres = rx.cap(2).toInt();
-  ar   = rx.cap(3);
+  xres = rx.captured(1).toInt();
+  yres = rx.captured(2).toInt();
+  ar   = rx.captured(3);
   return true;
 }
 

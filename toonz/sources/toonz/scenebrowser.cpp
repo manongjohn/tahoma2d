@@ -59,7 +59,7 @@
 #include <QDir>
 #include <QPixmap>
 #include <QUrl>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QScrollBar>
 #include <QMap>
 #include <QPushButton>

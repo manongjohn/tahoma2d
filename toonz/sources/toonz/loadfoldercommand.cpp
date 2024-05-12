@@ -26,7 +26,7 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QFileInfo>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QButtonGroup>
 #include <QRadioButton>
 
@@ -62,7 +62,7 @@ typedef TFilePath (*PathFunc)(const TFilePath &);
 //--------------------------------------------------------------
 
 struct FormatData {
-  QRegExp m_regExp;
+  QRegularExpression m_regExp;
   PathFunc m_resourcePathFunc, m_componentPathFunc;
 };
 
@@ -165,7 +165,7 @@ bool isLoadable(const TFilePath &resourcePath) {
 
 template <typename RegStruct>
 bool exactMatch(const RegStruct &regStruct, const TFilePath &fp) {
-  return regStruct.m_regExp.exactMatch(fp.getQString());
+  return regStruct.m_regExp.match(fp.getQString()).hasMatch();
 }
 
 //==============================================================
@@ -195,8 +195,10 @@ TFilePath retasResourcePath(const TFilePath &fp) {
 //--------------------------------------------------------------
 
 static const FormatData l_formatDatas[] = {
-    {QRegExp(".+\\.[0-9]{4,4}.*\\..*"), &multiframeResourcePath, 0},
-    {QRegExp(".+[0-9]{4,4}\\.tga", Qt::CaseInsensitive), &retasResourcePath,
+    {QRegularExpression(".+\\.[0-9]{4,4}.*\\..*"), &multiframeResourcePath, 0},
+    {QRegularExpression(".+[0-9]{4,4}\\.tga",
+                        QRegularExpression::CaseInsensitiveOption),
+     &retasResourcePath,
      &retasComponentPath}};
 
 //==============================================================
@@ -219,7 +221,7 @@ struct buildResources_locals {
   }
 
   struct MergeData {
-    QRegExp m_regExp;    //!< Path regexp for file pattern recognition.
+    QRegularExpression m_regExp;  //!< Path regexp for file pattern recognition.
     int m_componentIdx;  //!< Starting index for components merging.
   };
 
@@ -231,7 +233,9 @@ struct buildResources_locals {
     static const std::string componentsTable[] = {"cln", "tpl", "hst"};
 
     static const MergeData mergeTable[] = {
-        {QRegExp(".*\\.\\..*"), 0}, {QRegExp(".*\\.tlv"), 1}, {QRegExp(), 3}};
+        {QRegularExpression(".*\\.\\..*"), 0},
+        {QRegularExpression(".*\\.tlv"), 1},
+        {QRegularExpression(), 3}};
 
     // Lookup rd's path in the mergeTable
     const MergeData *mdt,

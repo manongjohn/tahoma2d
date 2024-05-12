@@ -97,20 +97,21 @@ void getDefaultLevelFormats(LevelFormatVector &lfv) {
     LevelFormat &lf = lfv[0];
 
     lf.m_name       = Preferences::tr("Retas Level Format");
-    lf.m_pathFormat = QRegExp(".+[0-9]{4,4}\\.tga", Qt::CaseInsensitive);
+    lf.m_pathFormat =
+        QRegularExpression(".+[0-9]{4,4}\\.tga", QRegularExpression::CaseInsensitiveOption);
     lf.m_options.m_whiteTransp = true;
     lf.m_options.m_antialias   = 70;
 
     // for all PSD files, set the premultiply options to layers
     lfv[1].m_name                  = Preferences::tr("Adobe Photoshop");
-    lfv[1].m_pathFormat            = QRegExp("..*\\.psd", Qt::CaseInsensitive);
+    lfv[1].m_pathFormat = QRegularExpression("..*\\.psd", QRegularExpression::CaseInsensitiveOption);
     lfv[1].m_options.m_premultiply = true;
 
     // for all PNG files, set premultiply by default
     // UPDATE : from V1.5, PNG images are premultiplied on loading
     // lfv[2].m_name                  = Preferences::tr("PNG");
-    // lfv[2].m_pathFormat            = QRegExp("..*\\.png",
-    // Qt::CaseInsensitive); lfv[2].m_options.m_premultiply = true;
+    // lfv[2].m_pathFormat            = QRegularExpression("..*\\.png",
+    // QRegularExpression::CaseInsensitiveOption); lfv[2].m_options.m_premultiply = true;
   }
 }
 
@@ -156,8 +157,8 @@ void setValue(QSettings &settings, const LevelFormat &lf) {
 void getValue(const QSettings &settings, LevelFormat &lf) {
   lf.m_name = settings.value(s_name, lf.m_name).toString();
   lf.m_pathFormat =
-      QRegExp(settings.value(s_regexp, lf.m_pathFormat).toString(),
-              Qt::CaseInsensitive);
+      QRegularExpression(settings.value(s_regexp, lf.m_pathFormat).toString(),
+                         QRegularExpression::CaseInsensitiveOption);
   lf.m_priority = settings.value(s_priority, lf.m_priority).toInt();
   getValue(settings, lf.m_options);
 }
@@ -203,7 +204,9 @@ void getValue(QSettings &settings,
   LevelFormatVector::iterator it = lfv.begin();
   while (it != lfv.end()) {
     if ((*it).m_name == Preferences::tr("PNG") &&
-        (*it).m_pathFormat == QRegExp("..*\\.png", Qt::CaseInsensitive) &&
+        (*it).m_pathFormat ==
+            QRegularExpression("..*\\.png",
+                               QRegularExpression::CaseInsensitiveOption) &&
         (*it).m_options.m_premultiply == true) {
       LevelOptions defaultValue;
       defaultValue.m_premultiply = true;
@@ -219,7 +222,9 @@ void getValue(QSettings &settings,
     }
     // remove the "empty" condition which may inserted due to the previous bug
     else if ((*it).m_name.isEmpty() &&
-             (*it).m_pathFormat == QRegExp(".*", Qt::CaseInsensitive) &&
+             (*it).m_pathFormat ==
+                 QRegularExpression(".*",
+                                    QRegularExpression::CaseInsensitiveOption) &&
              (*it).m_priority == 1 && (*it).m_options == LevelOptions()) {
       it      = lfv.erase(it);
       changed = true;
@@ -237,7 +242,7 @@ void getValue(QSettings &settings,
 //**********************************************************************************
 
 bool Preferences::LevelFormat::matches(const TFilePath &fp) const {
-  return m_pathFormat.exactMatch(fp.getQString());
+  return m_pathFormat.match(fp.getQString()).hasMatch();
 }
 
 //**********************************************************************************
@@ -1108,7 +1113,7 @@ QString Preferences::getCurrentStyleSheet() const {
   QString currentStyleFolderPath =
       path.getQString().replace("\\", "/") + "/" + currentStyleSheetName;
 
-  styleSheetStr.replace(QRegExp("url\\(['\"]([^'\"]+)['\"]\\)"),
+  styleSheetStr.replace(QRegularExpression("url\\(['\"]([^'\"]+)['\"]\\)"),
                         "url(\"" + currentStyleFolderPath + QString("/\\1\")"));
 
   return styleSheetStr;

@@ -24,7 +24,7 @@
 #include <QFile>
 #include <QDir>
 #include <QSettings>
-#include <QRegExp>
+#include <QRegularExpression>
 
 namespace {
 
@@ -35,10 +35,10 @@ bool getFrameRange(const TFilePath &path, unsigned int &from,
     TFilePath dir = path.getParentDir();
     QDir qDir(QString::fromStdWString(dir.getWideString()));
     QString levelName =
-        QRegExp::escape(QString::fromStdWString(path.getWideName()));
+        QRegularExpression::escape(QString::fromStdWString(path.getWideName()));
     QString levelType = QString::fromStdString(path.getType());
     QString exp(levelName + ".[0-9]{1,4}." + levelType);
-    QRegExp regExp(exp);
+    QRegularExpression regExp(exp);
     QStringList list        = qDir.entryList(QDir::Files);
     QStringList levelFrames = list.filter(regExp);
 
@@ -902,11 +902,11 @@ QStringList VersionControl::getSceneContents(const QString &wokingDir,
     if (levelPath.getDots() == "..") {
       TFilePath dir = levelPath.getParentDir();
       QDir qDir(QString::fromStdWString(dir.getWideString()));
-      QString levelName =
-          QRegExp::escape(QString::fromStdWString(levelPath.getWideName()));
+      QString levelName = QRegularExpression::escape(
+          QString::fromStdWString(levelPath.getWideName()));
       QString levelType = QString::fromStdString(levelPath.getType());
       QString exp(levelName + ".[0-9]{1,4}." + levelType);
-      QRegExp regExp(exp);
+      QRegularExpression regExp(exp);
       QStringList list = qDir.entryList(QDir::Files);
       list             = list.filter(regExp);
       for (int i = 0; i < list.size(); i++) {

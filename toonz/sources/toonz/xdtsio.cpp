@@ -26,7 +26,7 @@
 #include <iostream>
 #include <QJsonObject>
 #include <QJsonArray>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QFile>
 #include <QJsonDocument>
 #include <QApplication>
@@ -50,16 +50,18 @@ bool _exportAllColumn = true;
 }  // namespace
 //-----------------------------------------------------------------------------
 void XdtsHeader::read(const QJsonObject &json) {
-  QRegExp rx("\\d{1,4}");
+  QRegularExpression re("\\d{1,4}");
   // TODO: We could check if the keys are valid
   // before attempting to read them with QJsonObject::contains(),
   // but we assume that they are.
   m_cut = json["cut"].toString();
-  if (!rx.exactMatch(m_cut))  // TODO: should handle an error
+  QRegularExpressionMatch rx = re.match(m_cut);
+  if (!rx.hasMatch())  // TODO: should handle an error
     std::cout << "The XdtsHeader value \"cut\" does not match the pattern."
               << std::endl;
   m_scene = json["scene"].toString();
-  if (!rx.exactMatch(m_scene))
+  re.match(m_scene);
+  if (!rx.hasMatch())
     std::cout << "The XdtsHeader value \"scene\" does not match the pattern."
               << std::endl;
 }
@@ -77,13 +79,13 @@ TFrameId XdtsFrameDataItem::str2Fid(const QString &str) const {
   int frame = str.toInt(&ok);
   if (ok) return TFrameId(frame);
   QString regExpStr = QString("^%1$").arg(TFilePath::fidRegExpStr());
-  QRegExp rx(regExpStr);
-  int pos = rx.indexIn(str);
-  if (pos < 0) return TFrameId();
-  if (rx.cap(2).isEmpty())
-    return TFrameId(rx.cap(1).toInt());
+  QRegularExpression re(regExpStr);
+  QRegularExpressionMatch rx = re.match(str);
+  if (!rx.hasMatch()) return TFrameId();
+  if (rx.captured(2).isEmpty())
+    return TFrameId(rx.captured(1).toInt());
   else
-    return TFrameId(rx.cap(1).toInt(), rx.cap(2));
+    return TFrameId(rx.captured(1).toInt(), rx.captured(2));
 }
 
 QString XdtsFrameDataItem::fid2Str(const TFrameId &fid) const {

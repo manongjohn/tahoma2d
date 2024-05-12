@@ -19,7 +19,7 @@
 #include <QString>
 #include <QObject>
 #include <QMap>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QVariant>
 #include <QDataStream>
 
@@ -75,7 +75,7 @@ class DVAPI Preferences final : public QObject  // singleton
 public:
   struct LevelFormat {
     QString m_name;  //!< Name displayed for the format.
-    QRegExp
+    QRegularExpression
         m_pathFormat;  //!< <TT>[default: ".*"]</TT>Used to recognize levels in
                        //!  the format. It's case <I>in</I>sensitive.
     LevelOptions m_options;  //!< Options associated to levels in the format.
@@ -84,7 +84,7 @@ public:
   public:
     LevelFormat(const QString &name = QString())
         : m_name(name)
-        , m_pathFormat(".*", Qt::CaseInsensitive)
+        , m_pathFormat(".*", QRegularExpression::CaseInsensitiveOption)
         , m_priority(1) {}
 
     bool matches(const TFilePath &fp) const;

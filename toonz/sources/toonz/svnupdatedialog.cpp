@@ -22,7 +22,7 @@
 #include <QMovie>
 #include <QTextEdit>
 #include <QCheckBox>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QDir>
 #include <QMainWindow>
 
@@ -300,11 +300,11 @@ void SVNUpdateDialog::switchToCloseButton() {
 //-----------------------------------------------------------------------------
 
 void SVNUpdateDialog::addOutputText(const QString &text) {
-  QRegExp regExp("Updated to revision (\\d+)\\.");
+  QRegularExpression regExp("Updated to revision (\\d+)\\.");
   QString temp = text;
   temp.remove(regExp);
 
-  QStringList split = temp.split(QRegExp("\\r\\n|\\n"));
+  QStringList split = temp.split(QRegularExpression("\\r\\n|\\n"));
 
   for (int i = 0; i < split.size(); i++) {
     QString s = split.at(i);

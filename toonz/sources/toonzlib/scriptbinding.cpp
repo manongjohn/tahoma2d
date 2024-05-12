@@ -29,7 +29,7 @@
 #include "toonz/levelproperties.h"
 #include "toonz/toonzscene.h"
 #include "tfiletype.h"
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QColor>
 
 namespace TScriptBinding {

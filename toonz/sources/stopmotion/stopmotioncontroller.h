@@ -57,7 +57,7 @@ class QTimer;
 class QGroupBox;
 class QPushButton;
 class CameraCaptureLevelControl;
-class QRegExpValidator;
+class QRegularExpressionValidator;
 class QCheckBox;
 class QComboBox;
 
@@ -78,7 +78,7 @@ class FrameNumberLineEdit : public DVGui::LineEdit,
                             public TProjectManager::Listener {
   Q_OBJECT
   /* having two validators and switch them according to the preferences*/
-  QRegExpValidator *m_regexpValidator, *m_regexpValidator_alt;
+  QRegularExpressionValidator *m_regexpValidator, *m_regexpValidator_alt;
 
   void updateValidator();
   void updateSize();

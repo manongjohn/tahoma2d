@@ -47,7 +47,7 @@
 #include <QVBoxLayout>
 #include <QGridLayout>
 #include <QGroupBox>
-#include <QRegExpValidator>
+#include <QRegularExpressionValidator>
 #include <QPolygonF>
 #include <QVector2D>
 #include <QFontMetricsF>
@@ -310,7 +310,7 @@ ExportCameraTrackPopup::ExportCameraTrackPopup()
   m_bgOpacityField->setValue(0.5);
 
   m_cameraRectFramesEdit->setValidator(
-      new QRegExpValidator(QRegExp("^(\\d+,)*\\d+$"), this));
+      new QRegularExpressionValidator(QRegularExpression("^(\\d+,)*\\d+$"), this));
   m_cameraRectFramesEdit->setToolTip(
       tr("Specify frame numbers where the camera rectangles will be drawn. "
          "Separate numbers by comma \",\" ."));

@@ -38,7 +38,7 @@
 
 // Qt includes
 #include <QDir>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QMessageBox>
 #include <QtCore>
 
@@ -98,10 +98,11 @@ QString getCreatorString() {
 bool checkCreatorString(const QString &creator) {
   int mask = 0;
   if (creator != "") {
-    QRegExp rx("CM\\([0-9A-Fa-f]*\\)");
-    int pos = rx.indexIn(creator);
-    int len = rx.matchedLength();
-    if (pos >= 0 && len >= 4) {
+    QRegularExpression re("CM\\([0-9A-Fa-f]*\\)");
+    QRegularExpressionMatch rx = re.match(creator);
+    if (rx.hasMatch()) {
+      int pos = rx.capturedStart(0);
+      int len = rx.capturedLength(0);
       QString v;
       if (len > 4) v = creator.mid(pos + 3, len - 4);
       bool ok = true;
@@ -131,10 +132,10 @@ else if(path.getDots() == "..")
 TFilePath dir = path.getParentDir();
 QDir qDir(QString::fromStdWString(dir.getWideString()));
 QString levelName =
-QRegExp::escape(QString::fromStdWString(path.getWideName()));
+QRegularExpression::escape(QString::fromStdWString(path.getWideName()));
 QString levelType = QString::fromStdString(path.getType());
 QString exp(levelName+".[0-9]{1,4}."+levelType);
-QRegExp regExp(exp);
+QRegularExpression regExp(exp);
 QStringList list = qDir.entryList(QDir::Files);
 QStringList livelFrames = list.filter(regExp);
 
@@ -2448,17 +2449,19 @@ QStringList TXshSimpleLevel::getHookFiles(const TFilePath &decodedLevelPath) {
 TFilePath TXshSimpleLevel::getExistingHookFile(
     const TFilePath &decodedLevelPath) {
   static const int pCount              = 3;
-  static const QRegExp pattern[pCount] = {
+  static const QRegularExpression pattern[pCount] = {
       // Prioritized in this order
-      QRegExp(".*\\.\\.?.+\\.xml$"),  // whatever.(.)ext.xml
-      QRegExp(".*\\.xml$"),           // whatever.xml
-      QRegExp(".*\\.\\.?xml$")        // whatever.(.)xml
+      QRegularExpression(".*\\.\\.?.+\\.xml$"),  // whatever.(.)ext.xml
+      QRegularExpression(".*\\.xml$"),           // whatever.xml
+      QRegularExpression(".*\\.\\.?xml$")        // whatever.(.)xml
   };
 
   struct locals {
     static inline int getPattern(const QString &fp) {
-      for (int p = 0; p != pCount; ++p)
-        if (pattern[p].exactMatch(fp)) return p;
+      for (int p = 0; p != pCount; ++p) {
+        QRegularExpressionMatch rx = pattern[p].match(fp);
+        if (rx.hasMatch()) return p;
+      }
       return -1;
     }
   };  // locals
