@@ -3800,58 +3800,48 @@ void RecentFiles::loadRecentFiles() {
   QSettings settings(toQString(fp), QSettings::IniFormat);
   int i;
 
-  QList<QVariant> scenes = settings.value(QString("Scenes")).toList();
+  QString scenes = settings.value(QString("Scenes")).toString();
   if (!scenes.isEmpty()) {
-    for (i = 0; i < scenes.size(); i++)
-      m_recentScenes.append(scenes.at(i).toString());
-  } else {
-    QString scene = settings.value(QString("Scenes")).toString();
-    if (!scene.isEmpty()) m_recentScenes.append(scene);
+    QList<QString> sceneList = scenes.split(", ");
+    for (i = 0; i < sceneList.size(); i++)
+      m_recentScenes.append(sceneList.at(i));
   }
 
   // Load scene's projects info. This is for display purposes only. For
   // backwards compatibility it is stored and maintained separately.
-  QList<QVariant> sceneProjects =
-      settings.value(QString("SceneProjects")).toList();
+  QString sceneProjects = settings.value(QString("SceneProjects")).toString();
   if (!sceneProjects.isEmpty()) {
-    for (i = 0; i < sceneProjects.size(); i++)
-      m_recentSceneProjects.append(sceneProjects.at(i).toString());
-  } else {
-    QString sceneProject = settings.value(QString("SceneProjects")).toString();
-    if (!sceneProject.isEmpty()) m_recentSceneProjects.append(sceneProject);
+    QList<QString> sceneProjectsList = sceneProjects.split(", ");
+    for (i = 0; i < sceneProjectsList.size(); i++)
+      m_recentSceneProjects.append(sceneProjectsList.at(i));
   }
+
   // Should be 1-to-1. If we're short, append projects list with "-".
   while (m_recentSceneProjects.size() < m_recentScenes.size())
     m_recentSceneProjects.append("-");
 
-  QList<QVariant> levels = settings.value(QString("Levels")).toList();
+  QString levels = settings.value(QString("Levels")).toString();
   if (!levels.isEmpty()) {
-    for (i = 0; i < levels.size(); i++) {
-      QString path = levels.at(i).toString();
+    QList<QString> levelsList = levels.split(", ");
+    for (i = 0; i < levelsList.size(); i++) {
+      QString path = levelsList.at(i);
       m_recentLevels.append(path);
     }
-  } else {
-    QString level = settings.value(QString("Levels")).toString();
-    if (!level.isEmpty()) m_recentLevels.append(level);
   }
 
-  QList<QVariant> projects = settings.value(QString("Projects")).toList();
+  QString projects = settings.value(QString("Projects")).toString();
   if (!projects.isEmpty()) {
-    for (i = 0; i < projects.size(); i++)
-      m_recentProjects.append(projects.at(i).toString());
-  } else {
-    QString project = settings.value(QString("Projects")).toString();
-    if (!project.isEmpty()) m_recentProjects.append(project);
+    QList<QString> projectsList = projects.split(", ");
+    for (i = 0; i < projectsList.size(); i++)
+      m_recentProjects.append(projectsList.at(i));
   }
 
-  QList<QVariant> flipImages =
-      settings.value(QString("FlipbookImages")).toList();
+  QString flipImages =
+      settings.value(QString("FlipbookImages")).toString();
   if (!flipImages.isEmpty()) {
-    for (i = 0; i < flipImages.size(); i++)
-      m_recentFlipbookImages.append(flipImages.at(i).toString());
-  } else {
-    QString flipImage = settings.value(QString("FlipbookImages")).toString();
-    if (!flipImage.isEmpty()) m_recentFlipbookImages.append(flipImage);
+    QList<QString> flipImagesList = flipImages.split(", ");
+    for (i = 0; i < flipImagesList.size(); i++)
+      m_recentFlipbookImages.append(flipImagesList.at(i));
   }
 
   refreshRecentFilesMenu(Scene);
