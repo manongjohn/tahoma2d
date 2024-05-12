@@ -3,7 +3,7 @@
 #ifndef GLWIDGET_FOR_HIGHDPI_H
 #define GLWIDGET_FOR_HIGHDPI_H
 
-#include <QOpenGLWidget>
+#include <QtOpenGLWidgets/QOpenGLWidget>
 #include <QApplication>
 #include <QScreen>
 #include <QOpenGLFunctions>
