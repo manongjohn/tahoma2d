@@ -1064,7 +1064,7 @@ bool RenameCellField::eventFilter(QObject *obj, QEvent *e) {
 
   QKeyEvent *ke = (QKeyEvent *)e;
   std::string keyStr =
-      QKeySequence(ke->key() + ke->modifiers()).toString().toStdString();
+      QKeySequence(ke->keyCombination()).toString().toStdString();
   QAction *action = CommandManager::instance()->getActionFromShortcut(keyStr);
   if (!action) return QLineEdit::eventFilter(obj, e);
 
