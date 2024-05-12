@@ -43,6 +43,7 @@
 #include <QLabel>
 #include <QCheckBox>
 #include <QGroupBox>
+#include <QActionGroup>
 
 extern TEnv::StringVar EnvSafeAreaName;
 extern TEnv::IntVar EnvViewerPreviewBehavior;

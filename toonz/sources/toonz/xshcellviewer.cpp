@@ -79,6 +79,7 @@
 #include <QClipboard>
 #include <QKeyEvent>
 #include <QBuffer>
+#include <QActionGroup>
 
 namespace {
 

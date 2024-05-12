@@ -15,6 +15,7 @@
 #include <QColorDialog>
 #include <QComboBox>
 #include <QFontDatabase>
+#include <QActionGroup>
 
 #include "toonzqt/colorfield.h"
 

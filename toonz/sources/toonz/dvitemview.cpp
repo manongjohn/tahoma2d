@@ -41,6 +41,7 @@
 #include <QTextStream>
 #include <qdrawutil.h>
 #include <QMimeData>
+#include <QActionGroup>
 
 #include <stdint.h>  // for uint64_t
 

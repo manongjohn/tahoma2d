@@ -56,6 +56,7 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QMessageBox>
+#include <QActionGroup>
 #ifdef _WIN32
 #include <QtPlatformHeaders/QWindowsWindowFunctions>
 #endif

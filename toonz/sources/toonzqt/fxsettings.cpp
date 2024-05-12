@@ -45,6 +45,7 @@
 #include <QUrl>
 #include <QGuiApplication>
 #include <QScreen>
+#include <QActionGroup>
 
 using namespace DVGui;
 

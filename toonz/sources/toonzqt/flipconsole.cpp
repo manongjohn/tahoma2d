@@ -49,6 +49,7 @@
 #include <QSettings>
 #include <QPushButton>
 #include <QScrollBar>
+#include <QActionGroup>
 
 using namespace DVGui;
 
