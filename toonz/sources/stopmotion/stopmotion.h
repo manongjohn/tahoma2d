@@ -33,7 +33,7 @@
 #include <QSoundEffect>
 
 class QCamera;
-class QCameraInfo;
+class QCameraDevice;
 class QTimer;
 
 //=============================================================================

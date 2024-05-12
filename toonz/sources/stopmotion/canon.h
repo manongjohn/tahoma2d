@@ -23,7 +23,7 @@
 #include <QObject>
 
 class QCamera;
-class QCameraInfo;
+class QCameraDevice;
 class QDialog;
 class QSerialPort;
 

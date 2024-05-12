@@ -21,7 +21,7 @@
 #include <QThread>
 
 class QCamera;
-class QCameraInfo;
+class QCameraDevice;
 
 //=============================================================================
 // JpgConverter

@@ -12,7 +12,7 @@
 #include <QObject>
 
 class QCamera;
-class QCameraInfo;
+class QCameraDevice;
 
 class Webcam : public QObject {
   Q_OBJECT
@@ -37,7 +37,7 @@ public:
 
   void releaseWebcam();
   void clearWebcam();
-  QList<QCameraInfo> getWebcams();
+  QList<QCameraDevice> getWebcams();
   QCamera* getWebcam() { return m_webcam; }
   void setWebcam(QCamera* camera);
   bool initWebcam(int index = 0);
@@ -98,7 +98,7 @@ public:
 
 private:
   // Webcam Properties
-  QList<QCameraInfo> m_webcams;
+  QList<QCameraDevice> m_webcams;
   QCamera* m_webcam;
   cv::VideoCapture m_cvWebcam;
   QList<QSize> m_webcamResolutions;

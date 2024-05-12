@@ -14,8 +14,9 @@
 #endif
 
 #include <QCamera>
-#include <QCameraInfo>
+#include <QCameraDevice>
 #include <QApplication>
+#include <QMediaDevices>
 
 TEnv::IntVar StopMotionUseDirectShow("StopMotionUseDirectShow", 1);
 TEnv::IntVar StopMotionUseMjpg("StopMotionUseMjpg", 1);
@@ -33,9 +34,9 @@ Webcam::~Webcam() {}
 
 //-----------------------------------------------------------------
 
-QList<QCameraInfo> Webcam::getWebcams() {
+QList<QCameraDevice> Webcam::getWebcams() {
   m_webcams.clear();
-  m_webcams = QCameraInfo::availableCameras();
+  m_webcams = QMediaDevices::videoInputs();
   return m_webcams;
 }
 
