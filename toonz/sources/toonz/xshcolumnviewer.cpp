@@ -68,6 +68,7 @@
 #include <QPushButton>
 #include <QScreen>
 #include <QGroupBox>
+#include <QActionGroup>
 
 #include <QBitmap>
 

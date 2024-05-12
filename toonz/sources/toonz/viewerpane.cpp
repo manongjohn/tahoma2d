@@ -68,6 +68,7 @@
 #include <QToolBar>
 #include <QMainWindow>
 #include <QSettings>
+#include <QActionGroup>
 
 #include "viewerpane.h"
 

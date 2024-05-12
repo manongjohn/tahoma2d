@@ -13,6 +13,7 @@
 #include <QAction>
 #include <QMenu>
 #include <QSettings>
+#include <QActionGroup>
 
 #include "comboviewerpane.h"
 
