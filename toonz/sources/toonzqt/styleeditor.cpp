@@ -116,7 +116,7 @@ QString color2Hex(TPixel32 color) {
 }
 
 bool isHex(QString color) {
-  if (color[0] == "#") {
+  if (color[0] == QChar('#')) {
     color.remove(0, 1);
   }
   bool ok;
@@ -128,7 +128,7 @@ bool isHex(QString color) {
 }
 
 TPixel32 hex2Color(QString hex) {
-  if (hex[0] == "#") {
+  if (hex[0] == QChar('#')) {
     hex.remove(0, 1);
   }
   bool hasAlpha = hex.length() == 8;
