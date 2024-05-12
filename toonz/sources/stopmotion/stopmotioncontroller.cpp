@@ -43,7 +43,7 @@
 // Qt includes
 #include <QAction>
 #include <QApplication>
-#include <QCameraInfo>
+#include <QCameraDevice>
 #include <QCheckBox>
 #include <QComboBox>
 #include <QCommonStyle>
@@ -67,6 +67,7 @@
 #include <QDomDocument>
 #include <QHostInfo>
 #include <QDesktopServices>
+#include <QMediaDevices>
 
 #ifdef _WIN32
 #include <dshow.h>
@@ -2609,7 +2610,7 @@ void StopMotionController::refreshCameraList(QString activeCamera) {
   m_cameraListCombo->blockSignals(true);
   m_cameraListCombo->clear();
   //  m_cameraStatusLabel->hide();
-  QList<QCameraInfo> webcams = m_stopMotion->m_webcam->getWebcams();
+  QList<QCameraDevice> webcams = m_stopMotion->m_webcam->getWebcams();
   int count                  = webcams.count();
 #ifdef WITH_CANON
   count += m_stopMotion->m_canon->getCameraCount();
@@ -2630,7 +2631,7 @@ void StopMotionController::refreshCameraList(QString activeCamera) {
     int maxTextLength = 0;
     m_cameraListCombo->addItem(tr("- Select camera -"));
     for (int c = 0; c < webcams.size(); c++) {
-      std::string name = webcams.at(c).deviceName().toStdString();
+//      std::string name = webcams.at(c).deviceName().toStdString();
       QString camDesc  = webcams.at(c).description();
       m_cameraListCombo->addItem(camDesc, QVariant::fromValue(c));
       maxTextLength =
@@ -3232,7 +3233,7 @@ void StopMotionController::refreshPictureStyleList() {
 //-----------------------------------------------------------------------------
 
 void StopMotionController::onCameraListComboActivated(int comboIndex) {
-  QList<QCameraInfo> cameras = QCameraInfo::availableCameras();
+  QList<QCameraDevice> cameras = QMediaDevices::videoInputs();
   int webCount               = cameras.size();
   int canonCount             = 0;
   int gphotoCount            = 0;
@@ -3492,9 +3493,9 @@ void StopMotionController::onCaptureFilterSettingsBtnPressed() {
       m_stopMotion->m_webcam->getWebcamDeviceName().isNull())
     return;
 
-  QList<QCameraInfo> cameras = QCameraInfo::availableCameras();
+  QList<QCameraDevice> cameras = QMediaDevices::videoInputs();
   for (int c = 0; c < cameras.size(); c++) {
-    if (cameras.at(c).deviceName() ==
+    if (cameras.at(c).id() ==
         m_stopMotion->m_webcam->getWebcamDeviceName()) {
 #ifdef _WIN32
       m_stopMotion->m_webcam->openSettingsWindow();

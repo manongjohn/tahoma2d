@@ -31,7 +31,7 @@
 
 #include <QApplication>
 #include <QCamera>
-#include <QCameraInfo>
+#include <QCameraDevice>
 #include <QCoreApplication>
 #include <QScreen>
 #include <QDialog>
@@ -41,6 +41,7 @@
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
 #include <QDomDocument>
+#include <QMediaDevices>
 
 // Connected camera
 TEnv::IntVar StopMotionOpacity("StopMotionOpacity", 204);
@@ -2561,7 +2562,7 @@ bool StopMotion::loadXmlFile() {
   QXmlStreamReader xmlReader;
   xmlReader.setDevice(&xmlFile);
   xmlReader.readNext();
-  QList<QCameraInfo> cameras = QCameraInfo::availableCameras();
+  QList<QCameraDevice> cameras = QMediaDevices::videoInputs();
   int webCount               = cameras.count();
   while (!xmlReader.atEnd()) {
     if (xmlReader.isStartElement()) {
@@ -3263,7 +3264,7 @@ void StopMotion::refreshCameraList() {
   bool hasCamera = false;
 
   if (m_currentCameraType == CameraType::Web) {
-    QList<QCameraInfo> cameras = QCameraInfo::availableCameras();
+    QList<QCameraDevice> cameras = QMediaDevices::videoInputs();
     for (int i = 0; i < cameras.size(); i++) {
       if (cameras.at(i).description() == m_webcam->getWebcamDescription()) {
         hasCamera = true;
@@ -3335,10 +3336,10 @@ void StopMotion::changeCameras(int comboIndex, CameraType cameraType,
   if (m_currentCameraType == CameraType::Web) {
     m_webcam->setWebcamIndex(cameraIndex);
 
-    QList<QCameraInfo> cameras = QCameraInfo::availableCameras();
+    QList<QCameraDevice> cameras = QMediaDevices::videoInputs();
 
     m_webcam->setWebcam(new QCamera(cameras.at(cameraIndex)));
-    m_webcam->setWebcamDeviceName(cameras.at(cameraIndex).deviceName());
+    m_webcam->setWebcamDeviceName(cameras.at(cameraIndex).id());
     m_webcam->setWebcamDescription(cameras.at(cameraIndex).description());
 
     // loading new camera
