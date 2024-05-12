@@ -104,7 +104,7 @@ public slots:
   void playSound();
   bool setAudioFile();
   void onLevelChanged(int);
-  void onMediaStateChanged(QMediaPlayer::State state);
+  void onMediaStateChanged(QMediaPlayer::PlaybackState state);
   void onOutputReady();
   void setPage(int);
 };

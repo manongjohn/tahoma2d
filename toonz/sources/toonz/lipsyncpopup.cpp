@@ -50,6 +50,9 @@
 #include <QTimer>
 #include <QStackedWidget>
 #include <QSizePolicy>
+#include <QAudioDevice>
+#include <QAudioOutput>
+#include <QMediaDevices>
 
 //=============================================================================
 /*! \class LipSyncPopup
@@ -646,13 +649,16 @@ void LipSyncPopup::playSound() {
       }
     }
   } else {
-    if (m_player->state() == QMediaPlayer::StoppedState) {
+    if (m_player->playbackState() == QMediaPlayer::PlaybackState::StoppedState) {
       TFilePath tempPath(m_audioFile->getPath());
       ToonzScene *scene = TApp::instance()->getCurrentScene()->getScene();
       tempPath          = scene->decodeFilePath(tempPath);
-      m_player->setMedia(QUrl::fromLocalFile(tempPath.getQString()));
-      m_player->setVolume(50);
-      m_player->setNotifyInterval(20);
+      m_player->setSource(QUrl::fromLocalFile(tempPath.getQString()));
+      auto audioOut = new QAudioOutput{};
+      audioOut->setDevice(QMediaDevices::defaultAudioOutput());
+      audioOut->setVolume(50);
+      m_player->setAudioOutput(audioOut);
+//      m_player->setNotifyInterval(20);
       connect(m_player, SIGNAL(positionChanged(qint64)), this,
               SLOT(updatePlaybackDuration(qint64)));
       connect(m_player, SIGNAL(stateChanged(QMediaPlayer::State)), this,
@@ -670,7 +676,7 @@ void LipSyncPopup::playSound() {
 
 //-----------------------------------------------------------------------------
 
-void LipSyncPopup::onMediaStateChanged(QMediaPlayer::State state) {
+void LipSyncPopup::onMediaStateChanged(QMediaPlayer::PlaybackState state) {
   // stopping can happen through the stop button or the file ending
   if (state == QMediaPlayer::StoppedState) {
     m_playButton->setIcon(m_playIcon);

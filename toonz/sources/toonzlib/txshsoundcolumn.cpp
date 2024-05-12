@@ -13,8 +13,8 @@
 #include "tconvert.h"
 #include "toonz/preferences.h"
 
-#include <QAudioFormat>
-#include <QAudioDeviceInfo>
+#include <QMediaDevices>
+#include <QAudioDevice>
 
 //=============================================================================
 
@@ -994,44 +994,52 @@ TSoundTrackP TXshSoundColumn::getOverallSoundTrack(int fromFrame, int toFrame,
 #ifdef _WIN32
   if (format.m_sampleRate > 48000) format.m_sampleRate = 48000;
 #else
-  QAudioDeviceInfo info(QAudioDeviceInfo::defaultOutputDevice());
-  if (info.deviceName().length() == 0) throw TSoundDeviceException(TSoundDeviceException::NoDevice,
+  QAudioDevice info = QMediaDevices::defaultAudioInput();
+  if (info.description().length() == 0) throw TSoundDeviceException(TSoundDeviceException::NoDevice,
                   "No device found, check QAudio backends");
-  QList<int> ssrs = info.supportedSampleRates();
-  if (!ssrs.contains(format.m_sampleRate)) format.m_sampleRate = 44100;
+  if (format.m_sampleRate < info.minimumSampleRate() ||
+      format.m_sampleRate > info.maximumSampleRate())
+    format.m_sampleRate = 44100;
   QAudioFormat qFormat;
   qFormat.setSampleRate(format.m_sampleRate);
   switch (format.m_sampleType) {
   case TSound::INT:
-    qFormat.setSampleType(QAudioFormat::SignedInt);
+    qFormat.setSampleFormat(QAudioFormat::Int16);
     break;
   case TSound::UINT:
-    qFormat.setSampleType(QAudioFormat::UnSignedInt);
+    qFormat.setSampleFormat(QAudioFormat::UInt8);
     break;
   case TSound::FLOAT:
-    qFormat.setSampleType(QAudioFormat::Float);
+    qFormat.setSampleFormat(QAudioFormat::Float);
     break;
   default:
     break;
   }
-  qFormat.setSampleSize(format.m_bitPerSample);
-  qFormat.setCodec("audio/pcm");
+//  qFormat.setSampleSize(format.m_bitPerSample);
+//  qFormat.setCodec("audio/pcm");
   qFormat.setChannelCount(format.m_channelCount);
-  qFormat.setByteOrder(QAudioFormat::LittleEndian);
+//  qFormat.setByteOrder(QAudioFormat::LittleEndian);
   if (!info.isFormatSupported((qFormat))) {
-    qFormat               = info.nearestFormat(qFormat);
-    format.m_bitPerSample = qFormat.sampleSize();
+    qFormat.setSampleRate(
+        std::min((int)format.m_sampleRate, info.maximumSampleRate()));
+    qFormat.setChannelCount(
+        std::min(format.m_channelCount, info.maximumChannelCount()));
+    qFormat.setSampleFormat(info.supportedSampleFormats().last());
+    //    format.m_bitPerSample = qFormat.sampleSize();
     format.m_channelCount = qFormat.channelCount();
     format.m_sampleRate   = qFormat.sampleRate();
-    switch (qFormat.sampleType()) {
-    case QAudioFormat::SignedInt:
+    switch (qFormat.sampleFormat()) {
+    case QAudioFormat::Int16:
       format.m_sampleType = TSound::INT;
+      format.m_bitPerSample = 16;
       break;
-    case QAudioFormat::UnSignedInt:
+    case QAudioFormat::UInt8:
       format.m_sampleType = TSound::UINT;
+      format.m_bitPerSample = 8;
       break;
     case QAudioFormat::Float:
       format.m_sampleType = TSound::FLOAT;
+      format.m_bitPerSample = 32;
       break;
     default:
       break;
