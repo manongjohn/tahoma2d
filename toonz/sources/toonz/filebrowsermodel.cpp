@@ -440,7 +440,7 @@ QList<TFilePath> DvDirVersionControlNode::getMissingFiles() const {
 //-----------------------------------------------------------------------------
 
 QStringList DvDirVersionControlNode::getMissingFiles(
-    const QRegExp &filter) const {
+    const QRegularExpression &filter) const {
   QStringList list;
   QMap<QString, SVNStatus>::const_iterator i = m_statusMap.constBegin();
   for (; i != m_statusMap.constEnd(); i++) {
@@ -448,8 +448,9 @@ QStringList DvDirVersionControlNode::getMissingFiles(
     if (s.m_item == "missing" ||
         (s.m_item == "none" && s.m_repoStatus == "added")) {
       TFilePath path(s.m_path.toStdWString());
-      if (!filter.exactMatch(
-              QString::fromStdWString(path.withoutParentDir().getWideString())))
+      QRegularExpression re(QRegularExpression::anchoredPattern(filter.pattern()));
+      if (!re.match(
+              QString::fromStdWString(path.withoutParentDir().getWideString())).hasMatch())
         continue;
       std::string dots = path.getDots();
       if (dots != "") list.append(toQString(path));

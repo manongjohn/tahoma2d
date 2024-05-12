@@ -252,10 +252,10 @@ void HexColorNames::setTempEntry(const QString &name, const QString &hex) {
 //-----------------------------------------------------------------------------
 
 bool HexColorNames::parseText(QString text, TPixel &outPixel) {
-  static QRegExp space("\\s");
+  static QRegularExpression space("\\s");
   text.remove(space);
   if (text.size() == 0) return false;
-  if (text[0] == "#") {
+  if (text[0] == '#') {
     text.remove(0, 1);
     return parseHexInternal(text, outPixel);
   }
@@ -271,7 +271,7 @@ bool HexColorNames::parseText(QString text, TPixel &outPixel) {
 
   QString hexText = it.value();
   hexText.remove(space);
-  if (hexText[0] == "#") {
+  if (hexText[0] == '#') {
     hexText.remove(0, 1);
     return parseHexInternal(hexText, outPixel);
   }
@@ -281,10 +281,10 @@ bool HexColorNames::parseText(QString text, TPixel &outPixel) {
 //-----------------------------------------------------------------------------
 
 bool HexColorNames::parseHex(QString text, TPixel &outPixel) {
-  static QRegExp space("\\s");
+  static QRegularExpression space("\\s");
   text.remove(space);
   if (text.size() == 0) return false;
-  if (text[0] == "#") {
+  if (text[0] == '#') {
     text.remove(0, 1);
   }
   return parseHexInternal(text, outPixel);
@@ -612,7 +612,7 @@ bool HexColorNamesEditor::updateUserHexEntry(QTreeWidgetItem *treeItem,
 
 bool HexColorNamesEditor::nameValid(const QString& name) {
   if (name.isEmpty()) return false;
-  return name.count(QRegExp("[\\\\#<>\"']")) == 0;
+  return name.count(QRegularExpression("[\\\\#<>\"']")) == 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -801,7 +801,7 @@ void HexColorNamesEditor::onItemFinished(QTreeWidgetItem *item, int column) {
       QString text = item->text(column);
       if (column == 0) {
         // Edit Name
-        static QRegExp space("\\s");
+        static QRegularExpression space("\\s");
         text.remove(space);
         text = text.toLower();
         if (text.isEmpty()) throw "";

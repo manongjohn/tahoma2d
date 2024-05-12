@@ -96,7 +96,7 @@ bool CustomPanelUIField::setCommand(QString commandId) {
   m_commandId      = commandId;
   QString tempText = action->text();
   // removing accelerator key indicator
-  tempText = tempText.replace(QRegExp("&([^& ])"), "\\1");
+  tempText = tempText.replace(QRegularExpression("&([^& ])"), "\\1");
   // removing doubled &s
   tempText = tempText.replace("&&", "&");
   setText(tempText);

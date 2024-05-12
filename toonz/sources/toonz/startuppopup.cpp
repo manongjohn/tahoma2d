@@ -143,8 +143,8 @@ StartupPopup::StartupPopup()
 
   // Exclude all character which cannot fit in a filepath (Win).
   // Dots are also prohibited since they are internally managed by Toonz.
-  QRegExp rx("[^\\\\/:?*.\"<>|]+");
-  m_nameFld->setValidator(new QRegExpValidator(rx, this));
+  QRegularExpression rx("[^\\\\/:?*.\"<>|]+");
+  m_nameFld->setValidator(new QRegularExpressionValidator(rx, this));
 
   m_widthFld->setMeasure("camera.lx");
   m_heightFld->setMeasure("camera.ly");

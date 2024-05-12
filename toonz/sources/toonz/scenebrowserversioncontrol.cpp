@@ -23,10 +23,10 @@ QStringList getLevelFileNames(TFilePath path) {
   TFilePath dir = path.getParentDir();
   QDir qDir(QString::fromStdWString(dir.getWideString()));
   QString levelName =
-      QRegExp::escape(QString::fromStdWString(path.getWideName()));
+      QRegularExpression::escape(QString::fromStdWString(path.getWideName()));
   QString levelType = QString::fromStdString(path.getType());
   QString exp(levelName + ".[0-9]{1,4}." + levelType);
-  QRegExp regExp(exp);
+  QRegularExpression regExp(exp);
   QStringList list = qDir.entryList(QDir::Files);
   return list.filter(regExp);
 }
@@ -88,11 +88,11 @@ void SceneBrowser::setupVersionControlCommand(QStringList &files, QString &path,
       QStringList levelNames = getLevelFileNames(fp);
 
       if (levelNames.isEmpty()) {
-        QString levelName =
-            QRegExp::escape(QString::fromStdWString(fp.getWideName()));
+        QString levelName = QRegularExpression::escape(
+            QString::fromStdWString(fp.getWideName()));
         QString levelType = QString::fromStdString(fp.getType());
         QString exp(levelName + ".[0-9]{1,4}." + levelType);
-        QRegExp regExp(exp);
+        QRegularExpression regExp(exp);
         levelNames = node->getMissingFiles(regExp);
       }
 
