@@ -633,7 +633,7 @@ void SwatchViewer::resizeEvent(QResizeEvent *re) {
 
 void SwatchViewer::mousePressEvent(QMouseEvent *event) {
   // qDebug() << "[mousePressEvent]";
-  if (m_gestureActive && m_touchDevice == QTouchDevice::TouchScreen &&
+  if (m_gestureActive && m_touchDevice == QInputDevice::DeviceType::TouchScreen &&
       !m_stylusUsed) {
     return;
   }
@@ -696,7 +696,7 @@ void SwatchViewer::mousePressEvent(QMouseEvent *event) {
 //-----------------------------------------------------------------------------
 
 void SwatchViewer::mouseMoveEvent(QMouseEvent *event) {
-  if (m_gestureActive && m_touchDevice == QTouchDevice::TouchScreen &&
+  if (m_gestureActive && m_touchDevice == QInputDevice::DeviceType::TouchScreen &&
       !m_stylusUsed) {
     return;
   }
@@ -782,7 +782,7 @@ void SwatchViewer::wheelEvent(QWheelEvent *event) {
 
   if (abs(delta) > 0) {
     if ((m_gestureActive == true &&
-         m_touchDevice == QTouchDevice::TouchScreen) ||
+         m_touchDevice == QInputDevice::DeviceType::TouchScreen) ||
         m_gestureActive == false) {
       TPoint center(event->position().x() - width() / 2,
                     -event->position().y() + height() / 2);
@@ -881,7 +881,7 @@ void SwatchViewer::gestureEvent(QGestureEvent *e) {
     QPinchGesture *gesture = static_cast<QPinchGesture *>(pinch);
     QPinchGesture::ChangeFlags changeFlags = gesture->changeFlags();
     QPoint firstCenter                     = gesture->centerPoint().toPoint();
-    if (m_touchDevice == QTouchDevice::TouchScreen)
+    if (m_touchDevice == QInputDevice::DeviceType::TouchScreen)
       firstCenter = mapFromGlobal(firstCenter);
 
     if (gesture->state() == Qt::GestureStarted) {
@@ -944,9 +944,9 @@ void SwatchViewer::touchEvent(QTouchEvent *e, int type) {
     // touchpads must have 2 finger panning for tools and navigation to be
     // functional on other devices, 1 finger panning is preferred
     if ((e->touchPoints().count() == 2 &&
-         m_touchDevice == QTouchDevice::TouchPad) ||
+         m_touchDevice == QInputDevice::DeviceType::TouchPad) ||
         (e->touchPoints().count() == 1 &&
-         m_touchDevice == QTouchDevice::TouchScreen)) {
+         m_touchDevice == QInputDevice::DeviceType::TouchScreen)) {
       QTouchEvent::TouchPoint panPoint = e->touchPoints().at(0);
       if (!m_panning) {
         QPointF deltaPoint = panPoint.pos() - m_firstPanPoint;

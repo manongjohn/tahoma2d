@@ -13,7 +13,7 @@
 // Qt includes
 #include <QGraphicsScene>
 #include <QGraphicsView>
-#include <QTouchDevice>
+#include <QInputDevice>
 
 #include <QIcon>
 
@@ -141,7 +141,7 @@ class DVAPI SchematicSceneViewer final : public QGraphicsView {
   bool m_touchActive = false;
 
   bool m_gestureActive                   = false;
-  QTouchDevice::DeviceType m_touchDevice = QTouchDevice::TouchScreen;
+  QInputDevice::DeviceType m_touchDevice = QInputDevice::DeviceType::TouchScreen;
   bool m_zooming                         = false;
   bool m_panning                         = false;
   bool m_panningArmed                    = false;

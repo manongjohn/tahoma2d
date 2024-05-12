@@ -6,7 +6,7 @@
 #include "toonz/imagepainter.h"
 #include "toonzqt/glwidget_for_highdpi.h"
 
-#include <QTouchDevice>
+#include <QInputDevice>
 
 //-----------------------------------------------------------------------------
 
@@ -73,7 +73,7 @@ class ImageViewer final : public GLWidgetForHighDpi {
 
   bool m_touchActive                     = false;
   bool m_gestureActive                   = false;
-  QTouchDevice::DeviceType m_touchDevice = QTouchDevice::TouchScreen;
+  QInputDevice::DeviceType m_touchDevice = QInputDevice::DeviceType::TouchScreen;
   bool m_zooming                         = false;
   bool m_panning                         = false;
   double m_scaleFactor;  // used for zoom gesture

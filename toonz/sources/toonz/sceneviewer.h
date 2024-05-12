@@ -23,7 +23,7 @@
 
 #include <array>
 #include <QMatrix4x4>
-#include <QTouchDevice>
+#include <QInputDevice>
 
 //=====================================================================
 
@@ -96,7 +96,7 @@ class SceneViewer final : public TTool::Viewer,
   bool m_shownOnce                       = false;
   bool m_gestureActive                   = false;
   bool m_touchActive                     = false;
-  QTouchDevice::DeviceType m_touchDevice = QTouchDevice::TouchScreen;
+  QInputDevice::DeviceType m_touchDevice = QInputDevice::DeviceType::TouchScreen;
   bool m_rotating                        = false;
   bool m_zooming                         = false;
   bool m_panning                         = false;
