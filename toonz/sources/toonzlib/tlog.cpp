@@ -11,6 +11,8 @@
 #endif
 
 #ifdef _WIN32
+#undef UNICODE
+#undef _UNICODE
 #include <windows.h>
 #include <stdio.h>
 #include <stdlib.h>
