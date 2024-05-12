@@ -11,7 +11,7 @@
 #include <QTimer>
 #include <QDir>
 #include <QtGui/QImage>
-#include <QRegExp>
+#include <QRegularExpression>
 #include "toonz/preferences.h"
 #include "toonz/toonzfolders.h"
 #include "tmsgcore.h"
@@ -492,7 +492,7 @@ void Ffmpeg::getFramesFromMovie(int frame) {
 }
 
 QString Ffmpeg::cleanPathSymbols() {
-  return m_path.getQString().remove(QRegExp(
+  return m_path.getQString().remove(QRegularExpression(
       QString::fromUtf8("[-`~!@#$%^&*()_+=|:;<>«»,.?/{}\'\"\\[\\]\\\\]")));
 }
 

@@ -177,9 +177,9 @@ bool selectionContainLevelImage(TCellSelection *selection, TXsheet *xsheet) {
 */
 void parse_with_letter(const QString &text, std::wstring &levelName,
                        TFrameId &fid) {
-  QRegExp spaces("\\t|\\s");
-  QRegExp numbers("\\d+");
-  QRegExp characters("[^\\d+]");
+  QRegularExpression spaces("\\t|\\s");
+  QRegularExpression numbers("\\d+");
+  QRegularExpression characters("[^\\d+]");
   QString str = text;
 
   // remove final spaces
@@ -301,11 +301,14 @@ void parse_with_letter(const QString &text, std::wstring &levelName,
 //-----------------------------------------------------------------------------
 
 void parse(const QString &text, std::wstring &levelName, TFrameId &fid) {
-  QRegExp spaces("\\t|\\s");
-  QRegExp numbers("\\d+");
-  QRegExp characters("[^\\d+]");
-  QRegExp fidWithSuffix(TFilePath::fidRegExpStr());
-  // QRegExp fidWithSuffix("([0-9]+)([a-z]?)");
+  QRegularExpression spaces("\\t|\\s");
+  QRegularExpression numbers("\\d+");
+  QRegularExpression characters("[^\\d+]");
+  QRegularExpression refidWithSuffix(
+      QRegularExpression::anchoredPattern(TFilePath::fidRegExpStr()));
+  QRegularExpressionMatch fidWithSuffix;
+
+  // QRegularExpression fidWithSuffix("([0-9]+)([a-z]?)");
   QString str = text;
 
   // remove final spaces
@@ -322,9 +325,10 @@ void parse(const QString &text, std::wstring &levelName, TFrameId &fid) {
     if (str.contains(numbers) && !str.contains(characters)) {
       levelName = L"";
       fid       = TFrameId(str.toInt());
-    } else if (fidWithSuffix.exactMatch(str)) {
+    } else if ((fidWithSuffix = refidWithSuffix.match(str)).hasMatch()) {
       levelName = L"";
-      fid       = TFrameId(fidWithSuffix.cap(1).toInt(), fidWithSuffix.cap(2));
+      fid       = TFrameId(fidWithSuffix.captured(1).toInt(),
+                     fidWithSuffix.captured(2));
       // fidWithSuffix.cap(2) == "" ? 0 : fidWithSuffix.cap(2).toLatin1()[0]);
     } else if (str.contains(characters)) {
       levelName = text.toStdWString();
@@ -336,10 +340,11 @@ void parse(const QString &text, std::wstring &levelName, TFrameId &fid) {
       QString firstString = str.left(lastSpaceIndex);
       levelName           = firstString.toStdWString();
       fid                 = TFrameId(lastString.toInt());
-    } else if (fidWithSuffix.exactMatch(lastString)) {
+    } else if ((fidWithSuffix = refidWithSuffix.match(lastString)).hasMatch()) {
       QString firstString = str.left(lastSpaceIndex);
       levelName           = firstString.toStdWString();
-      fid = TFrameId(fidWithSuffix.cap(1).toInt(), fidWithSuffix.cap(2));
+      fid                 = TFrameId(fidWithSuffix.captured(1).toInt(),
+                     fidWithSuffix.captured(2));
       // fidWithSuffix.cap(2) == "" ? 0 : fidWithSuffix.cap(2).toLatin1()[0]);
     } else if (lastString.contains(characters)) {
       levelName = text.toStdWString();

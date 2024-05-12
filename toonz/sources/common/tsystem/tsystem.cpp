@@ -24,6 +24,8 @@
 #include <QDesktopServices>
 #include <QHostInfo>
 
+#include <QRegularExpression>
+
 #ifdef _WIN32
 #include <shlobj.h>
 #include <shellapi.h>
@@ -578,14 +580,14 @@ void TSystem::readDirectory(TFilePathSet &dst, const QDir &dir,
 
   // store name filters
   bool hasNameFilter = false;
-  QList<QRegExp> nameFilters;
+  QList<QRegularExpression> nameFilters;
   for (const QString &nameFilter : dir.nameFilters()) {
     if (nameFilter == "*") {
       hasNameFilter = false;
       break;
     }
-    QRegExp regExp(nameFilter);
-    regExp.setPatternSyntax(QRegExp::Wildcard);
+    QRegularExpression regExp(
+        QRegularExpression::wildcardToRegularExpression(nameFilter));
     nameFilters.append(regExp);
     hasNameFilter = true;
   }
@@ -612,8 +614,9 @@ void TSystem::readDirectory(TFilePathSet &dst, const QDir &dir,
       // name filter
       if (hasNameFilter) {
         bool matched = false;
-        for (const QRegExp &regExp : nameFilters) {
-          if (regExp.exactMatch(fileName)) {
+        for (const QRegularExpression &re : nameFilters) {
+          QRegularExpressionMatch regExp = re.match(fileName);
+          if (regExp.hasMatch()) {
             matched = true;
             break;
           }

@@ -373,13 +373,13 @@ void SVNCommitDialog::onAddDone() {
     int resCount = m_sceneResourcesToCommit.size();
     for (int r = 0; r < resCount; r++) {
       QString path  = m_sceneResourcesToCommit.at(r);
-      int lastIndex = path.lastIndexOf(QRegExp("\\\\|/"));
+      int lastIndex = path.lastIndexOf(QRegularExpression("\\\\|/"));
 
       while (lastIndex != -1) {
         path = path.left(lastIndex);
         if (!oldFilesAndResources.contains(path) && path != "..")
           oldFilesAndResources.append(path);
-        lastIndex = path.lastIndexOf(QRegExp("\\\\|/"));
+        lastIndex = path.lastIndexOf(QRegularExpression("\\\\|/"));
       }
     }
 
@@ -387,12 +387,12 @@ void SVNCommitDialog::onAddDone() {
     for (int x = 0; x < m_filesToAdd.size(); x++) {
       QString s = m_filesToAdd.at(x);
       if (s.contains("sceneIcons") && s.endsWith(".png")) {
-        int lastIndex = s.lastIndexOf(QRegExp("\\\\|/"));
+        int lastIndex = s.lastIndexOf(QRegularExpression("\\\\|/"));
         while (lastIndex != -1) {
           s = s.left(lastIndex);
           if (!oldFilesAndResources.contains(s) && s != "..")
             oldFilesAndResources.append(s);
-          lastIndex = s.lastIndexOf(QRegExp("\\\\|/"));
+          lastIndex = s.lastIndexOf(QRegularExpression("\\\\|/"));
         }
       }
     }
@@ -614,7 +614,7 @@ void SVNCommitDialog::checkFiles(bool isExternalFiles) {
 
 void SVNCommitDialog::addUnversionedItem(const QString &relativePath) {
   // Split the string in order to recreate the hierarchy
-  QStringList list = relativePath.split(QRegExp("\\\\|/"));
+  QStringList list = relativePath.split(QRegularExpression("\\\\|/"));
 
   QTreeWidgetItem *parent = 0;
   QString tempString      = "";
@@ -692,7 +692,7 @@ void SVNCommitDialog::addUnversionedFolders(const QDir &dir,
       addUnversionedFolders(dir2, relativePath + "/" + entry);
     }
 
-    QStringList list = (entries.at(i)).split(QRegExp("\\\\|/"));
+    QStringList list = (entries.at(i)).split(QRegularExpression("\\\\|/"));
 
     QTreeWidgetItem *parent = m_items[relativePath];
     QString tempString      = relativePath;
@@ -726,7 +726,7 @@ void SVNCommitDialog::addUnversionedFolders(const QDir &dir,
 
 void SVNCommitDialog::addModifiedItem(const QString &relativePath) {
   // Split the string in order to recreate the hierarchy
-  QStringList list = relativePath.split(QRegExp("\\\\|/"));
+  QStringList list = relativePath.split(QRegularExpression("\\\\|/"));
 
   QTreeWidgetItem *parent = 0;
   QString tempString      = "";
@@ -1292,10 +1292,10 @@ void SVNCommitFrameRangeDialog::commit() {
     TFilePath dir = path.getParentDir();
     QDir qDir(QString::fromStdWString(dir.getWideString()));
     QString levelName =
-        QRegExp::escape(QString::fromStdWString(path.getWideName()));
+        QRegularExpression::escape(QString::fromStdWString(path.getWideName()));
     QString levelType = QString::fromStdString(path.getType());
     QString exp(levelName + ".[0-9]{1,4}." + levelType);
-    QRegExp regExp(exp);
+    QRegularExpression regExp(exp);
     QStringList list = qDir.entryList(QDir::Files);
     m_filesToCommit  = list.filter(regExp);
   } else

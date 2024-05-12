@@ -24,7 +24,7 @@
 #include "toonz/levelset.h"
 #include "tfiletype.h"
 #include "tsystem.h"
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QColor>
 
 namespace TScriptBinding {
@@ -217,10 +217,11 @@ QScriptValue Level::save(const QScriptValue &fpArg) {
 TFrameId Level::getFid(const QScriptValue &arg, QString &err) {
   if (arg.isNumber() || arg.isString()) {
     QString s = arg.toString();
-    QRegExp re("(-?\\d+)(\\w?)");
-    if (re.exactMatch(s)) {
-      int d     = re.cap(1).toInt();
-      QString c = re.cap(2);
+    QRegularExpression rx("(-?\\d+)(\\w?)");
+    QRegularExpressionMatch re = rx.match(s);
+    if (re.hasMatch()) {
+      int d     = re.captured(1).toInt();
+      QString c = re.captured(2);
       TFrameId fid;
       if (c.length() == 1)
         fid = TFrameId(d, c[0].unicode());

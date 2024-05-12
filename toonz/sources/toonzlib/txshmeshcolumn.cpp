@@ -11,6 +11,8 @@
 
 #include "toonz/txshmeshcolumn.h"
 
+#include <QRegularExpression>
+
 PERSIST_IDENTIFIER(TXshMeshColumn, "meshColumn")
 
 //*******************************************************************************
@@ -27,13 +29,13 @@ TFrameId qstringToFrameId(QString str) {
     return TFrameId::STOP_FRAME;
 
   QString regExpStr = QString("^%1$").arg(TFilePath::fidRegExpStr());
-  QRegExp rx(regExpStr);
-  int pos = rx.indexIn(str);
-  if (pos < 0) return TFrameId();
-  if (rx.cap(2).isEmpty())
-    return TFrameId(rx.cap(1).toInt());
+  QRegularExpression re(regExpStr);
+  QRegularExpressionMatch rx = re.match(str);
+  if (!rx.hasMatch()) return TFrameId();
+  if (rx.captured(2).isEmpty())
+    return TFrameId(rx.captured(1).toInt());
   else
-    return TFrameId(rx.cap(1).toInt(), rx.cap(2));
+    return TFrameId(rx.captured(1).toInt(), rx.captured(2));
 }
 }  // namespace
 
