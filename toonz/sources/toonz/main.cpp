@@ -477,7 +477,7 @@ int main(int argc, char *argv[]) {
   QFont font("Helvetica", -1);
 #endif
   font.setPixelSize(10);
-  font.setWeight(50);
+  font.setWeight(QFont::Normal);
   a.setFont(font);
 
   QString offsetStr("\n\n\n\n\n\n\n\n");
