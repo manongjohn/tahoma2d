@@ -10,6 +10,7 @@
 #include <QLabel>
 #include <QMediaPlayer>
 #include <QIcon>
+#include <QAudioFormat>
 
 // forward decl.
 class QComboBox;
