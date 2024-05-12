@@ -235,7 +235,7 @@ void Iwa_Particles_Engine::roll_particles(
                        particleOrigins);
 
   /*- 粒子が出きったらもう出さない -*/
-  int actualBirthParticles = std::min(genPartNum, particleOrigins.size());
+  int actualBirthParticles = std::min(genPartNum, (int)particleOrigins.size());
   /*- 出発する粒子のインデックス -*/
   QList<int> leavingPartIndex;
   if (myregions.size() &&
@@ -258,7 +258,7 @@ void Iwa_Particles_Engine::roll_particles(
         int wariate = tceil((float)(myWeight[m]) * (float)(partLeft) /
                             (float)potential_sum);
         /*- 実際にこのポテンシャルから出発する粒子数 -*/
-        int leaveNum = std::min(myHistogram.at(m).size(), wariate);
+        int leaveNum = std::min((int)myHistogram.at(m).size(), wariate);
         /*- 割り当てられた粒子を頭から登録 -*/
         for (int lp = 0; lp < leaveNum; lp++) {
           /*- Histogramから減らしながら追加 -*/
