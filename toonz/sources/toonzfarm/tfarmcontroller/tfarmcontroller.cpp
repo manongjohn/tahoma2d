@@ -1,4 +1,7 @@
 
+#ifdef _WIN32
+#undef UNICODE
+#endif
 
 #include "tfarmcontroller.h"
 #include "tfarmexecutor.h"
