@@ -92,7 +92,7 @@ private:
   Mutex &operator=(const Mutex &);
 };
 
-typedef QMutexLocker MutexLocker;
+typedef QMutexLocker<Mutex> MutexLocker;
 
 #endif
 
