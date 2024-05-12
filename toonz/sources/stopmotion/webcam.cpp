@@ -206,7 +206,7 @@ void Webcam::clearWebcamResolutions() { m_webcamResolutions.clear(); }
 
 void Webcam::refreshWebcamResolutions() {
   clearWebcamResolutions();
-  m_webcamResolutions = getWebcam()->supportedViewfinderResolutions();
+  m_webcamResolutions = getWebcam()->cameraDevice().photoResolutions();
   if (m_webcamResolutions.size() == 0) {
     m_webcamResolutions.push_back(QSize(640, 360));
     m_webcamResolutions.push_back(QSize(640, 480));
