@@ -20,7 +20,7 @@
 #include <QComboBox>
 #include <QFontComboBox>
 #include <QTextEdit>
-#include <QOpenGLWidget>
+#include <QtOpenGLWidgets/QOpenGLWidget>
 #include <QSurfaceFormat>
 #include <QOpenGLFunctions>
 
