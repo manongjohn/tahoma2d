@@ -636,7 +636,8 @@ void SchematicSceneViewer::leaveEvent(QEvent *e) {
 void SchematicSceneViewer::tabletEvent(QTabletEvent *e) {
   // qDebug() << "[tabletEvent]";
   if (e->type() == QTabletEvent::TabletPress) {
-    m_stylusUsed = e->pointerType() ? true : false;
+    m_stylusUsed =
+        e->pointerType() == QPointingDevice::PointerType::Pen ? true : false;
   } else if (e->type() == QTabletEvent::TabletRelease) {
     m_stylusUsed = false;
   }

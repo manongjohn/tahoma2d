@@ -285,7 +285,7 @@ void SceneViewer::tabletEvent(QTabletEvent *e) {
   m_tabletMove = false;
   // Management of the Eraser pointer
   ToolHandle *toolHandle = TApp::instance()->getCurrentTool();
-  if (e->pointerType() == QTabletEvent::Eraser) {
+  if (e->pointerType() == QPointingDevice::PointerType::Eraser) {
     if (!m_eraserPointerOn) {
       if (toolHandle->getTool()->getName() != T_Eraser) {
         // Save the current tool

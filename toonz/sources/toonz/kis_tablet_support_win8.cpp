@@ -505,25 +505,26 @@ bool registerOrUpdateDevice(HANDLE deviceHandle) {
 QTabletEvent makeProximityTabletEvent(const QEvent::Type eventType,
                                       const POINTER_PEN_INFO &penInfo) {
   PenFlagsWrapper penFlags = PenFlagsWrapper::fromPenInfo(penInfo);
-  QTabletEvent::PointerType pointerType =
-      penFlags.isInverted() ? QTabletEvent::Eraser : QTabletEvent::Pen;
+  QPointingDevice::PointerType pointerType =
+      penFlags.isInverted() ? QPointingDevice::PointerType::Eraser
+                            : QPointingDevice::PointerType::Pen;
   const QPointF emptyPoint;
+  QPointingDevice *pointerDev = new QPointingDevice();
+  pointerDev->setType(QInputDevice::DeviceType::Stylus);
   return QTabletEvent(
-      eventType,             // type
-      emptyPoint,            // pos
-      emptyPoint,            // globalPos
-      QTabletEvent::Stylus,  // device
-      pointerType,           // pointerType
-      0,                     // pressure
-      0,                     // xTilt
-      0,                     // yTilt
-      0,                     // tangentialPressure
-      0,                     // rotation
-      0,                     // z
-      Qt::NoModifier,        // keyState
-      reinterpret_cast<qint64>(penInfo.pointerInfo.sourceDevice),  // uniqueID
-      Qt::NoButton,                                                // button
-      Qt::MouseButtons()                                           // buttons
+      eventType,          // type
+      pointerDev,         // pointer device
+      emptyPoint,         // pos
+      emptyPoint,         // globalPos
+      0,                  // pressure
+      0,                  // xTilt
+      0,                  // yTilt
+      0,                  // tangentialPressure
+      0,                  // rotation
+      0,                  // z
+      Qt::NoModifier,     // keyState
+      Qt::NoButton,       // button
+      Qt::MouseButtons()  // buttons
   );
 }
 
@@ -575,8 +576,9 @@ QTabletEvent makePositionalTabletEvent(const QWidget *targetWidget,
   const QPointF delta     = globalPosF - globalPos;
   const QPointF localPosF = localPos + delta;
 
-  const QTabletEvent::PointerType pointerType =
-      penFlags.isInverted() ? QTabletEvent::Eraser : QTabletEvent::Pen;
+  const QPointingDevice::PointerType pointerType =
+      penFlags.isInverted() ? QPointingDevice::PointerType::Eraser
+                            : QPointingDevice::PointerType::Pen;
 
   Qt::MouseButton mouseButton;
   if (eventType == QEvent::TabletPress) {
@@ -643,12 +645,13 @@ QTabletEvent makePositionalTabletEvent(const QWidget *targetWidget,
     }
   }
 
+  QPointingDevice *pointerDev = new QPointingDevice();
+  pointerDev->setType(QInputDevice::DeviceType::Stylus);
   return QTabletEvent(
       eventType,             // type
+      pointerDev,            // pointer device
       localPosF,             // pos
       globalPosF,            // globalPos
-      QTabletEvent::Stylus,  // device
-      pointerType,           // pointerType
       penMask.pressureValid() ? static_cast<qreal>(penInfo.pressure) / 1024
                               : 0,             // pressure
       tiltX,                                   // xTilt
@@ -657,7 +660,6 @@ QTabletEvent makePositionalTabletEvent(const QWidget *targetWidget,
       rotation,                                // rotation
       0,                                       // z
       QApplication::queryKeyboardModifiers(),  // keyState
-      reinterpret_cast<qint64>(penInfo.pointerInfo.sourceDevice),  // uniqueID
       mouseButton,                                                 // button
       mouseButtons                                                 // buttons
   );
