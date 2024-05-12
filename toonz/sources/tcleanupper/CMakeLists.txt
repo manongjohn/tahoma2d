@@ -3,8 +3,8 @@ add_executable(tcleanup
 )
 
 target_link_libraries(tcleanup
-    Qt5::Core
-    Qt5::Widgets
+    Qt6::Core
+    Qt6::Widgets
     tfarm
     image
 )

@@ -262,7 +262,7 @@ if(WITH_TRANSLATION)
     add_translation(tnzcore ${HEADERS} ${SOURCES})
 endif()
 
-qt5_wrap_cpp(SOURCES ${MOC_HEADERS})
+qt6_wrap_cpp(SOURCES ${MOC_HEADERS})
 
 add_library(tnzcore SHARED ${HEADERS} ${SOURCES})
 
@@ -357,7 +357,7 @@ elseif(BUILD_ENV_UNIXLIKE)
 endif()
 
 target_link_libraries(tnzcore
-    Qt5::OpenGL Qt5::Network Qt5::Multimedia
+    Qt6::OpenGL Qt6::Network Qt6::Multimedia
     ${GL_LIB} ${GLUT_LIB} ${QT_LIB} ${Z_LIB} ${JPEG_LIB} ${LZ4_LIB}
     ${EXTRA_LIBS}
 )
