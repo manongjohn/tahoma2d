@@ -797,7 +797,7 @@ void SwatchViewer::wheelEvent(QWheelEvent *event) {
 void SwatchViewer::keyPressEvent(QKeyEvent *event) {
   int key = event->key();
   std::string keyStr =
-      QKeySequence(key + event->modifiers()).toString().toStdString();
+      QKeySequence(event->keyCombination()).toString().toStdString();
   QAction *action = CommandManager::instance()->getActionFromShortcut(keyStr);
   if (action) {
     std::string actionId = CommandManager::instance()->getIdFromAction(action);

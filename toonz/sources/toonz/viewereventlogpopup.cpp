@@ -389,8 +389,7 @@ void ViewerEventLogPopup::addEventMessage(QEvent *e) {
     if (!m_eventCheckBox[VIEWEREVENT::KeyPress]->isChecked()) return;
 
     QKeyEvent *keyEvent = dynamic_cast<QKeyEvent *>(e);
-    QString keyStr =
-        QKeySequence(keyEvent->key() + keyEvent->modifiers()).toString();
+    QString keyStr = QKeySequence(keyEvent->keyCombination()).toString();
     eventMsg = tr("Key pressed: %1").arg(keyStr);
   } break;
 
@@ -398,8 +397,7 @@ void ViewerEventLogPopup::addEventMessage(QEvent *e) {
     if (!m_eventCheckBox[VIEWEREVENT::KeyRelease]->isChecked()) return;
 
     QKeyEvent *keyEvent = dynamic_cast<QKeyEvent *>(e);
-    QString keyStr =
-        QKeySequence(keyEvent->key() + keyEvent->modifiers()).toString();
+    QString keyStr = QKeySequence(keyEvent->keyCombination()).toString();
     eventMsg = tr("Key released: %1").arg(keyStr);
   } break;
 

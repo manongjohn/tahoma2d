@@ -818,9 +818,8 @@ bool TApp::eventFilter(QObject *watched, QEvent *e) {
       (TApp::instance()->getCurrentTool()->isToolBusy() ||
        TApp::instance()->getCurrentTool()->isTempToolActive())) {
     QKeyEvent *keyEvent = static_cast<QKeyEvent *>(e);
-    std::string keyStr  = QKeySequence(keyEvent->key() + keyEvent->modifiers())
-                             .toString()
-                             .toStdString();
+    std::string keyStr =
+        QKeySequence(keyEvent->keyCombination()).toString().toStdString();
     QAction *action = CommandManager::instance()->getActionFromShortcut(keyStr);
     if (action) {
       if (!keyEvent->isAutoRepeat()) {
