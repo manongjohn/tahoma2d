@@ -314,9 +314,9 @@ void CommandBarTree::loadMenuTree(const TFilePath& fp) {
   QXmlStreamReader reader(&file);
 
   if (reader.readNextStartElement()) {
-    if (reader.name() == "commandbar") {
+    if (reader.name() == L"commandbar") {
       while (reader.readNextStartElement()) {
-        if (reader.name() == "command") {
+        if (reader.name() == L"command") {
           QString cmdName = reader.readElementText();
 
           QAction* action = CommandManager::instance()->getAction(
@@ -325,7 +325,7 @@ void CommandBarTree::loadMenuTree(const TFilePath& fp) {
             CommandItem* item = new CommandItem(0, action);
             addTopLevelItem(item);
           }
-        } else if (reader.name() == "separator") {
+        } else if (reader.name() == L"separator") {
           SeparatorItem* sep = new SeparatorItem(0);
           addTopLevelItem(sep);
           reader.skipCurrentElement();
@@ -346,12 +346,12 @@ void CommandBarTree::loadMenuTree(const TFilePath& fp) {
 void CommandBarTree::loadMenuRecursive(QXmlStreamReader& reader,
                                        QTreeWidgetItem* parentItem) {
   while (reader.readNextStartElement()) {
-    if (reader.name() == "command") {
+    if (reader.name() == L"command") {
       QString cmdName = reader.readElementText();
       QAction* action =
           CommandManager::instance()->getAction(cmdName.toStdString().c_str());
       if (action) CommandItem* item = new CommandItem(parentItem, action);
-    } else if (reader.name() == "command_debug") {
+    } else if (reader.name() == L"command_debug") {
 #ifndef NDEBUG
       QString cmdName = reader.readElementText();
       QAction* action =
@@ -360,7 +360,7 @@ void CommandBarTree::loadMenuRecursive(QXmlStreamReader& reader,
 #else
       reader.skipCurrentElement();
 #endif
-    } else if (reader.name() == "separator") {
+    } else if (reader.name() == L"separator") {
       SeparatorItem* sep = new SeparatorItem(parentItem);
       reader.skipCurrentElement();
     } else

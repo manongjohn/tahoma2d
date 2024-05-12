@@ -2562,10 +2562,10 @@ bool StopMotion::loadXmlFile() {
   int webCount               = cameras.count();
   while (!xmlReader.atEnd()) {
     if (xmlReader.isStartElement()) {
-      if (xmlReader.name() == "Webcam") {
+      if (xmlReader.name() == L"Webcam") {
         text                          = xmlReader.readElementText();
         if (text == "yes") cameraType = CameraType::Web;
-      } else if (xmlReader.name() == "CameraName") {
+      } else if (xmlReader.name() == L"CameraName") {
         text = xmlReader.readElementText();
         if (cameraType == CameraType::Web) {
           for (int i = 0; i < webCount; i++) {
@@ -2610,17 +2610,17 @@ bool StopMotion::loadXmlFile() {
           }
 #endif
         }
-      } else if (xmlReader.name() == "CameraResolutionX") {
+      } else if (xmlReader.name() == L"CameraResolutionX") {
         text = xmlReader.readElementText();
         x    = text.toInt();
-      } else if (xmlReader.name() == "CameraResolutionY") {
+      } else if (xmlReader.name() == L"CameraResolutionY") {
         text = xmlReader.readElementText();
         y    = text.toInt();
         if (foundCamera == true && cameraType == CameraType::Web) {
           setWebcamResolution(
               QString(QString::number(x) + " x " + QString::number(y)));
         }
-      } else if (xmlReader.name() == "Aperture") {
+      } else if (xmlReader.name() == L"Aperture") {
         text = xmlReader.readElementText();
         if (foundCamera == true) {
 #ifdef WITH_CANON
@@ -2630,7 +2630,7 @@ bool StopMotion::loadXmlFile() {
           if (cameraType == CameraType::GPhoto) m_gphotocam->setAperture(text);
 #endif
         }
-      } else if (xmlReader.name() == "ShutterSpeed") {
+      } else if (xmlReader.name() == L"ShutterSpeed") {
         text = xmlReader.readElementText();
         if (foundCamera == true) {
 #ifdef WITH_CANON
@@ -2642,7 +2642,7 @@ bool StopMotion::loadXmlFile() {
             m_gphotocam->setShutterSpeed(text);
 #endif
         }
-      } else if (xmlReader.name() == "ISO") {
+      } else if (xmlReader.name() == L"ISO") {
         text = xmlReader.readElementText();
         if (foundCamera == true) {
 #ifdef WITH_CANON
@@ -2652,7 +2652,7 @@ bool StopMotion::loadXmlFile() {
           if (cameraType == CameraType::GPhoto) m_gphotocam->setIso(text);
 #endif
         }
-      } else if (xmlReader.name() == "PictureStyle") {
+      } else if (xmlReader.name() == L"PictureStyle") {
         text = xmlReader.readElementText();
         if (foundCamera == true) {
 #ifdef WITH_CANON
@@ -2664,7 +2664,7 @@ bool StopMotion::loadXmlFile() {
             m_gphotocam->setPictureStyle(text);
 #endif
         }
-      } else if (xmlReader.name() == "ImageQuality") {
+      } else if (xmlReader.name() == L"ImageQuality") {
         text = xmlReader.readElementText();
         if (foundCamera == true) {
 #ifdef WITH_CANON
@@ -2676,7 +2676,7 @@ bool StopMotion::loadXmlFile() {
             m_gphotocam->setImageQuality(text);
 #endif
         }
-      } else if (xmlReader.name() == "ImageSize") {
+      } else if (xmlReader.name() == L"ImageSize") {
         text = xmlReader.readElementText();
         if (foundCamera == true) {
 #ifdef WITH_CANON
@@ -2688,7 +2688,7 @@ bool StopMotion::loadXmlFile() {
             m_gphotocam->setImageSize(text);
 #endif
         }
-      } else if (xmlReader.name() == "WhiteBalance") {
+      } else if (xmlReader.name() == L"WhiteBalance") {
         text = xmlReader.readElementText();
         if (foundCamera == true) {
 #ifdef WITH_CANON
@@ -2700,7 +2700,7 @@ bool StopMotion::loadXmlFile() {
             m_gphotocam->setWhiteBalance(text);
 #endif
         }
-      } else if (xmlReader.name() == "ColorTemperature") {
+      } else if (xmlReader.name() == L"ColorTemperature") {
         text = xmlReader.readElementText();
         if (foundCamera == true) {
 #ifdef WITH_CANON
@@ -2712,7 +2712,7 @@ bool StopMotion::loadXmlFile() {
             m_gphotocam->setColorTemperature(text);
 #endif
         }
-      } else if (xmlReader.name() == "ExposureCompensation") {
+      } else if (xmlReader.name() == L"ExposureCompensation") {
         text = xmlReader.readElementText();
         if (foundCamera == true) {
 #ifdef WITH_CANON
@@ -2724,7 +2724,7 @@ bool StopMotion::loadXmlFile() {
             m_gphotocam->setExposureCompensation(text);
 #endif
         }
-      } else if (xmlReader.name() == "FocusCheckLocationX") {
+      } else if (xmlReader.name() == L"FocusCheckLocationX") {
         text = xmlReader.readElementText();
         if (foundCamera == true) {
 #ifdef WITH_CANON
@@ -2736,7 +2736,7 @@ bool StopMotion::loadXmlFile() {
             m_gphotocam->m_finalZoomPoint.x = text.toInt();
 #endif
         }
-      } else if (xmlReader.name() == "FocusCheckLocationY") {
+      } else if (xmlReader.name() == L"FocusCheckLocationY") {
         text = xmlReader.readElementText();
         if (foundCamera == true) {
 #ifdef WITH_CANON
