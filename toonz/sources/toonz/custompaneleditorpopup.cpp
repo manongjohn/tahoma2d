@@ -104,7 +104,7 @@ bool CustomPanelUIField::setCommand(QString commandId) {
   return true;
 }
 
-void CustomPanelUIField::enterEvent(QEvent* event) { emit highlight(m_id); }
+void CustomPanelUIField::enterEvent(QEnterEvent* event) { emit highlight(m_id); }
 void CustomPanelUIField::leaveEvent(QEvent* event) { emit highlight(-1); }
 void CustomPanelUIField::dragEnterEvent(QDragEnterEvent* event) {
   QString txt = event->mimeData()->text();

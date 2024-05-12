@@ -527,7 +527,7 @@ protected:
   void keyPressEvent(QKeyEvent *event) override;
   void wheelEvent(QWheelEvent *event) override;
   void timerEvent(QTimerEvent *) override;
-  void enterEvent(QEvent *) override;
+  void enterEvent(QEnterEvent *) override;
   void leaveEvent(QEvent *) override;
 
 public slots:

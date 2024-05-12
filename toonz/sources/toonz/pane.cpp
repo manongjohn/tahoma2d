@@ -135,7 +135,7 @@ void TPanel::onCloseButtonPressed() {
 //-----------------------------------------------------------------------------
 /*! activate the panel and set focus specified widget when mouse enters
  */
-void TPanel::enterEvent(QEvent *event) {
+void TPanel::enterEvent(QEnterEvent *event) {
   // Only when Toonz application is active
   QWidget *w = qApp->activeWindow();
   // if (m_floating) {
@@ -391,7 +391,7 @@ void TPanelTitleBarButton::mouseMoveEvent(QMouseEvent *event) {}
 
 //-----------------------------------------------------------------------------
 
-void TPanelTitleBarButton::enterEvent(QEvent *) {
+void TPanelTitleBarButton::enterEvent(QEnterEvent *) {
   if (!m_rollover) {
     m_rollover = true;
     if (!m_pressed) update();

@@ -2250,7 +2250,7 @@ void StyleChooserPage::mousePressEvent(QMouseEvent *event) {
 
 //-----------------------------------------------------------------------------
 
-void StyleChooserPage::enterEvent(QEvent *event) {
+void StyleChooserPage::enterEvent(QEnterEvent *event) {
   TApplication *app = m_editor->getApplication();
   if (app)
     app->showMessage(QObject::tr("Style Set Manager:              %1+click - Add Style "
@@ -5091,7 +5091,7 @@ void StyleEditor::keyReleaseEvent(QKeyEvent *event) {
 
 //-----------------------------------------------------------------------------
 
-void StyleEditor::enterEvent(QEvent *event) {
+void StyleEditor::enterEvent(QEnterEvent *event) {
   Qt::KeyboardModifiers modkeys = QGuiApplication::queryKeyboardModifiers();
 
   m_isAltPressed  = modkeys.testFlag(Qt::AltModifier);

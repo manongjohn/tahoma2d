@@ -230,7 +230,7 @@ protected:
   void openContextMenu(QMouseEvent *e);
 
   void keyPressEvent(QKeyEvent *e) override;
-  void enterEvent(QEvent *) override;
+  void enterEvent(QEnterEvent *) override;
   void leaveEvent(QEvent *) override;
 
   void showEvent(QShowEvent *) override;

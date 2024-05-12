@@ -299,7 +299,7 @@ protected:
   void focusInEvent(QFocusEvent *e) override;
   void resizeEvent(QResizeEvent *e) override;
 
-  void enterEvent(QEvent *e) override { m_flipConsole->makeCurrent(); }
+  void enterEvent(QEnterEvent *e) override { m_flipConsole->makeCurrent(); }
 
 signals:
 

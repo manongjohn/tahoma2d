@@ -75,7 +75,7 @@ protected:
   void paintEvent(QPaintEvent *event) override;
 
   void mouseMoveEvent(QMouseEvent *event) override;
-  void enterEvent(QEvent *) override;
+  void enterEvent(QEnterEvent *) override;
   void leaveEvent(QEvent *) override;
   void mousePressEvent(QMouseEvent *event) override;
 
@@ -309,7 +309,7 @@ public:
 
 protected:
   void paintEvent(QPaintEvent *) override;
-  void enterEvent(QEvent *) override;
+  void enterEvent(QEnterEvent *) override;
   void leaveEvent(QEvent *) override;
 
   virtual bool isActivatableOnEnter() { return false; }

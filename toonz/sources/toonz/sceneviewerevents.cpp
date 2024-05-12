@@ -462,7 +462,7 @@ void SceneViewer::onLeave() {
 
 //-----------------------------------------------------------------------------
 
-void SceneViewer::enterEvent(QEvent *) { onEnter(); }
+void SceneViewer::enterEvent(QEnterEvent *) { onEnter(); }
 
 //-----------------------------------------------------------------------------
 

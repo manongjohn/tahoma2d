@@ -690,7 +690,7 @@ void ClickableProjectLabel::mouseReleaseEvent(QMouseEvent *event) {
 
 //-----------------------------------------------------------------------------
 
-void ClickableProjectLabel::enterEvent(QEvent *) {
+void ClickableProjectLabel::enterEvent(QEnterEvent *) {
   setStyleSheet("text-decoration: underline;");
 }
 

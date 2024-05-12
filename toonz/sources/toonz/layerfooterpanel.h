@@ -49,7 +49,7 @@ public:
 protected:
   void paintEvent(QPaintEvent *event) override;
 
-  void enterEvent(QEvent *) override;
+  void enterEvent(QEnterEvent *) override;
   void leaveEvent(QEvent *) override;
   void mousePressEvent(QMouseEvent *event) override;
   void mouseMoveEvent(QMouseEvent *event) override;

@@ -153,7 +153,7 @@ void LayerFooterPanel::showOrHide(const Orientation *o) {
 }
 
 //-----------------------------------------------------------------------------
-void LayerFooterPanel::enterEvent(QEvent *) {
+void LayerFooterPanel::enterEvent(QEnterEvent *) {
   m_zoomInHighlighted  = false;
   m_zoomOutHighlighted = false;
   // m_addLevelHighlighted = false;

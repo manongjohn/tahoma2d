@@ -1002,7 +1002,7 @@ void PaletteViewer::hideEvent(QHideEvent *) {
 
 //-----------------------------------------------------------------------------
 
-void PaletteViewer::enterEvent(QEvent *) {
+void PaletteViewer::enterEvent(QEnterEvent *) {
   if (m_app) m_app->getPaletteController()->setCurrentPaletteViewer(this);
 }
 

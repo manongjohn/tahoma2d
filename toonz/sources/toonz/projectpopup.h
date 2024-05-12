@@ -119,7 +119,7 @@ class ClickableProjectLabel : public QLabel {
 
 protected:
   void mouseReleaseEvent(QMouseEvent *) override;
-  void enterEvent(QEvent *) override;
+  void enterEvent(QEnterEvent *) override;
   void leaveEvent(QEvent *) override;
 
 public:

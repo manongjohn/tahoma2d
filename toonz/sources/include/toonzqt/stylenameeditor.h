@@ -81,7 +81,7 @@ public:
   EasyInputArea(QWidget *parent = 0);
 
 protected:
-  void enterEvent(QEvent *) override;
+  void enterEvent(QEnterEvent *) override;
   void resizeEvent(QResizeEvent *) override;
 
 protected slots:
@@ -112,7 +112,7 @@ public:
 protected:
   void showEvent(QShowEvent *) override;
   void hideEvent(QHideEvent *) override;
-  void enterEvent(QEvent *) override;
+  void enterEvent(QEnterEvent *) override;
 
 protected slots:
   void onStyleSwitched();

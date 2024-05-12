@@ -992,7 +992,7 @@ void SpreadsheetViewer::keyPressEvent(QKeyEvent *e) {
 
 //-----------------------------------------------------------------------------
 
-void SpreadsheetViewer::enterEvent(QEvent *) { m_panningArmed = false; }
+void SpreadsheetViewer::enterEvent(QEnterEvent *) { m_panningArmed = false; }
 
 //-----------------------------------------------------------------------------
 

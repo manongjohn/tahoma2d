@@ -103,7 +103,7 @@ protected:
     if (screenBoard->m_grabbing) screenBoard->ensureMouseOnAScreen();
   }
 
-  void enterEvent(QEvent *e) override {
+  void enterEvent(QEnterEvent *e) override {
     m_mouseOnScreen                           = true;
     ScreenBoard::instance()->m_mouseOnAScreen = true;
   }

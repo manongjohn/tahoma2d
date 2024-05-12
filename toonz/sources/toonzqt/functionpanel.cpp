@@ -1463,7 +1463,7 @@ void FunctionPanel::keyPressEvent(QKeyEvent *e) {
 
 //-----------------------------------------------------------------------------
 
-void FunctionPanel::enterEvent(QEvent *) {
+void FunctionPanel::enterEvent(QEnterEvent *) {
   m_cursor.visible = true;
   m_panningArmed   = false;
   update();

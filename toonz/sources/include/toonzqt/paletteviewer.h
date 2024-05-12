@@ -175,7 +175,7 @@ protected:
   void showEvent(QShowEvent *) override;
   void hideEvent(QHideEvent *) override;
 
-  void enterEvent(QEvent *) override;
+  void enterEvent(QEnterEvent *) override;
 
   void dragEnterEvent(QDragEnterEvent *event) override;
   void dropEvent(QDropEvent *event) override;
