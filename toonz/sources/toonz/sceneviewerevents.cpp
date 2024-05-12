@@ -514,7 +514,7 @@ void SceneViewer::mouseMoveEvent(QMouseEvent *event) {
   // if this is called just after tabletEvent, skip the execution
   if (m_tabletEvent) return;
   // and touchscreens but not touchpads...
-  if (m_gestureActive && m_touchDevice == QTouchDevice::TouchScreen) {
+  if (m_gestureActive && m_touchDevice == QInputDevice::DeviceType::TouchScreen) {
     return;
   }
   // Strangely, mouseMoveEvent seems to be called once just after releasing
@@ -802,7 +802,7 @@ void SceneViewer::mousePressEvent(QMouseEvent *event) {
 #endif
     ) return;
   // and touchscreens but not touchpads...
-  if (m_gestureActive && m_touchDevice == QTouchDevice::TouchScreen) {
+  if (m_gestureActive && m_touchDevice == QInputDevice::DeviceType::TouchScreen) {
     return;
   }
   // For now OSX has a critical problem that mousePressEvent is called just
@@ -964,7 +964,8 @@ void SceneViewer::mouseReleaseEvent(QMouseEvent *event) {
     return;
   }
   // for touchscreens but not touchpads...
-  if (m_gestureActive && m_touchDevice == QTouchDevice::TouchScreen) {
+  if (m_gestureActive &&
+      m_touchDevice == QInputDevice::DeviceType::TouchScreen) {
     if (m_touchPoints == 2 &&
         Preferences::instance()->getGestureUndoMethod() ==
             Preferences::TwoFingerTap) {
@@ -1241,7 +1242,7 @@ void SceneViewer::wheelEvent(QWheelEvent *event) {
     // Mouse wheel zoom interfered with touchpad panning (touch enabled)
     // Now if touch is enabled, touchpads ignore the mouse wheel zoom
     else if ((m_gestureActive == true &&
-              m_touchDevice == QTouchDevice::TouchScreen) ||
+              m_touchDevice == QInputDevice::DeviceType::TouchScreen) ||
              m_gestureActive == false) {
       zoomQt(event->position().toPoint() * getDevPixRatio(), exp(0.001 * delta));
       m_panning = false;
@@ -1265,7 +1266,7 @@ void SceneViewer::gestureEvent(QGestureEvent *e) {
     QPinchGesture *gesture = static_cast<QPinchGesture *>(pinch);
     QPinchGesture::ChangeFlags changeFlags = gesture->changeFlags();
     QPoint firstCenter                     = gesture->centerPoint().toPoint();
-    if (m_touchDevice == QTouchDevice::TouchScreen)
+    if (m_touchDevice == QInputDevice::DeviceType::TouchScreen)
       firstCenter = mapFromGlobal(firstCenter);
 
     if (gesture->state() == Qt::GestureStarted) {
@@ -1357,9 +1358,9 @@ void SceneViewer::touchEvent(QTouchEvent *e, int type) {
     // functional
     // on other devices, 1 finger panning is preferred
     if ((e->touchPoints().count() == 2 &&
-         m_touchDevice == QTouchDevice::TouchPad) ||
+         m_touchDevice == QInputDevice::DeviceType::TouchPad) ||
         (e->touchPoints().count() == 1 &&
-         m_touchDevice == QTouchDevice::TouchScreen)) {
+         m_touchDevice == QInputDevice::DeviceType::TouchScreen)) {
       QTouchEvent::TouchPoint panPoint = e->touchPoints().at(0);
       if (!m_panning) {
         QPointF deltaPoint = panPoint.pos() - m_firstPanPoint;
