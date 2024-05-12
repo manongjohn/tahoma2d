@@ -147,7 +147,7 @@ endif()
 message(STATUS "Thirdparty Library Search path:" ${THIRDPARTY_LIBS_HINTS})
 
 if(BUILD_ENV_MSVC)
-    set(QT_PATH "C:/Qt/5.15.2/msvc2019${PLATFORM2}" CACHE PATH "Qt installation directory")
+    set(QT_PATH "C:/Qt/6.6.2/msvc2019${PLATFORM2}" CACHE PATH "Qt installation directory")
     if(NOT EXISTS ${QT_PATH})
         message("Specify QT_PATH properly")
         return()
@@ -168,7 +168,7 @@ elseif(BUILD_ENV_APPLE)
     endif()
     message("PLATFORM:" ${PLATFORM})
     if(PLATFORM EQUAL 64)
-        set(QT_PATH "~/Qt5.9.2/5.9.2/clang_${PLATFORM}/lib" CACHE PATH "Qt installation directory")
+        set(QT_PATH "~/Qt/6.6.2/clang_${PLATFORM}/lib" CACHE PATH "Qt installation directory")
         set(QT_LIB_PATH "${QT_PATH}/")
         set(CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH};${QT_LIB_PATH}cmake/")
         foreach(path ${CMAKE_PREFIX_PATH})
@@ -183,7 +183,7 @@ elseif(BUILD_ENV_APPLE)
         set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -m64 -std=c++17 -stdlib=libc++ -fno-implicit-templates")
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m64")
     elseif(PLATFORM EQUAL 32)
-        set(QT_PATH "~/Qt5.9.2/5.9.2/clang_32/lib" CACHE PATH "Qt installation directory")
+        set(QT_PATH "~/Qt/6.6.2/clang_32/lib" CACHE PATH "Qt installation directory")
         set(QT_LIB_PATH "${QT_PATH}/")
         set(CMAKE_PREFIX_PATH "${QT_LIB_PATH}cmake/")
 
@@ -227,7 +227,7 @@ elseif(BUILD_ENV_UNIXLIKE)
 
     set(CMAKE_CXX_STANDARD 17)
 
-    find_package(Qt5Widgets)
+    find_package(Qt6Widgets)
 
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
     if (NOT (CMAKE_CXX_COMPILER_ID STREQUAL "Clang"))
@@ -264,14 +264,15 @@ include_directories(
 )
 
 # Find the QtWidgets library
-find_package(Qt5 REQUIRED
+find_package(Qt6 REQUIRED
     Core
     Gui
     Network
     OpenGL
+    OpenGLWidgets
     Svg
     Xml
-    Script
+    Qml
     Widgets
     PrintSupport
     LinguistTools
@@ -279,12 +280,13 @@ find_package(Qt5 REQUIRED
     MultimediaWidgets
     SerialPort
     UiTools
+    Core5Compat
 )
 
-set(QT_MINIMUM_VERSION 5.5.0)
-if(Qt5Core_VERSION VERSION_LESS QT_MINIMUM_VERSION)
+set(QT_MINIMUM_VERSION 6.6.2)
+if(Qt6Core_VERSION VERSION_LESS QT_MINIMUM_VERSION)
     MESSAGE(FATAL_ERROR "Minimum supported Qt version: ${QT_MINIMUM_VERSION}.
-    Installed version: ${Qt5Core_VERSION}")
+    Installed version: ${Qt6Core_VERSION}")
 endif()
 unset(QT_MINIMUM_VERSION)
 
@@ -330,8 +332,8 @@ if(WITH_CANON)
     )
 endif()
 
-get_target_property(QtCore_location Qt5::Core LOCATION)
-get_target_property(QtWidget_location Qt5::Widgets LOCATION)
+get_target_property(QtCore_location Qt6::Core LOCATION)
+get_target_property(QtWidget_location Qt6::Widgets LOCATION)
 message(STATUS "Qt Core Location:" ${QtCore_location})
 
 macro(_find_toonz_library OUT_LIB_LIST IN_LIB_LIST)
@@ -676,7 +678,7 @@ if(WITH_TRANSLATION)
             )
         endforeach()
 
-        qt5_create_translation(message ${translation} ${ARGN})
+        qt6_create_translation(message ${translation} ${ARGN})
 
         add_custom_target("translation_${module}" DEPENDS ${message})
         set_target_properties("translation_${module}" PROPERTIES

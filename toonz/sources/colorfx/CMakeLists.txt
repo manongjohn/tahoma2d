@@ -42,4 +42,4 @@ _find_toonz_library(EXTRA_LIBS "tnzcore;tnzbase")
 
 message("FIND_FILE:" ${EXTRA_LIBS})
 
-target_link_libraries(colorfx Qt5::Core Qt5::Gui ${GL_LIB} ${EXTRA_LIBS})
+target_link_libraries(colorfx Qt6::Core Qt6::Gui ${GL_LIB} ${EXTRA_LIBS})

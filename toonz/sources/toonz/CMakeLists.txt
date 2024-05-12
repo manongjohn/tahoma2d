@@ -411,14 +411,14 @@ if(BUILD_ENV_MSVC)
     set(RC_FILE toonz.rc)
 endif()
 
-qt5_add_resources(SOURCES ${RESOURCES})
+qt6_add_resources(SOURCES ${RESOURCES})
 
 if(BUILD_ENV_APPLE)
     #set_source_files_properties(${OBJCSOURCES} PROPERTIES LANGUAGE OBJCXX)
     set_source_files_properties(${OBJCSOURCES} PROPERTIES COMPILE_FLAGS "-x objective-c++")
 endif()
 
-qt5_wrap_cpp(SOURCES ${MOC_HEADERS})
+qt6_wrap_cpp(SOURCES ${MOC_HEADERS})
 
 if(BUILD_ENV_MSVC)
     add_executable(Tahoma2D WIN32 ${HEADERS} ${SOURCES} ${OBJCSOURCES} ${RESOURCES} ${RC_FILE})
@@ -494,8 +494,8 @@ if(BUILD_ENV_MSVC)
     endif()
 
     target_link_libraries(Tahoma2D
-        Qt5::WinMain Qt5::Core Qt5::Gui Qt5::Network Qt5::OpenGL Qt5::Svg Qt5::Xml
-        Qt5::Script Qt5::Widgets Qt5::PrintSupport Qt5::Multimedia Qt5::SerialPort Qt5::UiTools
+        Qt6::Core Qt6::Gui Qt6::Network Qt6::OpenGL Qt6::Svg Qt6::Xml
+        Qt6::Qml Qt6::Widgets Qt6::PrintSupport Qt6::Multimedia Qt6::SerialPort Qt6::UiTools
         ${GL_LIB} ${GLUT_LIB} ${TURBOJPEG_LIB} ${OpenCV_LIBS} ${EXTRA_LIBS} strmiids
         tnzcore tnzbase toonzlib colorfx tnzext image sound toonzqt tnztools tnzstdfx tfarm
     )
@@ -514,8 +514,8 @@ elseif(BUILD_ENV_APPLE AND WITH_CANON)
     add_dependencies(Tahoma2D tnzcore tnzbase toonzlib colorfx tnzext image sound toonzqt tnztools tnzstdfx tfarm)
 
     target_link_libraries(Tahoma2D
-        Qt5::Core Qt5::Gui Qt5::Network Qt5::OpenGL Qt5::Svg Qt5::Xml
-        Qt5::Script Qt5::Widgets Qt5::PrintSupport Qt5::Multimedia Qt5::MultimediaWidgets Qt5::SerialPort Qt5::UiTools
+        Qt6::Core Qt6::Gui Qt6::Network Qt6::OpenGL Qt6::Svg Qt6::Xml
+        Qt6::Qml Qt6::Widgets Qt6::PrintSupport Qt6::Multimedia Qt6::MultimediaWidgets Qt6::SerialPort Qt6::UiTools
         ${GL_LIB} ${GLUT_LIB} ${CANON_LIB} ${TURBOJPEG_LIB} ${OpenCV_LIBS}
         ${COCOA_LIB} ${EXTRA_LIBS} mousedragfilter
     )
@@ -535,8 +535,8 @@ elseif(BUILD_ENV_APPLE)
     add_dependencies(Tahoma2D tnzcore tnzbase toonzlib colorfx tnzext image sound toonzqt tnztools tnzstdfx tfarm)
 
     target_link_libraries(Tahoma2D
-        Qt5::Core Qt5::Gui Qt5::Network Qt5::OpenGL Qt5::Svg Qt5::Xml
-        Qt5::Script Qt5::Widgets Qt5::PrintSupport Qt5::Multimedia Qt5::MultimediaWidgets Qt5::SerialPort Qt5::UiTools
+        Qt6::Core Qt6::Gui Qt6::Network Qt6::OpenGL Qt6::Svg Qt6::Xml
+        Qt6::Qml Qt6::Widgets Qt6::PrintSupport Qt6::Multimedia Qt6::MultimediaWidgets Qt6::SerialPort Qt6::UiTools
         ${GL_LIB} ${GLUT_LIB} ${TURBOJPEG_LIB} ${OpenCV_LIBS}
         ${COCOA_LIB} ${EXTRA_LIBS} mousedragfilter
     )
@@ -577,12 +577,12 @@ elseif(BUILD_ENV_UNIXLIKE)
     endif()
 
     if(BUILD_TARGET_WIN)
-        set(EXTRA_LIBS ${EXTRA_LIBS} Qt5::WinMain -lstrmiids -mwindows)
+        set(EXTRA_LIBS ${EXTRA_LIBS} Qt6::WinMain -lstrmiids -mwindows)
     endif()
 
     target_link_libraries(
-        Tahoma2D Qt5::Core Qt5::Gui Qt5::Network Qt5::OpenGL Qt5::Svg Qt5::Xml
-        Qt5::Script Qt5::Widgets Qt5::PrintSupport Qt5::Multimedia Qt5::SerialPort Qt5::UiTools
+        Tahoma2D Qt6::Core Qt6::Gui Qt6::Network Qt6::OpenGL Qt6::Svg Qt6::Xml
+        Qt6::Qml Qt6::Widgets Qt6::PrintSupport Qt6::Multimedia Qt6::SerialPort Qt6::UiTools
         ${GL_LIB} ${GLUT_LIB} ${GLU_LIB} ${TURBOJPEG_LIB} ${OpenCV_LIBS}
         ${EXTRA_LIBS} dl
     )

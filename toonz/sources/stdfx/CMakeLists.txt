@@ -331,7 +331,7 @@ include_directories(
 
 _find_toonz_library(TNZLIBS "tnzcore;tnzbase;toonzlib")
 
-target_link_libraries(tnzstdfx Qt5::Core Qt5::Gui Qt5::OpenGL ${GL_LIB} ${GLEW_LIB} ${TNZLIBS} ${PTHREAD_LIBRARY})
+target_link_libraries(tnzstdfx Qt6::Core Qt6::Gui Qt6::OpenGL Qt6::OpenGLWidgets ${GL_LIB} ${GLEW_LIB} ${TNZLIBS} ${PTHREAD_LIBRARY})
 
 if(OpenCV_FOUND)
     target_link_libraries(tnzstdfx ${OpenCV_LIBS})

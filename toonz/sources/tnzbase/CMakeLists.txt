@@ -95,7 +95,7 @@ if(BUILD_ENV_APPLE)
     set_source_files_properties(${OBJCSOURCES} PROPERTIES COMPILE_FLAGS "-x objective-c++")
 endif()
 
-qt5_wrap_cpp(SOURCES ${MOC_HEADERS})
+qt6_wrap_cpp(SOURCES ${MOC_HEADERS})
 
 add_library(tnzbase SHARED ${HEADERS} ${SOURCES} ${OBJCSOURCES})
 
@@ -142,4 +142,4 @@ elseif(BUILD_ENV_UNIXLIKE)
     _find_toonz_library(EXTRA_LIBS "tnzcore")
 endif()
 
-target_link_libraries(tnzbase Qt5::Core Qt5::Gui ${EXTRA_LIBS})
+target_link_libraries(tnzbase Qt6::Core Qt6::Gui ${EXTRA_LIBS})

@@ -216,18 +216,18 @@ if(WITH_TRANSLATION)
     add_translation(toonzqt ${HEADERS} ${SOURCES})
 endif()
 
-get_target_property(QW_LOC Qt5::Widgets INTERFACE_INCLUDE_DIRECTORIES)
+get_target_property(QW_LOC Qt6::Widgets INTERFACE_INCLUDE_DIRECTORIES)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 set(incs)
-foreach(dir ${Qt5Widgets_INCLUDE_DIRS})
+foreach(dir ${Qt6Widgets_INCLUDE_DIRS})
     set(incs ${incs} -I${dir})
 endforeach()
 
-qt5_add_resources(SOURCES ${RESOURCES})
+qt6_add_resources(SOURCES ${RESOURCES})
 
-qt5_wrap_cpp(SOURCES ${MOC_HEADERS} OPTIONS ${incs})
+qt6_wrap_cpp(SOURCES ${MOC_HEADERS} OPTIONS ${incs})
 
 add_library(toonzqt SHARED ${HEADERS} ${SOURCES} ${RESOURCES})
 if(BUILD_ENV_APPLE)
@@ -258,4 +258,4 @@ elseif(BUILD_ENV_UNIXLIKE)
     endif()
 endif()
 
-target_link_libraries(toonzqt Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Network Qt5::OpenGL Qt5::Svg ${EXTRA_LIBS} ${GL_LIB})
+target_link_libraries(toonzqt Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Network Qt6::OpenGL Qt6::OpenGLWidgets Qt6::Svg ${EXTRA_LIBS} ${GL_LIB})
