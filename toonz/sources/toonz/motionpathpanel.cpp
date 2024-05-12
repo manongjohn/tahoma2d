@@ -658,7 +658,7 @@ void ClickablePathLabel::mouseDoubleClickEvent(QMouseEvent* event) {
 
 //-----------------------------------------------------------------------------
 
-void ClickablePathLabel::enterEvent(QEvent*) {}
+void ClickablePathLabel::enterEvent(QEnterEvent*) {}
 
 //-----------------------------------------------------------------------------
 

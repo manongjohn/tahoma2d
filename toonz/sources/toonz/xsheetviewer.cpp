@@ -1496,7 +1496,7 @@ void XsheetViewer::leaveEvent(QEvent *) { m_panningArmed = false; }
 
 //-----------------------------------------------------------------------------
 
-void XsheetViewer::enterEvent(QEvent *) {
+void XsheetViewer::enterEvent(QEnterEvent *) {
   m_panningArmed = false;
   m_cellArea->onControlPressed(false);
   m_columnArea->onControlPressed(false);

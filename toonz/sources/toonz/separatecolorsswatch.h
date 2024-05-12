@@ -37,7 +37,7 @@ protected:
   void wheelEvent(QWheelEvent* event);
   void keyPressEvent(QKeyEvent* event);
   // focus on mouse enter
-  void enterEvent(QEvent* event);
+  void enterEvent(QEnterEvent* event);
 };
 
 class SeparateSwatch : public QWidget {

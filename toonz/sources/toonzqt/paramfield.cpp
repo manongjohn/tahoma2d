@@ -764,7 +764,7 @@ void ParamFieldKeyToggle::mousePressEvent(QMouseEvent *e) { emit keyToggled(); }
 
 //-----------------------------------------------------------------------------
 
-void ParamFieldKeyToggle::enterEvent(QEvent *) {
+void ParamFieldKeyToggle::enterEvent(QEnterEvent *) {
   m_highlighted = true;
   update();
 }

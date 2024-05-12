@@ -34,7 +34,7 @@ class ClickablePathLabel : public QLabel {
 protected:
   void mouseReleaseEvent(QMouseEvent*) override;
   void mouseDoubleClickEvent(QMouseEvent* event) override;
-  void enterEvent(QEvent*) override;
+  void enterEvent(QEnterEvent*) override;
   void leaveEvent(QEvent*) override;
 
 public:
