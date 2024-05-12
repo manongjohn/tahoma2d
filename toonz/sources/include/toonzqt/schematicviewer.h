@@ -170,7 +170,7 @@ protected:
   void keyReleaseEvent(QKeyEvent *ke) override;
   void wheelEvent(QWheelEvent *me) override;
   void showEvent(QShowEvent *se) override;
-  void enterEvent(QEvent *e) override;
+  void enterEvent(QEnterEvent *e) override;
   void leaveEvent(QEvent *e) override;
   void mouseDoubleClickEvent(QMouseEvent *event) override;
 

@@ -665,7 +665,7 @@ protected:
   void mouseMoveEvent(QMouseEvent *event) override;
   void mouseReleaseEvent(QMouseEvent *event) override;
   void contextMenuEvent(QContextMenuEvent *event) override;
-  void enterEvent(QEvent *event) override;
+  void enterEvent(QEnterEvent *event) override;
 
 public slots:
   void computeSize();
@@ -1023,7 +1023,7 @@ protected:
   void hideEvent(QHideEvent *) override;
   void keyPressEvent(QKeyEvent *event) override;
   void keyReleaseEvent(QKeyEvent *event) override;
-  void enterEvent(QEvent *event) override;
+  void enterEvent(QEnterEvent *event) override;
   void mousePressEvent(QMouseEvent *event) override;
   void contextMenuEvent(QContextMenuEvent *event) override;
   void focusInEvent(QFocusEvent *event) override;

@@ -215,7 +215,7 @@ void ShortcutViewer::removeShortcut() {
 
 //-----------------------------------------------------------------------------
 
-void ShortcutViewer::enterEvent(QEvent *event) {
+void ShortcutViewer::enterEvent(QEnterEvent *event) {
   setFocus();
   update();
 }

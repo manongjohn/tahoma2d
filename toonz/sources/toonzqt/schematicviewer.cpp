@@ -609,7 +609,7 @@ void SchematicSceneViewer::showEvent(QShowEvent *se) {
 
 //------------------------------------------------------------------
 
-void SchematicSceneViewer::enterEvent(QEvent *e) {
+void SchematicSceneViewer::enterEvent(QEnterEvent *e) {
   m_panningArmed = false;
   switch (m_cursorMode) {
   case CursorMode::Hand:

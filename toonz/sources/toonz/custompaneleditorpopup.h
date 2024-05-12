@@ -43,7 +43,7 @@ public:
   bool setCommand(QString commandId);
 
 protected:
-  void enterEvent(QEvent* event) override;
+  void enterEvent(QEnterEvent* event) override;
   void leaveEvent(QEvent* event) override;
   void dragEnterEvent(QDragEnterEvent* event) override;
   void dragLeaveEvent(QDragLeaveEvent* event) override;
