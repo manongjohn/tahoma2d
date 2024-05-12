@@ -2155,9 +2155,8 @@ bool XsheetViewer::event(QEvent *e) {
 
   QKeyEvent *keyEvent = static_cast<QKeyEvent *>(e);
 
-  std::string keyStr = QKeySequence(keyEvent->key() + keyEvent->modifiers())
-                           .toString()
-                           .toStdString();
+  std::string keyStr =
+      QKeySequence(keyEvent->keyCombination()).toString().toStdString();
   QAction *action = CommandManager::instance()->getActionFromShortcut(keyStr);
   std::string actionId = CommandManager::instance()->getIdFromAction(action);
 

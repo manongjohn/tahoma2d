@@ -1511,9 +1511,8 @@ bool SceneViewer::event(QEvent *e) {
       TApp::instance()->getCurrentTool()->storeTool();
     }
 
-    std::string keyStr = QKeySequence(keyEvent->key() + keyEvent->modifiers())
-                             .toString()
-                             .toStdString();
+    std::string keyStr =
+        QKeySequence(keyEvent->keyCombination()).toString().toStdString();
     QAction *action = CommandManager::instance()->getActionFromShortcut(keyStr);
     std::string actionId = CommandManager::instance()->getIdFromAction(action);
     if (actionId == T_Hand) {
