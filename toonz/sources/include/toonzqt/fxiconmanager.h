@@ -10,6 +10,7 @@
 #include "tcommon.h"
 
 #include <QPixmap>
+#include <QObject>
 
 #undef DVAPI
 #undef DVVAR
