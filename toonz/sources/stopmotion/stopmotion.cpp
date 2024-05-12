@@ -3343,7 +3343,7 @@ void StopMotion::changeCameras(int comboIndex, CameraType cameraType,
     m_webcam->setWebcamDescription(cameras.at(cameraIndex).description());
 
     // loading new camera
-    m_webcam->getWebcam()->load();
+//    m_webcam->getWebcam()->load();
 
     m_webcam->refreshWebcamResolutions();
 
@@ -3368,7 +3368,7 @@ void StopMotion::changeCameras(int comboIndex, CameraType cameraType,
       sizeCount = webcamResolutions.indexOf(QSize(res.lx, res.ly));
     }
 
-    m_webcam->getWebcam()->unload();
+//    m_webcam->getWebcam()->unload();
 
     setWebcamResolution(
         QString(QString::number(width) + " x " + QString::number(height)));
