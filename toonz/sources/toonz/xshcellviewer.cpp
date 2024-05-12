@@ -77,6 +77,7 @@
 #include <QApplication>
 #include <QClipboard>
 #include <QKeyEvent>
+#include <QActionGroup>
 
 namespace {
 
