@@ -813,9 +813,8 @@ bool TApp::eventFilter(QObject *watched, QEvent *e) {
   }
   if (e->type() == QEvent::KeyRelease) {
     QKeyEvent *keyEvent = static_cast<QKeyEvent *>(e);
-    std::string keyStr  = QKeySequence(keyEvent->key() + keyEvent->modifiers())
-                             .toString()
-                             .toStdString();
+    std::string keyStr =
+        QKeySequence(keyEvent->keyCombination()).toString().toStdString();
     QAction *action = CommandManager::instance()->getActionFromShortcut(keyStr);
     std::string actionId = CommandManager::instance()->getIdFromAction(action);
     if (actionId == T_Hand || actionId == T_Zoom || actionId == T_Rotate) {
