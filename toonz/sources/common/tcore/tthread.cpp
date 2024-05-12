@@ -738,7 +738,7 @@ void Executor::shutdown() {
     }
 
     // Finally, deal with the global queue tasks
-    QMutableMapIterator<int, RunnableP> jt(globalImp->m_tasks);
+    QMutableMultiMapIterator<int, RunnableP> jt(globalImp->m_tasks);
     while (jt.hasNext()) {
       jt.next();
       RunnableP task = jt.value();
@@ -873,7 +873,7 @@ void Executor::cancelAll() {
   // Finally, clear the global tasks list from all tasks inserted by this
   // executor
   // NOTE: An easier way here?
-  QMutableMapIterator<int, RunnableP> jt(globalImp->m_tasks);
+  QMutableMultiMapIterator<int, RunnableP> jt(globalImp->m_tasks);
   while (jt.hasNext()) {
     jt.next();
     if (jt.value()->m_id == m_id) {
