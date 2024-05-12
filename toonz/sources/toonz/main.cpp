@@ -93,7 +93,6 @@
 #ifndef x64
 #include <float.h>
 #endif
-#include <QtPlatformHeaders/QWindowsWindowFunctions>
 #endif
 
 using namespace DVGui;
@@ -740,12 +739,6 @@ int main(int argc, char *argv[]) {
       return 1;
     }
   }
-
-#ifdef _WIN32
-  // http://doc.qt.io/qt-5/windows-issues.html#fullscreen-opengl-based-windows
-  if (w.windowHandle())
-    QWindowsWindowFunctions::setHasBorderInFullScreen(w.windowHandle(), true);
-#endif
 
     // Qt have started to support Windows Ink from 5.12.
     // Unlike WinTab API used in Qt 5.9 the tablet behaviors are different and
