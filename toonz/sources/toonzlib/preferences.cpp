@@ -27,6 +27,7 @@
 #include <QColor>
 #include <QTextStream>
 #include <QStandardPaths>
+#include <QAssociativeIterable>
 
 //**********************************************************************************
 //    Local namespace  stuff
