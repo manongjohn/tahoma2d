@@ -112,15 +112,15 @@ void CommandBar::fillToolbar(CommandBar *toolbar, bool isQuickToolbar,
   QXmlStreamReader reader(&file);
 
   if (reader.readNextStartElement()) {
-    if (reader.name() == "commandbar") {
+    if (reader.name() == L"commandbar") {
       while (reader.readNextStartElement()) {
-        if (reader.name() == "command") {
+        if (reader.name() == L"command") {
           QString cmdName    = reader.readElementText();
           std::string cmdStr = cmdName.toStdString();
           QAction *action =
               CommandManager::instance()->getAction(cmdStr.c_str());
           if (action) toolbar->addAction(action);
-        } else if (reader.name() == "separator") {
+        } else if (reader.name() == L"separator") {
           toolbar->addSeparator();
           reader.skipCurrentElement();
         } else
