@@ -270,7 +270,8 @@ StopMotion::StopMotion() {
   m_intervalTimer      = new QTimer(this);
   m_countdownTimer     = new QTimer(this);
   m_webcamOverlayTimer = new QTimer(this);
-  m_camSnapSound       = new QSound(":Resources/camera_snap.wav");
+  m_camSnapSound       = new QSoundEffect(this);
+  m_camSnapSound->setSource(QUrl::fromLocalFile(":Resources/camera_snap.wav"));
 
   // Make the interval timer single-shot. When the capture finished, restart
   // timer for next frame.
