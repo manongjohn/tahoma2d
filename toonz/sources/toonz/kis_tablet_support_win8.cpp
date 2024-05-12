@@ -388,7 +388,7 @@ bool KisTabletSupportWin8::init() { return api.init(); }
 // }
 
 bool KisTabletSupportWin8::nativeEventFilter(const QByteArray &eventType,
-                                             void *message, long *result) {
+                                             void *message, qintptr *result) {
   if (!result) {
     // I don't know why this even happens, but it actually does
     // And the same event is sent in again with result != nullptr

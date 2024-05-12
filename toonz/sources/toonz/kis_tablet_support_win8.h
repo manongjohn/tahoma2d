@@ -65,7 +65,7 @@ public:
   bool init();
   // void registerPointerDeviceNotifications();
   virtual bool nativeEventFilter(const QByteArray &eventType, void *message,
-                                 long *result) override;
+                                 qintptr *result) override;
 };
 
 #endif  // _WIN32
