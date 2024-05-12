@@ -5,7 +5,7 @@
 // Qt includes
 #include <QPixmap>
 #include <QImage>
-#include <QOpenGLWidget>
+#include <QtOpenGLWidgets/QOpenGLWidget>
 #include <QScreen>
 #include <QApplication>
 #include <QScreen>

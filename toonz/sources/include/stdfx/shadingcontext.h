@@ -14,7 +14,7 @@
 // Qt includes
 #include <QDateTime>
 #include <QOpenGLFramebufferObjectFormat>
-#include <QOpenGLWidget>
+#include <QtOpenGLWidgets/QOpenGLWidget>
 
 #undef DVAPI
 #undef DVVAR
