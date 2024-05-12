@@ -6,6 +6,8 @@
 #include <QtCore>
 #endif
 
+#include <QtCore5Compat/QTextCodec>
+
 // forward declaration
 // class TImageReaderLayerPsd;
 
