@@ -30,7 +30,7 @@
 
 #include <QObject>
 #include <QThread>
-#include <QSound>
+#include <QSoundEffect>
 
 class QCamera;
 class QCameraInfo;
@@ -89,7 +89,7 @@ private:
   std::map<int, TRaster32P> m_liveViewImageMap;
 
   bool m_playCaptureSound = false;
-  QSound* m_camSnapSound  = 0;
+  QSoundEffect *m_camSnapSound = 0;
 
 public:
   enum LiveViewStatus {
