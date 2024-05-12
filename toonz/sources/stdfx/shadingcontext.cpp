@@ -15,7 +15,7 @@
 #include <QOpenGLShaderProgram>
 #include <QOpenGLContext>
 #include <QOffscreenSurface>
-#include <QOpenGLWidget>
+#include <QtOpenGLWidgets/QOpenGLWidget>
 
 // STD includes
 #include <map>

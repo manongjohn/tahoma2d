@@ -12,7 +12,7 @@
 #include "toonzqt/glwidget_for_highdpi.h"
 
 // Qt includes
-#include <QOpenGLWidget>
+#include <QtOpenGLWidgets/QOpenGLWidget>
 #include <QInputDevice>
 
 #undef DVAPI
