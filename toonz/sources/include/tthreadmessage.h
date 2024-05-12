@@ -9,7 +9,7 @@
 //  MyMessage().send();
 
 #ifndef TNZCORE_LIGHT
-#include <QMutex>
+#include <QRecursiveMutex>
 #else
 #include <windows.h>
 #endif
@@ -82,9 +82,9 @@ public:
 
 #else
 
-class DVAPI Mutex final : public QMutex {
+class DVAPI Mutex final : public QRecursiveMutex {
 public:
-  Mutex() : QMutex(QMutex::Recursive) {}
+  Mutex() : QRecursiveMutex() {}
 
 private:
   // not implemented
