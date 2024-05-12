@@ -965,7 +965,7 @@ void TSceneProperties::setCellMark(const TSceneProperties::CellMark &mark,
 // check if the cell mark settings are modified
 bool TSceneProperties::hasDefaultCellMarks() const {
   if (m_cellMarks.size() != 12) return false;
-  return m_cellMarks == getDefaultCellMarks();
+  return m_cellMarks.constData() == getDefaultCellMarks().data();
 }
 
 //-----------------------------------------------------------------------------
@@ -1000,7 +1000,7 @@ void TSceneProperties::setColorFilter(
 // check if the cell mark settings are modified
 bool TSceneProperties::hasDefaultColorFilters() const {
   if (m_colorFilters.size() != 11) return false;
-  return m_colorFilters == getDefaultColorFilters();
+  return m_colorFilters.constData() == getDefaultColorFilters().data();
 }
 
 //-----------------------------------------------------------------------------
