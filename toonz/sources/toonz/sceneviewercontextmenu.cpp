@@ -38,6 +38,7 @@
 #include <QMenu>
 #include <QContextMenuEvent>
 #include <QSignalMapper>
+#include <QActionGroup>
 
 SceneViewerContextMenu::SceneViewerContextMenu(SceneViewer *parent)
     : QMenu(parent), m_viewer(parent), m_groupIndexToBeEntered(-1) {
