@@ -34,7 +34,7 @@ public:
   ~ShortcutViewer();
 
 protected:
-  void enterEvent(QEvent *event) override;
+  void enterEvent(QEnterEvent *event) override;
   void leaveEvent(QEvent *event) override;
   void keyPressEvent(QKeyEvent *event) override;
 public slots:

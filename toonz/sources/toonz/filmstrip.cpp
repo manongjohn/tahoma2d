@@ -849,7 +849,7 @@ void FilmstripFrames::drawFrameIcon(QPainter &p, const QRect &r, int index,
   }
 }
 
-void FilmstripFrames::enterEvent(QEvent *event) { getViewer(); }
+void FilmstripFrames::enterEvent(QEnterEvent *event) { getViewer(); }
 
 //-----------------------------------------------------------------------------
 

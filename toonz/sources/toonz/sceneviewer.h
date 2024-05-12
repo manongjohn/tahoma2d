@@ -373,7 +373,7 @@ protected:
   void touchEvent(QTouchEvent *e, int type);
   void tabletEvent(QTabletEvent *) override;
   void leaveEvent(QEvent *) override;
-  void enterEvent(QEvent *) override;
+  void enterEvent(QEnterEvent *) override;
   void mouseMoveEvent(QMouseEvent *event) override;
   void mousePressEvent(QMouseEvent *event) override;
   void mouseReleaseEvent(QMouseEvent *event) override;
