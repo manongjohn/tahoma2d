@@ -16,32 +16,32 @@ public:
   ~Scene();
 
   WRAPPER_STD_METHODS(Scene)
-  Q_INVOKABLE QScriptValue toString();
+  Q_INVOKABLE QJSValue toString();
 
   Q_PROPERTY(int frameCount READ getFrameCount)
   Q_PROPERTY(int columnCount READ getColumnCount)
   int getFrameCount();
   int getColumnCount();
 
-  Q_INVOKABLE QScriptValue load(const QScriptValue &fpArg);
-  Q_INVOKABLE QScriptValue save(const QScriptValue &fpArg);
+  Q_INVOKABLE QJSValue load(const QJSValue &fpArg);
+  Q_INVOKABLE QJSValue save(const QJSValue &fpArg);
 
-  QString doSetCell(int row, int col, const QScriptValue &level,
-                    const QScriptValue &fid);
-  Q_INVOKABLE QScriptValue setCell(int row, int col, const QScriptValue &level,
-                                   const QScriptValue &fid);
-  Q_INVOKABLE QScriptValue setCell(int row, int col, const QScriptValue &cell);
-  Q_INVOKABLE QScriptValue getCell(int row, int col);
+  QString doSetCell(int row, int col, const QJSValue &level,
+                    const QJSValue &fid);
+  Q_INVOKABLE QJSValue setCell(int row, int col, const QJSValue &level,
+                                   const QJSValue &fid);
+  Q_INVOKABLE QJSValue setCell(int row, int col, const QJSValue &cell);
+  Q_INVOKABLE QJSValue getCell(int row, int col);
 
-  Q_INVOKABLE QScriptValue insertColumn(int col);
-  Q_INVOKABLE QScriptValue deleteColumn(int col);
+  Q_INVOKABLE QJSValue insertColumn(int col);
+  Q_INVOKABLE QJSValue deleteColumn(int col);
 
-  Q_INVOKABLE QScriptValue getLevels() const;
-  Q_INVOKABLE QScriptValue getLevel(const QString &name) const;
-  Q_INVOKABLE QScriptValue newLevel(const QString &type,
+  Q_INVOKABLE QJSValue getLevels() const;
+  Q_INVOKABLE QJSValue getLevel(const QString &name) const;
+  Q_INVOKABLE QJSValue newLevel(const QString &type,
                                     const QString &name) const;
-  Q_INVOKABLE QScriptValue loadLevel(const QString &name,
-                                     const QScriptValue &path) const;
+  Q_INVOKABLE QJSValue loadLevel(const QString &name,
+                                     const QJSValue &path) const;
 
   ToonzScene *getToonzScene() const { return m_scene; }
 };

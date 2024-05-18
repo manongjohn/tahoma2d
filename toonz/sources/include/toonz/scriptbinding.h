@@ -5,8 +5,8 @@
 
 #include <QObject>
 #include <QScriptable>
-#include <QScriptValue>
-#include <QScriptEngine>
+#include <QJSValue>
+#include <QJSEngine>
 #include <QMetaType>
 #include <QColor>
 
@@ -28,17 +28,17 @@
 #endif
 
 #define WRAPPER_STD_METHODS(T)                                                 \
-  static QScriptValue ctor(QScriptContext *context, QScriptEngine *engine);    \
-  static QScriptValue toScriptValue(QScriptEngine *engine, T *const &in) {     \
+  static QJSValue ctor(QScriptContext *context, QJSEngine *engine);    \
+  static QJSValue toScriptValue(QJSEngine *engine, T *const &in) {     \
     return engine->newQObject(in);                                             \
   }                                                                            \
-  static void fromScriptValue(const QScriptValue &object, T *&out) {           \
+  static void fromScriptValue(const QJSValue &object, T *&out) {           \
     out = qobject_cast<T *>(object.toQObject());                               \
   }
 
 #define WRAPPER_STD_CTOR_IMPL(T)                                               \
-  QScriptValue T::ctor(QScriptContext *context, QScriptEngine *engine) {       \
-    return engine->newQObject(new T(), QScriptEngine::AutoOwnership);          \
+  QJSValue T::ctor(QScriptContext *context, QJSEngine *engine) {       \
+    return engine->newQObject(new T(), QJSEngine::AutoOwnership);          \
   }
 
 class TAffine;
@@ -68,41 +68,40 @@ public:
   int getId() const { return m_id; }
 
   void print(const QString &msg);
-  void print(const QScriptValueList &lst);
+  void print(const QJSValueList &lst);
 
   void warning(const QString &msg);
 
   template <class T>
-  QScriptValue create(QScriptEngine *engine) {
+  QJSValue create(QJSEngine *engine) {
     return create(engine, static_cast<T *>(this));
   }
 
   template <class T>
-  static QScriptValue create(QScriptEngine *engine, T *obj) {
-    return engine->newQObject(obj, QScriptEngine::AutoOwnership,
-                              QScriptEngine::ExcludeSuperClassContents |
-                                  QScriptEngine::ExcludeChildObjects);
+  static QJSValue create(QJSEngine *engine, T *obj) {
+    return engine->newQObject(obj, QJSEngine::AutoOwnership,
+                              QJSEngine::ExcludeSuperClassContents | QJSEngine::ExcludeChildObjects);
   }
 
 protected:
   template <class T>
-  QScriptValue create(T *obj) {
+  QJSValue create(T *obj) {
     return create(engine(), obj);
   }
 };
 
-void bindAll(QScriptEngine &engine);
+void bindAll(QJSEngine &engine);
 
 // helper functions
 
 // check the number of arguments: if it is out of range returns an error object
-QScriptValue checkArgumentCount(QScriptContext *context, const QString &name,
+QJSValue checkArgumentCount(QScriptContext *context, const QString &name,
                                 int minCount, int maxCount);
-QScriptValue checkArgumentCount(QScriptContext *context, const QString &name,
+QJSValue checkArgumentCount(QScriptContext *context, const QString &name,
                                 int count);
 
 // check the color. if colorName is not valid then an error is returned
-QScriptValue checkColor(QScriptContext *context, const QString &colorName,
+QJSValue checkColor(QScriptContext *context, const QString &colorName,
                         QColor &color);
 
 }  // namespace TScriptBinding

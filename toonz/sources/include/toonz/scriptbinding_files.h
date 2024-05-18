@@ -20,20 +20,20 @@ public:
   ~FilePath();
 
   WRAPPER_STD_METHODS(FilePath)
-  Q_INVOKABLE QScriptValue toString() const;
+  Q_INVOKABLE QJSValue toString() const;
 
   Q_PROPERTY(QString extension READ getExtension WRITE setExtension)
   QString getExtension() const;
-  QScriptValue setExtension(const QString &extension);
+  QJSValue setExtension(const QString &extension);
 
   Q_PROPERTY(QString name READ getName WRITE setName)
   QString getName() const;
   void setName(const QString &name);
 
-  Q_PROPERTY(QScriptValue parentDirectory READ getParentDirectory WRITE
+  Q_PROPERTY(QJSValue parentDirectory READ getParentDirectory WRITE
                  setParentDirectory)
-  QScriptValue getParentDirectory() const;
-  void setParentDirectory(const QScriptValue &name);
+  QJSValue getParentDirectory() const;
+  void setParentDirectory(const QJSValue &name);
 
   Q_PROPERTY(bool exists READ exists)
   bool exists() const;
@@ -44,26 +44,26 @@ public:
   Q_PROPERTY(bool isDirectory READ isDirectory)
   bool isDirectory() const;
 
-  Q_INVOKABLE QScriptValue withExtension(const QString &extension);
-  Q_INVOKABLE QScriptValue withName(const QString &extension);
-  Q_INVOKABLE QScriptValue
-  withParentDirectory(const QScriptValue &parentDirectory);
+  Q_INVOKABLE QJSValue withExtension(const QString &extension);
+  Q_INVOKABLE QJSValue withName(const QString &extension);
+  Q_INVOKABLE QJSValue
+  withParentDirectory(const QJSValue &parentDirectory);
 
   TFilePath getToonzFilePath() const;
 
-  Q_INVOKABLE QScriptValue concat(const QScriptValue &value) const;
+  Q_INVOKABLE QJSValue concat(const QJSValue &value) const;
 
   // return a list of FilePath contained in the folder (assuming this FilePath
   // is a folder)
-  Q_INVOKABLE QScriptValue files() const;
+  Q_INVOKABLE QJSValue files() const;
 };
 
 // helper functions
 
 // convert a string or a FilePath object into a TFilePath
 // if no conversion is possible it returns an error object, else it returns
-// QScriptValue() and assign the conversion result to fp
-QScriptValue checkFilePath(QScriptContext *context, const QScriptValue &value,
+// QJSValue() and assign the conversion result to fp
+QJSValue checkFilePath(QScriptContext *context, const QJSValue &value,
                            TFilePath &fp);
 
 }  // namespace TScriptBinding
