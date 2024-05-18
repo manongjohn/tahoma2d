@@ -907,10 +907,10 @@ bool ShortcutZoomer::exec(QKeyEvent *event) {
 //    FullScreenWidget  implementation
 //*********************************************************************************************
 
-FullScreenWidget::FullScreenWidget(QWidget *parent) : QWidget(parent) {
+FullScreenWidget::FullScreenWidget(QWidget *parent)
+    : QOpenGLWidget(parent, Qt::FramelessWindowHint) {
 #if defined(_WIN32)
   // Allow Lazy Nezumi to hook the canvas
-  setAttribute(Qt::WA_PaintOnScreen);
   setAttribute(Qt::WA_NoSystemBackground);
   setAttribute(Qt::WA_NativeWindow);
   setAttribute(Qt::WA_DontCreateNativeAncestors);
