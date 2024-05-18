@@ -21,12 +21,12 @@ public:
   ~Transform();
 
   WRAPPER_STD_METHODS(Transform)
-  Q_INVOKABLE QScriptValue toString();
+  Q_INVOKABLE QJSValue toString();
 
-  Q_INVOKABLE QScriptValue translate(double x, double y);
-  Q_INVOKABLE QScriptValue rotate(double degrees);
-  Q_INVOKABLE QScriptValue scale(double s);
-  Q_INVOKABLE QScriptValue scale(double sx, double sy);
+  Q_INVOKABLE QJSValue translate(double x, double y);
+  Q_INVOKABLE QJSValue rotate(double degrees);
+  Q_INVOKABLE QJSValue scale(double s);
+  Q_INVOKABLE QJSValue scale(double sx, double sy);
 
   const TAffine &getAffine() const { return m_affine; }
 };
@@ -43,16 +43,16 @@ public:
   ~ImageBuilder();
 
   WRAPPER_STD_METHODS(ImageBuilder)
-  Q_INVOKABLE QScriptValue toString();
+  Q_INVOKABLE QJSValue toString();
 
-  Q_PROPERTY(QScriptValue image READ getImage)
-  QScriptValue getImage();
+  Q_PROPERTY(QJSValue image READ getImage)
+  QJSValue getImage();
 
-  Q_INVOKABLE QScriptValue add(QScriptValue img);
-  Q_INVOKABLE QScriptValue add(QScriptValue img, QScriptValue transformation);
+  Q_INVOKABLE QJSValue add(QJSValue img);
+  Q_INVOKABLE QJSValue add(QJSValue img, QJSValue transformation);
 
   Q_INVOKABLE void clear();
-  Q_INVOKABLE QScriptValue fill(const QString &colorName);
+  Q_INVOKABLE QJSValue fill(const QString &colorName);
 };
 
 }  // namespace TScriptBinding

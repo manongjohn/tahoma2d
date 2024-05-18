@@ -5,7 +5,7 @@
 #include "toonz/scriptbinding_files.h"
 #include "trenderer.h"
 #include "toonz/toonzfolders.h"
-#include <QScriptEngine>
+#include <QJSEngine>
 #include <QScriptProgram>
 #include <QFile>
 #include <QTextStream>
@@ -27,12 +27,12 @@ void sleep(unsigned long msec) {
   mutex.unlock();
 }
 
-QString print(QScriptValue arg, bool addQuotes) {
+QString print(QJSValue arg, bool addQuotes) {
   if (arg.isArray()) {
     QString s   = "[";
     quint32 len = arg.property(QLatin1String("length")).toUInt32();
     for (quint32 i = 0; i < len; ++i) {
-      QScriptValue item = arg.property(i);
+      QJSValue item = arg.property(i);
       if (i > 0) s += ",";
       s += print(item, addQuotes);
     }
@@ -49,38 +49,38 @@ QString print(QScriptValue arg, bool addQuotes) {
     return arg.toString();
 }
 
-QScriptValue printFunction(QScriptContext *context, QScriptEngine *engine) {
+QJSValue printFunction(QScriptContext *context, QJSEngine *engine) {
   QString result;
   for (int i = 0; i < context->argumentCount(); ++i) {
     if (i > 0) result.append(" ");
     result.append(print(context->argument(i), false));
   }
-  QScriptValue calleeData = context->callee().data();
+  QJSValue calleeData = context->callee().data();
   ScriptEngine *se = qobject_cast<ScriptEngine *>(calleeData.toQObject());
   se->emitOutput(ScriptEngine::SimpleText, result);
   sleep(50);
   return se->voidValue();
 }
 
-QScriptValue warningFunction(QScriptContext *context, QScriptEngine *engine) {
+QJSValue warningFunction(QScriptContext *context, QJSEngine *engine) {
   QString result;
   for (int i = 0; i < context->argumentCount(); ++i) {
     if (i > 0) result.append(" ");
     result.append(print(context->argument(i), false));
   }
-  QScriptValue calleeData = context->callee().data();
+  QJSValue calleeData = context->callee().data();
   ScriptEngine *se = qobject_cast<ScriptEngine *>(calleeData.toQObject());
   se->emitOutput(ScriptEngine::Warning, result);
   sleep(50);
   return se->voidValue();
 }
 
-QScriptValue runFunction(QScriptContext *context, QScriptEngine *engine) {
+QJSValue runFunction(QScriptContext *context, QJSEngine *engine) {
   if (context->argumentCount() != 1) {
     return context->throwError("expected one parameter");
   }
   TFilePath fp;
-  QScriptValue err =
+  QJSValue err =
       TScriptBinding::checkFilePath(context, context->argument(0), fp);
   if (err.isError()) return err;
   if (!fp.isAbsolute()) {
@@ -104,7 +104,7 @@ QScriptValue runFunction(QScriptContext *context, QScriptEngine *engine) {
     context->setThisObject(context->parentContext()->thisObject());
   }
 
-  QScriptValue ret = engine->evaluate(program);
+  QJSValue ret = engine->evaluate(program);
 
   if (engine->hasUncaughtException()) {
     int line = engine->uncaughtExceptionLineNumber();
@@ -118,10 +118,10 @@ QScriptValue runFunction(QScriptContext *context, QScriptEngine *engine) {
 }
 
 /*
-  QScriptValue glub(QScriptContext *context, QScriptEngine *engine)
+  QJSValue glub(QScriptContext *context, QJSEngine *engine)
   {
-    QScriptValue global = engine->globalObject();
-    QScriptValue te = global.property("_engine");
+    QJSValue global = engine->globalObject();
+    QJSValue te = global.property("_engine");
     ScriptEngine *se = qscriptvalue_cast<ScriptEngine*>(te);
     se->postCommand(context->argument(0));
     return 0;
@@ -142,7 +142,7 @@ public:
 
   void run() override {
     m_engine->m_engine->collectGarbage();
-    QScriptValue result = m_engine->m_engine->evaluate(m_cmd);
+    QJSValue result = m_engine->m_engine->evaluate(m_cmd);
     if (result.isError()) {
       m_engine->emitOutput(ScriptEngine::SyntaxError, result.toString());
     } else if (result.isUndefined()) {
@@ -162,59 +162,59 @@ class ScriptEngine::MainThreadEvaluationData {
 public:
   QMutex m_mutex;
   QWaitCondition m_cond;
-  QScriptValue m_fun, m_args, m_result;
+  QJSValue m_fun, m_args, m_result;
 };
 
 //=========================================================
 
 inline void defineFunction(ScriptEngine *se, const QString &name,
-                           QScriptEngine::FunctionSignature f) {
-  QScriptEngine *engine = se->getQScriptEngine();
-  QScriptValue fObj     = engine->newFunction(f);
+                           QJSEngine::FunctionSignature f) {
+  QJSEngine *engine = se->getQJSEngine();
+  QJSValue fObj     = engine->newFunction(f);
   fObj.setData(engine->newQObject(se));
   engine->globalObject().setProperty(name, fObj);
 }
 
 //=========================================================
 
-ScriptEngine::ScriptEngine() : m_executor(0), m_engine(new QScriptEngine()) {
+ScriptEngine::ScriptEngine() : m_executor(0), m_engine(new QJSEngine()) {
   // I must call TRenderer::initialize(), because a script could cause a
   // rendering driven by a working thread
   TRenderer::initialize();
 
   m_mainThreadEvaluationData = new MainThreadEvaluationData();
-  QScriptValue global        = m_engine->globalObject();
-  QScriptValue ctor;
+  QJSValue global        = m_engine->globalObject();
+  QJSValue ctor;
 
-  QScriptEngine &engine = *m_engine;
+  QJSEngine &engine = *m_engine;
 
   defineFunction(this, "print", printFunction);
   defineFunction(this, "warning", warningFunction);
   defineFunction(this, "run", runFunction);
 
   /*
-QScriptValue print = engine.newFunction(printFunction);
+QJSValue print = engine.newFunction(printFunction);
 print.setData(engine.newQObject(this));
 engine.globalObject().setProperty("print", print);
 
-QScriptValue print = engine.newFunction(printFunction);
+QJSValue print = engine.newFunction(printFunction);
 print.setData(engine.newQObject(this));
 engine.globalObject().setProperty("print", print);
 
-QScriptValue run = engine.newFunction(runFunction);
+QJSValue run = engine.newFunction(runFunction);
 run.setData(engine.newQObject(this));
 engine.globalObject().setProperty("run", run);
 
 */
-  // QScriptValue g = engine.newFunction(glub);
+  // QJSValue g = engine.newFunction(glub);
   // g.setData(engine.newQObject(this));
   // engine.globalObject().setProperty("glub", g);
 
   // engine.globalObject().setProperty("_engine", engine.newQObject(this));
 
-  m_voidValue  = new QScriptValue();
+  m_voidValue  = new QJSValue();
   *m_voidValue = engine.newQObject(new TScriptBinding::Void(),
-                                   QScriptEngine::AutoOwnership);
+                                   QJSEngine::AutoOwnership);
 
   engine.globalObject().setProperty("void", *m_voidValue);
 
@@ -229,13 +229,13 @@ ScriptEngine::~ScriptEngine() {
   delete m_voidValue;
 }
 
-const QScriptValue &ScriptEngine::evaluateOnMainThread(
-    const QScriptValue &fun, const QScriptValue &arguments) {
+const QJSValue &ScriptEngine::evaluateOnMainThread(
+    const QJSValue &fun, const QJSValue &arguments) {
   MainThreadEvaluationData *d = m_mainThreadEvaluationData;
   QMutexLocker locker(&d->m_mutex);
   d->m_fun    = fun;
   d->m_args   = arguments;
-  d->m_result = QScriptValue();
+  d->m_result = QJSValue();
   emit mainThreadEvaluationPosted();
   d->m_cond.wait(&d->m_mutex);
   return d->m_result;

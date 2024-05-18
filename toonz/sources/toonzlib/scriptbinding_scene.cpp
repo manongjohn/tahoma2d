@@ -23,15 +23,15 @@ Scene::Scene() {
 
 Scene::~Scene() { delete m_scene; }
 
-QScriptValue Scene::ctor(QScriptContext *context, QScriptEngine *engine) {
-  QScriptValue obj = create(engine, new Scene());
+QJSValue Scene::ctor(QScriptContext *context, QJSEngine *engine) {
+  QJSValue obj = create(engine, new Scene());
   if (context->argumentCount() == 1) {
     return obj.property("load").call(obj, context->argumentsObject());
   }
   return obj;
 }
 
-QScriptValue Scene::toString() {
+QJSValue Scene::toString() {
   return QString("Scene (%1 frames)").arg(getFrameCount());
 }
 
@@ -39,9 +39,9 @@ int Scene::getFrameCount() { return m_scene->getFrameCount(); }
 
 int Scene::getColumnCount() { return m_scene->getXsheet()->getColumnCount(); }
 
-QScriptValue Scene::load(const QScriptValue &fpArg) {
+QJSValue Scene::load(const QJSValue &fpArg) {
   TFilePath fp;
-  QScriptValue err = checkFilePath(context(), fpArg, fp);
+  QJSValue err = checkFilePath(context(), fpArg, fp);
   if (err.isError()) return err;
   if (!fp.isAbsolute())
     fp = TProjectManager::instance()->getCurrentProject()->getScenesPath() + fp;
@@ -58,9 +58,9 @@ QScriptValue Scene::load(const QScriptValue &fpArg) {
   }
 }
 
-QScriptValue Scene::save(const QScriptValue &fpArg) {
+QJSValue Scene::save(const QJSValue &fpArg) {
   TFilePath fp;
-  QScriptValue err = checkFilePath(context(), fpArg, fp);
+  QJSValue err = checkFilePath(context(), fpArg, fp);
   if (err.isError()) return err;
   if (!fp.isAbsolute())
     fp = TProjectManager::instance()->getCurrentProject()->getScenesPath() + fp;
@@ -73,8 +73,8 @@ QScriptValue Scene::save(const QScriptValue &fpArg) {
   }
 }
 
-QScriptValue Scene::getLevels() const {
-  QScriptValue result = engine()->newArray();
+QJSValue Scene::getLevels() const {
+  QJSValue result = engine()->newArray();
   qint32 index        = 0;
   std::vector<TXshLevel *> levels;
   m_scene->getLevelSet()->listLevels(levels);
@@ -89,17 +89,17 @@ QScriptValue Scene::getLevels() const {
   return result;
 }
 
-QScriptValue Scene::getLevel(const QString &name) const {
+QJSValue Scene::getLevel(const QString &name) const {
   TXshLevel *xl       = m_scene->getLevelSet()->getLevel(name.toStdWString());
   TXshSimpleLevel *sl = xl ? xl->getSimpleLevel() : 0;
   if (sl) {
     Level *level = new Level(sl);
     return create(engine(), level);
   } else
-    return QScriptValue();
+    return QJSValue();
 }
 
-QScriptValue Scene::newLevel(const QString &levelTypeStr,
+QJSValue Scene::newLevel(const QString &levelTypeStr,
                              const QString &levelName) const {
   int levelType = NO_XSHLEVEL;
   if (levelTypeStr == "Vector")
@@ -122,13 +122,13 @@ QScriptValue Scene::newLevel(const QString &levelTypeStr,
   return create(engine(), new Level(xl->getSimpleLevel()));
 }
 
-QScriptValue Scene::loadLevel(const QString &levelName,
-                              const QScriptValue &fpArg) const {
+QJSValue Scene::loadLevel(const QString &levelName,
+                              const QJSValue &fpArg) const {
   if (m_scene->getLevelSet()->hasLevel(levelName.toStdWString()))
     return context()->throwError(
         tr("Can't add the level: name(%1) is already used").arg(levelName));
   TFilePath fp;
-  QScriptValue err = checkFilePath(context(), fpArg, fp);
+  QJSValue err = checkFilePath(context(), fpArg, fp);
   if (err.isError()) return err;
   TFileType::Type type = TFileType::getInfo(fp);
   if ((type & TFileType::VIEWABLE) == 0)
@@ -142,8 +142,8 @@ QScriptValue Scene::loadLevel(const QString &levelName,
   return create(engine(), new Level(xl->getSimpleLevel()));
 }
 
-QString Scene::doSetCell(int row, int col, const QScriptValue &levelArg,
-                         const QScriptValue &fidArg) {
+QString Scene::doSetCell(int row, int col, const QJSValue &levelArg,
+                         const QJSValue &fidArg) {
   if (row < 0 || col < 0) {
     return "Bad row/col values";
   }
@@ -175,14 +175,14 @@ QString Scene::doSetCell(int row, int col, const QScriptValue &levelArg,
   return "";
 }
 
-QScriptValue Scene::setCell(int row, int col, const QScriptValue &level,
-                            const QScriptValue &fid) {
+QJSValue Scene::setCell(int row, int col, const QJSValue &level,
+                            const QJSValue &fid) {
   QString err = doSetCell(row, col, level, fid);
   if (err != "") return context()->throwError(err);
   return context()->thisObject();
 }
 
-QScriptValue Scene::setCell(int row, int col, const QScriptValue &cellArg) {
+QJSValue Scene::setCell(int row, int col, const QJSValue &cellArg) {
   if (cellArg.isUndefined()) {
     if (row >= 0 && col >= 0)
       m_scene->getXsheet()->setCell(row, col, TXshCell());
@@ -192,39 +192,39 @@ QScriptValue Scene::setCell(int row, int col, const QScriptValue &cellArg) {
       return context()->throwError(
           "Third argument should be an object with attributes 'level' and "
           "'fid'");
-    QScriptValue levelArg = cellArg.property("level");
-    QScriptValue fidArg   = cellArg.property("fid");
+    QJSValue levelArg = cellArg.property("level");
+    QJSValue fidArg   = cellArg.property("fid");
     QString err           = doSetCell(row, col, levelArg, fidArg);
     if (err != "") return context()->throwError(err);
   }
   return context()->thisObject();
 }
 
-QScriptValue Scene::getCell(int row, int col) {
+QJSValue Scene::getCell(int row, int col) {
   TXshCell cell       = m_scene->getXsheet()->getCell(row, col);
   TXshSimpleLevel *sl = cell.getSimpleLevel();
   if (sl) {
-    QScriptValue level = create(engine(), new Level(sl));
-    QScriptValue fid;
+    QJSValue level = create(engine(), new Level(sl));
+    QJSValue fid;
     if (cell.m_frameId.getLetter().isEmpty())
       fid = cell.m_frameId.getNumber();
     else
       fid = QString::fromStdString(cell.m_frameId.expand());
-    QScriptValue result = engine()->newObject();
+    QJSValue result = engine()->newObject();
     result.setProperty("level", level);
     result.setProperty("fid", fid);
     return result;
   } else {
-    return QScriptValue();
+    return QJSValue();
   }
 }
 
-QScriptValue Scene::insertColumn(int col) {
+QJSValue Scene::insertColumn(int col) {
   m_scene->getXsheet()->insertColumn(col);
   return context()->thisObject();
 }
 
-QScriptValue Scene::deleteColumn(int col) {
+QJSValue Scene::deleteColumn(int col) {
   m_scene->getXsheet()->removeColumn(col);
   return context()->thisObject();
 }
