@@ -1,7 +1,7 @@
 
 
 #include "toonz/scriptbinding_files.h"
-#include <QScriptEngine>
+#include <QJSEngine>
 #include <QFile>
 #include <QFileInfo>
 #include <QDirIterator>
@@ -18,7 +18,7 @@ FilePath::FilePath(const TFilePath &filePath)
 
 FilePath::~FilePath() {}
 
-QScriptValue FilePath::ctor(QScriptContext *context, QScriptEngine *engine) {
+QJSValue FilePath::ctor(QScriptContext *context, QJSEngine *engine) {
   FilePath *file = new FilePath();
   if (context->argumentCount() == 1) {
     file->m_filePath = context->argument(0).toString();
@@ -26,13 +26,13 @@ QScriptValue FilePath::ctor(QScriptContext *context, QScriptEngine *engine) {
   return file->create(engine, file);
 }
 
-QScriptValue FilePath::toString() const { return tr("\"%1\"").arg(m_filePath); }
+QJSValue FilePath::toString() const { return tr("\"%1\"").arg(m_filePath); }
 
 QString FilePath::getExtension() const {
   return QString::fromStdString(getToonzFilePath().getType());
 }
 
-QScriptValue FilePath::setExtension(const QString &extension) {
+QJSValue FilePath::setExtension(const QString &extension) {
   TFilePath fp = getToonzFilePath().withType(extension.toStdString());
   m_filePath   = QString::fromStdWString(fp.getWideString());
   return context()->thisObject();
@@ -47,34 +47,34 @@ void FilePath::setName(const QString &name) {
   m_filePath   = QString::fromStdWString(fp.getWideString());
 }
 
-QScriptValue FilePath::getParentDirectory() const {
+QJSValue FilePath::getParentDirectory() const {
   FilePath *result = new FilePath(getToonzFilePath().getParentDir());
   return create(engine(), result);
 }
 
-void FilePath::setParentDirectory(const QScriptValue &folder) {
+void FilePath::setParentDirectory(const QJSValue &folder) {
   TFilePath fp;
-  QScriptValue err = checkFilePath(context(), folder, fp);
+  QJSValue err = checkFilePath(context(), folder, fp);
   if (!err.isError()) {
     m_filePath = QString::fromStdWString(
         getToonzFilePath().withParentDir(fp).getWideString());
   }
 }
 
-QScriptValue FilePath::withExtension(const QString &extension) {
+QJSValue FilePath::withExtension(const QString &extension) {
   TFilePath fp = getToonzFilePath().withType(extension.toStdString());
   return create(engine(), new FilePath(fp));
 }
 
-QScriptValue FilePath::withName(const QString &extension) {
+QJSValue FilePath::withName(const QString &extension) {
   TFilePath fp = getToonzFilePath().withName(extension.toStdString());
   return create(engine(), new FilePath(fp));
 }
 
-QScriptValue FilePath::withParentDirectory(
-    const QScriptValue &parentDirectoryArg) {
+QJSValue FilePath::withParentDirectory(
+    const QJSValue &parentDirectoryArg) {
   TFilePath parentDirectory;
-  QScriptValue err =
+  QJSValue err =
       checkFilePath(context(), parentDirectoryArg, parentDirectory);
   if (err.isError())
     return err;
@@ -96,9 +96,9 @@ TFilePath FilePath::getToonzFilePath() const {
 
 bool FilePath::isDirectory() const { return QFileInfo(m_filePath).isDir(); }
 
-QScriptValue FilePath::concat(const QScriptValue &value) const {
+QJSValue FilePath::concat(const QJSValue &value) const {
   TFilePath fp;
-  QScriptValue err;
+  QJSValue err;
   err = checkFilePath(context(), value, fp);
   if (err.isError()) return err;
 
@@ -109,7 +109,7 @@ QScriptValue FilePath::concat(const QScriptValue &value) const {
   return create(engine(), new FilePath(fp));
 }
 
-QScriptValue FilePath::files() const {
+QJSValue FilePath::files() const {
   if (!isDirectory()) {
     return context()->throwError(
         tr("%1 is not a directory").arg(toString().toString()));
@@ -117,7 +117,7 @@ QScriptValue FilePath::files() const {
   TFilePathSet fpset;
   try {
     TSystem::readDirectory(fpset, getToonzFilePath());
-    QScriptValue result = engine()->newArray();
+    QJSValue result = engine()->newArray();
     quint32 index       = 0;
     for (TFilePathSet::iterator it = fpset.begin(); it != fpset.end(); ++it) {
       FilePath *res = new FilePath(*it);
@@ -130,7 +130,7 @@ QScriptValue FilePath::files() const {
   }
 }
 
-QScriptValue checkFilePath(QScriptContext *context, const QScriptValue &value,
+QJSValue checkFilePath(QScriptContext *context, const QJSValue &value,
                            TFilePath &fp) {
   FilePath *filePath = qscriptvalue_cast<FilePath *>(value);
   if (filePath) {
@@ -142,7 +142,7 @@ QScriptValue checkFilePath(QScriptContext *context, const QScriptValue &value,
         QObject::tr("Argument doesn't look like a file path : %1")
             .arg(value.toString()));
   }
-  return QScriptValue();
+  return QJSValue();
 }
 
 }  // namespace TScriptBinding

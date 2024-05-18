@@ -11,20 +11,20 @@ ToonzRasterConverter::ToonzRasterConverter() : m_flatSource(false) {}
 
 ToonzRasterConverter::~ToonzRasterConverter() {}
 
-QScriptValue ToonzRasterConverter::ctor(QScriptContext *context,
-                                        QScriptEngine *engine) {
+QJSValue ToonzRasterConverter::ctor(QScriptContext *context,
+                                        QJSEngine *engine) {
   return engine->newQObject(new ToonzRasterConverter(),
-                            QScriptEngine::AutoOwnership);
+                            QJSEngine::AutoOwnership);
 }
 
-QScriptValue ToonzRasterConverter::toString() { return "ToonzRasterConverter"; }
+QJSValue ToonzRasterConverter::toString() { return "ToonzRasterConverter"; }
 
-QScriptValue ToonzRasterConverter::convert(QScriptContext *context,
-                                           QScriptEngine *engine) {
+QJSValue ToonzRasterConverter::convert(QScriptContext *context,
+                                           QJSEngine *engine) {
   if (context->argumentCount() != 1)
     return context->throwError(
         "Expected one argument (a raster Level or a raster Image)");
-  QScriptValue arg = context->argument(0);
+  QJSValue arg = context->argument(0);
   Level *level     = qscriptvalue_cast<Level *>(arg);
   Image *img       = qscriptvalue_cast<Image *>(arg);
   QString type;
@@ -50,7 +50,7 @@ QScriptValue ToonzRasterConverter::convert(QScriptContext *context,
     ti->setPalette(converter.getPalette().getPointer());
     return create(engine, new Image(ti));
   } else
-    return QScriptValue();
+    return QJSValue();
 }
 
 }  // namespace TScriptBinding
