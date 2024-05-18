@@ -13,6 +13,7 @@
 // Qt includes
 #include <QWidget>
 #include <QKeyEvent>
+#include <QtOpenGLWidgets/QOpenGLWidget>
 
 #undef DVAPI
 #undef DVVAR
@@ -158,7 +159,7 @@ void DVAPI getStrokeStyleInformationInArea(
             widgets (specifically, context menus).
 */
 
-class DVAPI FullScreenWidget final : public QWidget {
+class DVAPI FullScreenWidget final : public QOpenGLWidget {
   Q_OBJECT
 
   QWidget *m_widget;  //!< (Owned) The content widget.
