@@ -17,10 +17,10 @@ public:
   ~Renderer();
 
   WRAPPER_STD_METHODS(Renderer)
-  Q_INVOKABLE QScriptValue toString();
+  Q_INVOKABLE QJSValue toString();
 
-  Q_INVOKABLE QScriptValue renderScene(const QScriptValue &scene);
-  Q_INVOKABLE QScriptValue renderFrame(const QScriptValue &scene, int frame);
+  Q_INVOKABLE QJSValue renderScene(const QJSValue &scene);
+  Q_INVOKABLE QJSValue renderFrame(const QJSValue &scene, int frame);
 
   Q_INVOKABLE void dumpCache();
 };

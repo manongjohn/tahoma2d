@@ -2,7 +2,7 @@
 
 #include "toonz/scriptbinding_level.h"
 #include "toonz/scriptbinding_files.h"
-#include <QScriptEngine>
+#include <QJSEngine>
 #include "timage_io.h"
 #include "tlevel_io.h"
 #include "tlevel.h"
@@ -48,16 +48,16 @@ Level::~Level() {
   if (m_sl) m_sl->release();
 }
 
-QScriptValue Level::ctor(QScriptContext *context, QScriptEngine *engine) {
+QJSValue Level::ctor(QScriptContext *context, QJSEngine *engine) {
   Level *level     = new Level();
-  QScriptValue obj = engine->newQObject(level, QScriptEngine::AutoOwnership);
+  QJSValue obj = engine->newQObject(level, QJSEngine::AutoOwnership);
   if (context->argumentCount() == 1) {
     return obj.property("load").call(obj, context->argumentsObject());
   }
   return obj;
 }
 
-QScriptValue Level::toString() {
+QJSValue Level::toString() {
   QString info  = "(";
   QString comma = "";
   if (getName() != "") {
@@ -101,16 +101,16 @@ void Level::setName(const QString &name) {
   if (m_sl) m_sl->setName(name.toStdWString());
 }
 
-QScriptValue Level::getPath() const {
+QJSValue Level::getPath() const {
   if (m_sl) {
     FilePath *result = new FilePath(m_sl->getPath());
     return result->create<FilePath>(engine());
   } else
-    return QScriptValue();
+    return QJSValue();
   return m_sl ? QString::fromStdWString(m_sl->getName()) : "";
 }
 
-void Level::setPath(const QScriptValue &pathArg) {
+void Level::setPath(const QJSValue &pathArg) {
   TFilePath fp;
   FilePath *filePath = qscriptvalue_cast<FilePath *>(pathArg);
   if (filePath)
@@ -133,7 +133,7 @@ void Level::setPath(const QScriptValue &pathArg) {
   }
 }
 
-QScriptValue Level::load(const QScriptValue &fpArg) {
+QJSValue Level::load(const QJSValue &fpArg) {
   if (m_sl) {
     m_scene->getLevelSet()->removeLevel(m_sl, true);
     m_sl->release();
@@ -142,7 +142,7 @@ QScriptValue Level::load(const QScriptValue &fpArg) {
 
   // get the path
   TFilePath fp;
-  QScriptValue err = checkFilePath(context(), fpArg, fp);
+  QJSValue err = checkFilePath(context(), fpArg, fp);
   if (err.isError()) return err;
   QString fpStr = fpArg.toString();
 
@@ -171,14 +171,14 @@ QScriptValue Level::load(const QScriptValue &fpArg) {
   }
 }
 
-QScriptValue Level::save(const QScriptValue &fpArg) {
+QJSValue Level::save(const QJSValue &fpArg) {
   if (getFrameCount() == 0) {
     return context()->throwError(tr("Can't save an empty level"));
   }
 
   // get the path
   TFilePath fp;
-  QScriptValue err = checkFilePath(context(), fpArg, fp);
+  QJSValue err = checkFilePath(context(), fpArg, fp);
   if (err.isError()) return err;
   QString fpStr = fpArg.toString();
 
@@ -214,7 +214,7 @@ QScriptValue Level::save(const QScriptValue &fpArg) {
   return context()->thisObject();
 }
 
-TFrameId Level::getFid(const QScriptValue &arg, QString &err) {
+TFrameId Level::getFid(const QJSValue &arg, QString &err) {
   if (arg.isNumber() || arg.isString()) {
     QString s = arg.toString();
     QRegularExpression rx("(-?\\d+)(\\w?)");
@@ -243,7 +243,7 @@ TImageP Level::getImg(const TFrameId &fid) {
     return TImageP();
 }
 
-QScriptValue Level::getFrame(const QScriptValue &fidArg) {
+QJSValue Level::getFrame(const QJSValue &fidArg) {
   if (getFrameCount() == 0)
     return context()->throwError("An empty level has no frames");
   QString err;
@@ -255,11 +255,11 @@ QScriptValue Level::getFrame(const QScriptValue &fidArg) {
     Image *img = new Image(content.getPointer());
     return create(img);
   } else {
-    return QScriptValue();
+    return QJSValue();
   }
 }
 
-QScriptValue Level::getFrameByIndex(const QScriptValue &indexArg) {
+QJSValue Level::getFrameByIndex(const QJSValue &indexArg) {
   if (getFrameCount() == 0)
     return context()->throwError("An empty level has no frames");
   if (!indexArg.isNumber()) {
@@ -278,13 +278,13 @@ QScriptValue Level::getFrameByIndex(const QScriptValue &indexArg) {
     Image *img = new Image(content.getPointer());
     return create(img);
   } else {
-    return QScriptValue();
+    return QJSValue();
   }
 }
 
 // TODO: chiamare setFrame(const TFrameId &fid, const TImageP &img)
-QScriptValue Level::setFrame(const QScriptValue &fidArg,
-                             const QScriptValue &imageArg) {
+QJSValue Level::setFrame(const QJSValue &fidArg,
+                             const QJSValue &imageArg) {
   QString err;
   TFrameId fid = getFid(fidArg, err);
   if (err != "") return context()->throwError(err);
@@ -336,10 +336,10 @@ QScriptValue Level::setFrame(const QScriptValue &fidArg,
   return context()->thisObject();
 }
 
-QScriptValue Level::getFrameIds() {
+QJSValue Level::getFrameIds() {
   QList<TFrameId> fids;
   getFrameIds(fids);
-  QScriptValue result = engine()->newArray();
+  QJSValue result = engine()->newArray();
   quint32 index       = 0;
   for (const TFrameId &fid : fids) {
     QString fidStr = QString::fromStdString(fid.expand());

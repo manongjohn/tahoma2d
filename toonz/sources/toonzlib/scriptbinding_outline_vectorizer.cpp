@@ -15,15 +15,15 @@ OutlineVectorizer::OutlineVectorizer() {
 
 OutlineVectorizer::~OutlineVectorizer() { delete m_parameters; }
 
-QScriptValue OutlineVectorizer::toString() { return "Outline Vectorizer"; }
+QJSValue OutlineVectorizer::toString() { return "Outline Vectorizer"; }
 
-QScriptValue OutlineVectorizer::ctor(QScriptContext *context,
-                                     QScriptEngine *engine) {
+QJSValue OutlineVectorizer::ctor(QScriptContext *context,
+                                     QJSEngine *engine) {
   return create(engine, new OutlineVectorizer());
 }
 
-static QScriptValue vectorizeImage(QScriptContext *context,
-                                   QScriptEngine *engine, const TImageP &src,
+static QJSValue vectorizeImage(QScriptContext *context,
+                                   QJSEngine *engine, const TImageP &src,
                                    TPalette *palette,
                                    NewOutlineConfiguration *parameters) {
   VectorizerCore vc;
@@ -48,10 +48,10 @@ static QScriptValue vectorizeImage(QScriptContext *context,
 
   TVectorImageP vi = vc.vectorize(src, *parameters, palette);
   vi->setPalette(palette);
-  return engine->newQObject(new Image(vi), QScriptEngine::AutoOwnership);
+  return engine->newQObject(new Image(vi), QJSEngine::AutoOwnership);
 }
 
-QScriptValue OutlineVectorizer::vectorize(QScriptValue arg) {
+QJSValue OutlineVectorizer::vectorize(QJSValue arg) {
   Level *level = qscriptvalue_cast<Level *>(arg);
   Image *img   = qscriptvalue_cast<Image *>(arg);
   QString type;
@@ -81,19 +81,19 @@ QScriptValue OutlineVectorizer::vectorize(QScriptValue arg) {
     return vectorizeImage(context(), engine(), img->getImg(), palette,
                           m_parameters);
   } else if (level) {
-    QScriptValue newLevel = create(engine(), new Level());
+    QJSValue newLevel = create(engine(), new Level());
     QList<TFrameId> fids;
     level->getFrameIds(fids);
     for (const TFrameId &fid : fids) {
       TImageP srcImg = level->getImg(fid);
       if (srcImg && (srcImg->getType() == TImage::RASTER ||
                      srcImg->getType() == TImage::TOONZ_RASTER)) {
-        QScriptValue newFrame =
+        QJSValue newFrame =
             vectorizeImage(context(), engine(), srcImg, palette, m_parameters);
         if (newFrame.isError()) {
           return newFrame;
         }
-        QScriptValueList args;
+        QJSValueList args;
         args << QString::fromStdString(fid.expand()) << newFrame;
         newLevel.property("setFrame").call(newLevel, args);
       }
@@ -101,7 +101,7 @@ QScriptValue OutlineVectorizer::vectorize(QScriptValue arg) {
     return newLevel;
   } else {
     // should never happen
-    return QScriptValue();
+    return QJSValue();
   }
 }
 

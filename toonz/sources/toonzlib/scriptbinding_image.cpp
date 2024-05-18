@@ -19,10 +19,10 @@ Image::Image(TImage *img) : m_img(img) {}
 
 Image::~Image() {}
 
-QScriptValue Image::ctor(QScriptContext *context, QScriptEngine *engine) {
+QJSValue Image::ctor(QScriptContext *context, QJSEngine *engine) {
   Image *img       = new Image();
-  QScriptValue obj = create(engine, img);
-  QScriptValue err = checkArgumentCount(context, "the Image constructor", 0, 1);
+  QJSValue obj = create(engine, img);
+  QJSValue err = checkArgumentCount(context, "the Image constructor", 0, 1);
   if (err.isError()) return err;
   if (context->argumentCount() == 1) {
     return obj.property("load").call(obj, context->argumentsObject());
@@ -30,7 +30,7 @@ QScriptValue Image::ctor(QScriptContext *context, QScriptEngine *engine) {
   return obj;
 }
 
-QScriptValue Image::toString() {
+QJSValue Image::toString() {
   if (m_img) {
     TImage::Type type = m_img->getType();
     if (type == TImage::RASTER)
@@ -86,13 +86,13 @@ QString Image::getType() const {
     return "Empty";
 }
 
-QScriptValue Image::load(const QScriptValue &fpArg) {
+QJSValue Image::load(const QJSValue &fpArg) {
   // clear the old image (if any)
   m_img = TImageP();
 
   // get the path
   TFilePath fp;
-  QScriptValue err = checkFilePath(context(), fpArg, fp);
+  QJSValue err = checkFilePath(context(), fpArg, fp);
   if (err.isError()) return err;
   QString fpStr = fpArg.toString();
 
@@ -145,7 +145,7 @@ QScriptValue Image::load(const QScriptValue &fpArg) {
   }
 }
 
-QScriptValue Image::save(const QScriptValue &fpArg) {
+QJSValue Image::save(const QJSValue &fpArg) {
   // clear the old image (if any)
   if (!m_img) {
     return context()->throwError("Can't save an empty image");
@@ -153,7 +153,7 @@ QScriptValue Image::save(const QScriptValue &fpArg) {
 
   // get the path
   TFilePath fp;
-  QScriptValue err = checkFilePath(context(), fpArg, fp);
+  QJSValue err = checkFilePath(context(), fpArg, fp);
   if (err.isError()) return err;
   QString fpStr = fpArg.toString();
 
@@ -197,7 +197,7 @@ QScriptValue Image::save(const QScriptValue &fpArg) {
   }
 }
 
-QScriptValue checkImage(QScriptContext *context, const QScriptValue &value,
+QJSValue checkImage(QScriptContext *context, const QJSValue &value,
                         Image *&img) {
   img = qscriptvalue_cast<Image *>(value);
   if (!img || !img->getImg())
@@ -205,7 +205,7 @@ QScriptValue checkImage(QScriptContext *context, const QScriptValue &value,
         QObject::tr("Bad argument (%1): should be an Image (not empty)")
             .arg(value.toString()));
   else
-    return QScriptValue();
+    return QJSValue();
 }
 
 }  // namespace TScriptBinding

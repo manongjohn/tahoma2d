@@ -21,9 +21,9 @@ Rasterizer::Rasterizer()
 
 Rasterizer::~Rasterizer() {}
 
-QScriptValue Rasterizer::toString() { return "Rasterizer"; }
+QJSValue Rasterizer::toString() { return "Rasterizer"; }
 
-QScriptValue Rasterizer::ctor(QScriptContext *context, QScriptEngine *engine) {
+QJSValue Rasterizer::ctor(QScriptContext *context, QJSEngine *engine) {
   return create(engine, new Rasterizer());
 }
 
@@ -59,15 +59,15 @@ static TImageP renderVectorImage(TOfflineGL *glContext,
   return rimg;
 }
 
-static void setFrame(QScriptEngine *engine, QScriptValue &level,
+static void setFrame(QJSEngine *engine, QJSValue &level,
                      const TFrameId &fid, const TImageP &drawing) {
-  QScriptValueList args;
+  QJSValueList args;
   args << QString::fromStdString(fid.expand())
        << Wrapper::create(engine, new Image(drawing.getPointer()));
   level.property("setFrame").call(level, args);
 }
 
-Q_INVOKABLE QScriptValue Rasterizer::rasterize(QScriptValue arg) {
+Q_INVOKABLE QJSValue Rasterizer::rasterize(QJSValue arg) {
   Image *img        = qscriptvalue_cast<Image *>(arg);
   Level *level      = qscriptvalue_cast<Level *>(arg);
   TPalette *palette = 0;
@@ -97,7 +97,7 @@ Q_INVOKABLE QScriptValue Rasterizer::rasterize(QScriptValue arg) {
   TPointD dpi = camera.getDpi();
   TAffine aff = camera.getStageToCameraRef();
 
-  QScriptValue result;
+  QJSValue result;
   int n               = 0;
   TXshSimpleLevel *sl = 0;
   if (level) {

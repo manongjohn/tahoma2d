@@ -19,32 +19,32 @@
 #include "flipbook.h"
 #include "tvectorimage.h"
 
-#include <QScriptEngine>
+#include <QJSEngine>
 #include <QFile>
 #include <QTextStream>
 
-static QScriptValue loadSceneFun(QScriptContext *context,
-                                 QScriptEngine *engine) {
+static QJSValue loadSceneFun(QScriptContext *context,
+                                 QJSEngine *engine) {
   if (context->argumentCount() > 0) {
     QString fpArg = context->argument(0).toString();
     TFilePath fp(fpArg.toStdWString());
     IoCmd::loadScene(fp);
   }
-  return QScriptValue();
+  return QJSValue();
 }
 
-static QScriptValue saveSceneFun(QScriptContext *context,
-                                 QScriptEngine *engine) {
+static QJSValue saveSceneFun(QScriptContext *context,
+                                 QJSEngine *engine) {
   if (context->argumentCount() > 0) {
     QString fpArg = context->argument(0).toString();
     TFilePath fp(fpArg.toStdWString());
     IoCmd::saveScene(fp, IoCmd::SILENTLY_OVERWRITE);
   }
-  return QScriptValue();
+  return QJSValue();
 }
 
-static QScriptValue loadLevelFun(QScriptContext *context,
-                                 QScriptEngine *engine) {
+static QJSValue loadLevelFun(QScriptContext *context,
+                                 QJSEngine *engine) {
   if (context->argumentCount() > 0) {
     QString fpArg = context->argument(0).toString();
     TFilePath fp(fpArg.toStdWString());
@@ -67,14 +67,14 @@ static QScriptValue loadLevelFun(QScriptContext *context,
     app->getCurrentScene()->notifySceneChanged();
     app->getCurrentXsheet()->notifyXsheetChanged();
   }
-  return QScriptValue();
+  return QJSValue();
 }
 
-static QScriptValue dummyFun(QScriptContext *context, QScriptEngine *engine) {
-  return QScriptValue(engine, 0);
+static QJSValue dummyFun(QScriptContext *context, QJSEngine *engine) {
+  return QJSValue(engine, 0);
 }
 
-static QScriptValue viewFun(QScriptContext *context, QScriptEngine *engine) {
+static QJSValue viewFun(QScriptContext *context, QJSEngine *engine) {
   TScriptBinding::Image *image = 0;
   TScriptBinding::Level *level = 0;
 
@@ -103,9 +103,9 @@ static QScriptValue viewFun(QScriptContext *context, QScriptEngine *engine) {
   return engine->globalObject().property("void");
 }
 
-static QScriptValue evaluateOnMainThread(QScriptContext *context,
-                                         QScriptEngine *engine) {
-  QScriptValue fun = context->callee().data();
+static QJSValue evaluateOnMainThread(QScriptContext *context,
+                                         QJSEngine *engine) {
+  QJSValue fun = context->callee().data();
   QObject *obj     = fun.data().toQObject();
   QString s        = fun.toString();
   ScriptEngine *se = qobject_cast<ScriptEngine *>(obj);
@@ -113,12 +113,12 @@ static QScriptValue evaluateOnMainThread(QScriptContext *context,
 }
 
 static void def(ScriptEngine *teng, const QString &name,
-                QScriptEngine::FunctionSignature fun) {
-  QScriptEngine *eng  = teng->getQScriptEngine();
-  QScriptValue funVal = eng->newFunction(fun);
+                QJSEngine::FunctionSignature fun) {
+  QJSEngine *eng  = teng->getQJSEngine();
+  QJSValue funVal = eng->newFunction(fun);
   funVal.setData(eng->newQObject(teng));
 
-  QScriptValue evalFun = eng->newFunction(evaluateOnMainThread);
+  QJSValue evalFun = eng->newFunction(evaluateOnMainThread);
   evalFun.setData(funVal);
   eng->globalObject().setProperty(name, evalFun);
 }
@@ -142,7 +142,7 @@ def(teng, "loadLevel", loadLevelFun);
   def(teng, "view", viewFun);
   def(teng, "dummy", dummyFun);
 
-  // teng->getQScriptEngine()->evaluate("console={version:'1.0'};function
+  // teng->getQJSEngine()->evaluate("console={version:'1.0'};function
   // version() {print('Toonz '+toonz.version+'\nscript '+script.version);};");
 
   /*
@@ -152,7 +152,7 @@ if (initFile.open(QIODevice::ReadOnly))
 QTextStream stream(&initFile);
 QString contents = stream.readAll();
 initFile.close();
-teng->getQScriptEngine()->evaluate(contents, "init.js");
+teng->getQJSEngine()->evaluate(contents, "init.js");
 }
 */
 

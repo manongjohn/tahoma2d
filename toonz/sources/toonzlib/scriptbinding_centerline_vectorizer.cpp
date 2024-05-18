@@ -2,7 +2,7 @@
 
 #include "toonz/scriptbinding_centerline_vectorizer.h"
 #include "toonz/scriptbinding_level.h"
-#include <QScriptEngine>
+#include <QJSEngine>
 #include "toonz/tcenterlinevectorizer.h"
 #include "toonz/stage.h"
 #include "toonz/Naa2TlvConverter.h"
@@ -17,16 +17,16 @@ CenterlineVectorizer::CenterlineVectorizer() {
 
 CenterlineVectorizer::~CenterlineVectorizer() { delete m_parameters; }
 
-QScriptValue CenterlineVectorizer::toString() {
+QJSValue CenterlineVectorizer::toString() {
   return "Centerline Vectorizer";
 }
 
-QScriptValue CenterlineVectorizer::ctor(QScriptContext *context,
-                                        QScriptEngine *engine) {
+QJSValue CenterlineVectorizer::ctor(QScriptContext *context,
+                                        QJSEngine *engine) {
   return create(engine, new CenterlineVectorizer());
 }
 
-QScriptValue CenterlineVectorizer::vectorizeImage(const TImageP &src,
+QJSValue CenterlineVectorizer::vectorizeImage(const TImageP &src,
                                                   TPalette *palette) {
   VectorizerCore vc;
   TAffine dpiAff;
@@ -55,10 +55,10 @@ QScriptValue CenterlineVectorizer::vectorizeImage(const TImageP &src,
   vi->setPalette(palette);
   palette->release();
 
-  return engine()->newQObject(new Image(vi), QScriptEngine::AutoOwnership);
+  return engine()->newQObject(new Image(vi), QJSEngine::AutoOwnership);
 }
 
-QScriptValue CenterlineVectorizer::vectorize(QScriptValue arg) {
+QJSValue CenterlineVectorizer::vectorize(QJSValue arg) {
   Level *level = qscriptvalue_cast<Level *>(arg);
   Image *img   = qscriptvalue_cast<Image *>(arg);
   QString type;
@@ -87,18 +87,18 @@ QScriptValue CenterlineVectorizer::vectorize(QScriptValue arg) {
   if (img) {
     return vectorizeImage(img->getImg(), palette);
   } else if (level) {
-    QScriptValue newLevel = create(engine(), new Level());
+    QJSValue newLevel = create(engine(), new Level());
     QList<TFrameId> fids;
     level->getFrameIds(fids);
     for (const TFrameId &fid : fids) {
       TImageP srcImg = level->getImg(fid);
       if (srcImg && (srcImg->getType() == TImage::RASTER ||
                      srcImg->getType() == TImage::TOONZ_RASTER)) {
-        QScriptValue newFrame = vectorizeImage(srcImg, palette);
+        QJSValue newFrame = vectorizeImage(srcImg, palette);
         if (newFrame.isError()) {
           return newFrame;
         }
-        QScriptValueList args;
+        QJSValueList args;
         args << QString::fromStdString(fid.expand()) << newFrame;
         newLevel.property("setFrame").call(newLevel, args);
       }
@@ -106,7 +106,7 @@ QScriptValue CenterlineVectorizer::vectorize(QScriptValue arg) {
     return newLevel;
   } else {
     // should never happen
-    return QScriptValue();
+    return QJSValue();
   }
 }
 

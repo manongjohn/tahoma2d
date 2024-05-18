@@ -18,10 +18,10 @@ public:
   CenterlineVectorizer();
   ~CenterlineVectorizer();
 
-  Q_INVOKABLE QScriptValue toString();
+  Q_INVOKABLE QJSValue toString();
   WRAPPER_STD_METHODS(CenterlineVectorizer)
 
-  Q_INVOKABLE QScriptValue vectorize(QScriptValue img_or_level);
+  Q_INVOKABLE QJSValue vectorize(QJSValue img_or_level);
 
   Q_PROPERTY(int threshold READ getThreshold WRITE setThreshold)
   int getThreshold() const;
@@ -58,7 +58,7 @@ public:
   void setEir(bool v);
 
 private:
-  QScriptValue vectorizeImage(const TImageP &src1, TPalette *palette);
+  QJSValue vectorizeImage(const TImageP &src1, TPalette *palette);
 };
 
 }  // namespace TScriptBinding

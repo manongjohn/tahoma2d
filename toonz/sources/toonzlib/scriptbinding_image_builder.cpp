@@ -14,11 +14,11 @@ Transform::Transform(const TAffine &aff) : m_affine(aff) {}
 
 Transform::~Transform() {}
 
-QScriptValue Transform::ctor(QScriptContext *context, QScriptEngine *engine) {
+QJSValue Transform::ctor(QScriptContext *context, QJSEngine *engine) {
   return create(engine, new Transform());
 }
 
-QScriptValue Transform::toString() {
+QJSValue Transform::toString() {
   if (m_affine.isIdentity())
     return tr("Identity");
   else if (m_affine.isTranslation())
@@ -61,19 +61,19 @@ QScriptValue Transform::toString() {
   }
 }
 
-QScriptValue Transform::translate(double x, double y) {
+QJSValue Transform::translate(double x, double y) {
   return create(engine(), new Transform(TTranslation(x, y) * m_affine));
 }
 
-QScriptValue Transform::rotate(double degrees) {
+QJSValue Transform::rotate(double degrees) {
   return create(engine(), new Transform(TRotation(degrees) * m_affine));
 }
 
-QScriptValue Transform::scale(double s) {
+QJSValue Transform::scale(double s) {
   return create(engine(), new Transform(TScale(s) * m_affine));
 }
 
-QScriptValue Transform::scale(double sx, double sy) {
+QJSValue Transform::scale(double sx, double sy) {
   return create(engine(), new Transform(TScale(sx, sy) * m_affine));
 }
 
@@ -83,8 +83,8 @@ ImageBuilder::ImageBuilder() : m_width(0), m_height(0) {}
 
 ImageBuilder::~ImageBuilder() {}
 
-QScriptValue ImageBuilder::ctor(QScriptContext *context,
-                                QScriptEngine *engine) {
+QJSValue ImageBuilder::ctor(QScriptContext *context,
+                                QJSEngine *engine) {
   ImageBuilder *imageBuilder = 0;
   if (context->argumentCount() == 2 || context->argumentCount() == 3) {
     if (!context->argument(0).isNumber() || !context->argument(1).isNumber())
@@ -116,14 +116,14 @@ QScriptValue ImageBuilder::ctor(QScriptContext *context,
           "Bad argument count. expected: width,height[,type]");
     imageBuilder = new ImageBuilder();
   }
-  QScriptValue obj =
-      engine->newQObject(imageBuilder, QScriptEngine::AutoOwnership,
-                         QScriptEngine::ExcludeSuperClassContents |
-                             QScriptEngine::ExcludeSuperClassMethods);
+  QJSValue obj =
+      engine->newQObject(imageBuilder, QJSEngine::AutoOwnership,
+                         QJSEngine::ExcludeSuperClassContents |
+                             QJSEngine::ExcludeSuperClassMethods);
   return obj;
 }
 
-QScriptValue ImageBuilder::toString() {
+QJSValue ImageBuilder::toString() {
   QString type = "Empty";
   if (m_img) {
     if (m_img->getType() == TImage::RASTER)
@@ -138,13 +138,13 @@ QScriptValue ImageBuilder::toString() {
   return tr("ImageBuilder(%1 image)").arg(type);
 }
 
-QScriptValue ImageBuilder::getImage() {
+QJSValue ImageBuilder::getImage() {
   return create(engine(), new Image(m_img));
 }
 
-QScriptValue ImageBuilder::fill(const QString &colorName) {
+QJSValue ImageBuilder::fill(const QString &colorName) {
   QColor color;
-  QScriptValue err = checkColor(context(), colorName, color);
+  QJSValue err = checkColor(context(), colorName, color);
   if (err.isError()) return err;
   TPixel32 pix(color.red(), color.green(), color.blue(), color.alpha());
   if (m_img) {
@@ -255,9 +255,9 @@ QString ImageBuilder::add(const TImageP &img, const TAffine &aff) {
   return context()->thisObject();
   */
 
-QScriptValue ImageBuilder::add(QScriptValue imgArg) {
+QJSValue ImageBuilder::add(QJSValue imgArg) {
   Image *simg      = 0;
-  QScriptValue err = checkImage(context(), imgArg, simg);
+  QJSValue err = checkImage(context(), imgArg, simg);
   if (err.isError()) return err;
   QString errStr = add(simg->getImg(), TAffine());
   if (errStr != "")
@@ -267,10 +267,10 @@ QScriptValue ImageBuilder::add(QScriptValue imgArg) {
     return context()->thisObject();
 }
 
-QScriptValue ImageBuilder::add(QScriptValue imgArg,
-                               QScriptValue transformationArg) {
+QJSValue ImageBuilder::add(QJSValue imgArg,
+                               QJSValue transformationArg) {
   Image *simg      = 0;
-  QScriptValue err = checkImage(context(), imgArg, simg);
+  QJSValue err = checkImage(context(), imgArg, simg);
   if (err.isError()) return err;
   Transform *transformation = qscriptvalue_cast<Transform *>(transformationArg);
   if (!transformation) {

@@ -24,11 +24,11 @@ public:
   ~Level();
 
   WRAPPER_STD_METHODS(Image)
-  Q_INVOKABLE QScriptValue toString();
+  Q_INVOKABLE QJSValue toString();
 
-  // QScriptValue toScriptValue(QScriptEngine *engine) { return create(engine,
+  // QJSValue toScriptValue(QJSEngine *engine) { return create(engine,
   // this); }
-  // static QScriptValue toScriptValue(QScriptEngine *engine, TXshSimpleLevel
+  // static QJSValue toScriptValue(QJSEngine *engine, TXshSimpleLevel
   // *sl) { return (new Level(sl))->toScriptValue(engine); }
 
   Q_PROPERTY(QString type READ getType)
@@ -41,19 +41,19 @@ public:
   QString getName() const;
   void setName(const QString &name);
 
-  Q_PROPERTY(QScriptValue path READ getPath WRITE setPath)
-  QScriptValue getPath() const;
-  void setPath(const QScriptValue &name);
+  Q_PROPERTY(QJSValue path READ getPath WRITE setPath)
+  QJSValue getPath() const;
+  void setPath(const QJSValue &name);
 
-  Q_INVOKABLE QScriptValue getFrame(const QScriptValue &fid);
-  Q_INVOKABLE QScriptValue getFrameByIndex(const QScriptValue &index);
-  Q_INVOKABLE QScriptValue setFrame(const QScriptValue &fid,
-                                    const QScriptValue &image);
+  Q_INVOKABLE QJSValue getFrame(const QJSValue &fid);
+  Q_INVOKABLE QJSValue getFrameByIndex(const QJSValue &index);
+  Q_INVOKABLE QJSValue setFrame(const QJSValue &fid,
+                                    const QJSValue &image);
 
-  Q_INVOKABLE QScriptValue getFrameIds();
+  Q_INVOKABLE QJSValue getFrameIds();
 
-  Q_INVOKABLE QScriptValue load(const QScriptValue &fp);
-  Q_INVOKABLE QScriptValue save(const QScriptValue &fp);
+  Q_INVOKABLE QJSValue load(const QJSValue &fp);
+  Q_INVOKABLE QJSValue save(const QJSValue &fp);
 
   void getFrameIds(QList<TFrameId> &fids);
   TImageP getImg(const TFrameId &fid);
@@ -62,7 +62,7 @@ public:
 
   TXshSimpleLevel *getSimpleLevel() const { return m_sl; }
 
-  static TFrameId getFid(const QScriptValue &arg, QString &err);
+  static TFrameId getFid(const QJSValue &arg, QString &err);
 };
 
 }  // namespace TScriptBinding
