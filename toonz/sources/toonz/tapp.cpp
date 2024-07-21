@@ -61,6 +61,8 @@
 #include "tunit.h"
 #include "tsystem.h"
 
+#include "viewereventlogpopup.h"
+
 // Qt includes
 #include <QTimer>
 #include <QDebug>
@@ -863,6 +865,8 @@ bool TApp::eventFilter(QObject *watched, QEvent *e) {
       e->type() == QEvent::Leave) {
     m_statusBar->clearMessage();
   }
+
+  ViewerEventLogManager::instance()->addEventMessage(e, "TApp::eventFilter");
 
   return false;  // I want just peek at the event. It must be processed anyway.
 }

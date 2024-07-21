@@ -123,7 +123,7 @@ ViewerEventLogPopup::ViewerEventLogPopup(QWidget *parent)
 
 //--------------------------------------------------
 
-void ViewerEventLogPopup::addEventMessage(QEvent *e) {
+void ViewerEventLogPopup::addEventMessage(QEvent *e, QString src) {
   if (!m_logging) return;
 
   QString eventMsg = tr("Unknown event");
@@ -274,6 +274,7 @@ void ViewerEventLogPopup::addEventMessage(QEvent *e) {
     return;
   }
 
+  if (!src.isEmpty()) eventMsg = "["+src+"] " + eventMsg;
   if (m_lastMsg == eventMsg) {
     m_lastMsgCount++;
     return;

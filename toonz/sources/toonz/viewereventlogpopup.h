@@ -34,7 +34,7 @@ class ViewerEventLogPopup final : public QSplitter {
 public:
   ViewerEventLogPopup(QWidget *parent = 0);
 
-  void addEventMessage(QEvent *e);
+  void addEventMessage(QEvent *e, QString src = 0);
 
   void hideEvent(QHideEvent *e) override;
 
@@ -64,9 +64,9 @@ public:
     m_viewerEventLogPopup = popup;
   }
 
-  void addEventMessage(QEvent *e) {
+  void addEventMessage(QEvent *e, QString src = "") {
     if (!m_viewerEventLogPopup) return;
-    m_viewerEventLogPopup->addEventMessage(e);
+    m_viewerEventLogPopup->addEventMessage(e, src);
   }
 };
 
