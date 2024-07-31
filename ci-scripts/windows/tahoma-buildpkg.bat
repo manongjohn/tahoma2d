@@ -16,6 +16,7 @@ copy /Y ..\..\thirdparty\libmypaint\dist\64\libiconv-2.dll Tahoma2D
 copy /Y ..\..\thirdparty\libmypaint\dist\64\libintl-8.dll Tahoma2D
 copy /Y ..\..\thirdparty\libmypaint\dist\64\libjson-c-2.dll Tahoma2D
 copy /Y ..\..\thirdparty\libmypaint\dist\64\libmypaint-1-4-0.dll Tahoma2D
+copy /Y ..\..\thirdparty\MinHook\bin\MinHook.x64.dll Tahoma2D
 
 IF EXIST C:\tools\opencv (
    copy /Y "C:\tools\opencv\build\x64\vc14\bin\opencv_world451.dll" Tahoma2D

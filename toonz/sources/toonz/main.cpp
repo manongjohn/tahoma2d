@@ -92,6 +92,30 @@
 #include <QtPlatformHeaders/QWindowsWindowFunctions>
 #endif
 
+#ifdef _WIN32
+#include "../../MinHook/include/MinHook.h"
+
+typedef HMODULE(WINAPI *LOADLIBRARYA)(LPCTSTR);
+
+LOADLIBRARYA loadLibraryA_Original = NULL;
+
+HMODULE WINAPI LoadLibraryA_check(_In_ LPCTSTR lpFileName) {
+  int wSize = MultiByteToWideChar(0, 0, (char *)lpFileName, -1, 0, 0);
+  std::unique_ptr<wchar_t[]> wBuffer(new wchar_t[wSize + 1]);
+  MultiByteToWideChar(0, 0, (char *)lpFileName, -1, wBuffer.get(), wSize);
+  wBuffer[wSize] = '\0';
+  std::wstring wfile(wBuffer.get());
+  QString file = QString::fromStdWString(wfile);
+
+  if (file.toLower() == L"c:\\windows\\system32\\lvcod64.dll") {
+    SetLastError(ERROR_MOD_NOT_FOUND);
+    return NULL;
+  }
+
+  return loadLibraryA_Original(lpFileName);
+}
+#endif
+
 using namespace DVGui;
 
 TEnv::IntVar EnvSoftwareCurrentFontSize("SoftwareCurrentFontSize", 12);
@@ -261,6 +285,15 @@ int main(int argc, char *argv[]) {
       ::FreeConsole();
     });
   }
+#endif
+
+#ifdef _WIN32
+  MH_Initialize();
+
+  MH_CreateHook(&LoadLibraryA, &LoadLibraryA_check,
+                reinterpret_cast<LPVOID *>(&loadLibraryA_Original));
+
+  MH_EnableHook(&LoadLibraryA);
 #endif
 
   // Build icon map
@@ -899,6 +932,12 @@ int main(int argc, char *argv[]) {
 
   TUndoManager::manager()->reset();
   PreviewFxManager::instance()->reset();
+
+#ifdef _WIN32
+  MH_DisableHook(&LoadLibraryA);
+
+  MH_Uninitialize();
+#endif;
 
   return ret;
 }
