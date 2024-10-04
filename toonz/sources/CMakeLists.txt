@@ -294,6 +294,7 @@ if(BUILD_ENV_MSVC)
         ${SDKROOT}/zlib-1.2.8
         #${SDKROOT}/LibJPEG/jpeg-9
         ${SDKROOT}/libjpeg-turbo/include
+        ${SDKROOT}/MinHook/include
     )
     add_definitions(
         -DGLUT_NO_LIB_PRAGMA
@@ -355,9 +356,11 @@ if(BUILD_ENV_MSVC)
     if(CMAKE_SIZEOF_VOID_P EQUAL 4)
         set(PLATFORM 32)
         set(PLATFORM2)
+        set(PLATFORM3)
     else()
         set(PLATFORM 64)
         set(PLATFORM2 _64)
+        set(PLATFORM3 x64)
     endif()
 
 #--- MSVC_VERSIONs ---
@@ -413,6 +416,9 @@ if(BUILD_ENV_MSVC)
         set(GPHOTO2_PORT_LIB ${SDKROOT}/libgphoto2/lib/libgphoto2_port.lib)
         set(GPHOTO2_COMPAT_LIB ${SDKROOT}/libgphoto2/lib/compat.lib)
     endif()
+
+    set(MINHOOK_LIB ${SDKROOT}/MinHook/bin/MinHook.${PLATFORM3}.lib)
+
 elseif(BUILD_ENV_APPLE)
     find_library(GLUT_LIB GLUT)
     find_library(GL_LIB OpenGL)
