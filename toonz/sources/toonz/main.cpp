@@ -94,6 +94,83 @@
 #include <QtPlatformHeaders/QWindowsWindowFunctions>
 #endif
 
+#ifdef _WIN32
+#include "../../MinHook/include/MinHook.h"
+
+// Blacklist entries must be all lowercase
+std::vector<QString> dllBlackList = {"lvcod64.dll", "ff_vfw.dll"};
+
+typedef HMODULE(WINAPI *LOADLIBRARYA)(LPCSTR);
+typedef HMODULE(WINAPI *LOADLIBRARYEXA)(LPCSTR, HANDLE, DWORD);
+typedef HMODULE(WINAPI *LOADLIBRARYW)(LPCWSTR);
+typedef HMODULE(WINAPI *LOADLIBRARYEXW)(LPCWSTR, HANDLE, DWORD);
+
+LOADLIBRARYA loadLibraryA_Original     = NULL;
+LOADLIBRARYEXA loadLibraryExA_Original = NULL;
+LOADLIBRARYW loadLibraryW_Original     = NULL;
+LOADLIBRARYEXW loadLibraryExW_Original = NULL;
+
+HMODULE WINAPI LoadLibraryA_check(_In_ LPCSTR lpFileName) {
+  int wSize = MultiByteToWideChar(0, 0, (char *)lpFileName, -1, 0, 0);
+  std::unique_ptr<wchar_t[]> wBuffer(new wchar_t[wSize + 1]);
+  MultiByteToWideChar(0, 0, (char *)lpFileName, -1, wBuffer.get(), wSize);
+  wBuffer[wSize] = '\0';
+  std::wstring wfile(wBuffer.get());
+  QString file = QString::fromStdWString(wfile).toLower();
+
+  for (int x = 0; x < dllBlackList.size(); x++) {
+    if (file.contains(dllBlackList[x])) {
+      SetLastError(ERROR_MOD_NOT_FOUND);
+      return NULL;
+    }
+  }
+  return loadLibraryA_Original(lpFileName);
+}
+
+HMODULE WINAPI LoadLibraryExA_check(_In_ LPCSTR lpFileName, HANDLE hFile,
+                                    _In_ DWORD dwFlags) {
+  int wSize = MultiByteToWideChar(0, 0, (char *)lpFileName, -1, 0, 0);
+  std::unique_ptr<wchar_t[]> wBuffer(new wchar_t[wSize + 1]);
+  MultiByteToWideChar(0, 0, (char *)lpFileName, -1, wBuffer.get(), wSize);
+  wBuffer[wSize] = '\0';
+  std::wstring wfile(wBuffer.get());
+  QString file = QString::fromStdWString(wfile).toLower();
+
+  for (int x = 0; x < dllBlackList.size(); x++) {
+    if (file.contains(dllBlackList[x])) {
+      SetLastError(ERROR_MOD_NOT_FOUND);
+      return NULL;
+    }
+  }
+  return loadLibraryExA_Original(lpFileName, hFile, dwFlags);
+}
+
+HMODULE WINAPI LoadLibraryW_check(_In_ LPCWSTR lpFileName) {
+  QString file = QString::fromStdWString(lpFileName).toLower();
+
+  for (int x = 0; x < dllBlackList.size(); x++) {
+    if (file.contains(dllBlackList[x])) {
+      SetLastError(ERROR_MOD_NOT_FOUND);
+      return NULL;
+    }
+  }
+  return loadLibraryW_Original(lpFileName);
+}
+
+HMODULE WINAPI LoadLibraryExW_check(_In_ LPCWSTR lpFileName, HANDLE hFile,
+                                    _In_ DWORD dwFlags) {
+  QString file = QString::fromStdWString(lpFileName).toLower();
+
+  for (int x = 0; x < dllBlackList.size(); x++) {
+    if (file.contains(dllBlackList[x])) {
+      SetLastError(ERROR_MOD_NOT_FOUND);
+      return NULL;
+    }
+  }
+  return loadLibraryExW_Original(lpFileName, hFile, dwFlags);
+}
+#endif
+
 using namespace DVGui;
 
 TEnv::IntVar EnvSoftwareCurrentFontSize("SoftwareCurrentFontSize", 12);
@@ -263,6 +340,32 @@ int main(int argc, char *argv[]) {
       ::FreeConsole();
     });
   }
+#endif
+
+#ifdef _WIN32
+  MH_Initialize();
+
+  MH_CreateHook(&LoadLibraryA, &LoadLibraryA_check,
+                reinterpret_cast<LPVOID *>(&loadLibraryA_Original));
+
+  MH_EnableHook(&LoadLibraryA);
+
+
+  MH_CreateHook(&LoadLibraryExA, &LoadLibraryExA_check,
+                reinterpret_cast<LPVOID *>(&loadLibraryExA_Original));
+
+  MH_EnableHook(&LoadLibraryExA);
+
+
+  MH_CreateHook(&LoadLibraryW, &LoadLibraryW_check,
+                reinterpret_cast<LPVOID *>(&loadLibraryW_Original));
+
+  MH_EnableHook(&LoadLibraryW);
+
+  MH_CreateHook(&LoadLibraryExW, &LoadLibraryExW_check,
+                reinterpret_cast<LPVOID *>(&loadLibraryExW_Original));
+
+  MH_EnableHook(&LoadLibraryExW);
 #endif
 
   // Build icon map
@@ -911,6 +1014,15 @@ int main(int argc, char *argv[]) {
 
   TUndoManager::manager()->reset();
   PreviewFxManager::instance()->reset();
+
+#ifdef _WIN32
+  MH_DisableHook(&LoadLibraryA);
+  MH_DisableHook(&LoadLibraryExA);
+  MH_DisableHook(&LoadLibraryW);
+  MH_DisableHook(&LoadLibraryExW);
+
+  MH_Uninitialize();
+#endif;
 
   return ret;
 }
