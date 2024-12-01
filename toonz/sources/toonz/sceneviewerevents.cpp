@@ -1345,7 +1345,7 @@ void SceneViewer::touchEvent(QTouchEvent *e, int type) {
     if (m_tabletEvent) return;
 
     m_touchActive   = true;
-    m_touchPoints   = std::max(e->touchPoints().count(), m_touchPoints);
+    m_touchPoints   = std::max((int)e->touchPoints().count(), m_touchPoints);
     m_firstPanPoint = e->touchPoints().at(0).pos();
     m_undoPoint     = m_firstPanPoint;
     // obtain device type
@@ -1353,7 +1353,7 @@ void SceneViewer::touchEvent(QTouchEvent *e, int type) {
 
     clock.start();
   } else if (m_touchActive) {
-    m_touchPoints = std::max(e->touchPoints().count(), m_touchPoints);
+    m_touchPoints = std::max((int)e->touchPoints().count(), m_touchPoints);
     // touchpads must have 2 finger panning for tools and navigation to be
     // functional
     // on other devices, 1 finger panning is preferred
