@@ -238,11 +238,12 @@ void ViewerEventLogPopup::addEventMessage(QEvent *e) {
     if (!m_eventCheckBox[VIEWEREVENT::TouchBegin]->isChecked()) return;
 
     QTouchEvent *te = dynamic_cast<QTouchEvent *>(e);
-    QString device  = ((te->device()->type() == QTouchDevice::TouchPad)
-                          ? "touchpad"
-                          : ((te->device()->type() == QTouchDevice::TouchScreen)
-                                 ? "touchscreen"
-                                 : "unknown"));
+    QString device =
+        ((te->device()->type() == QInputDevice::DeviceType::TouchPad)
+             ? "touchpad"
+             : ((te->device()->type() == QInputDevice::DeviceType::TouchScreen)
+                    ? "touchscreen"
+                    : "unknown"));
     eventMsg = tr("Touch begins (%1; %2pts)")
                    .arg(device)
                    .arg(te->touchPoints().count());
@@ -252,11 +253,12 @@ void ViewerEventLogPopup::addEventMessage(QEvent *e) {
     if (!m_eventCheckBox[VIEWEREVENT::TouchUpdate]->isChecked()) return;
 
     QTouchEvent *te = dynamic_cast<QTouchEvent *>(e);
-    QString device  = ((te->device()->type() == QTouchDevice::TouchPad)
-                          ? "touchpad"
-                          : ((te->device()->type() == QTouchDevice::TouchScreen)
-                                 ? "touchscreen"
-                                 : "unknown"));
+    QString device =
+        ((te->device()->type() == QInputDevice::DeviceType::TouchPad)
+             ? "touchpad"
+             : ((te->device()->type() == QInputDevice::DeviceType::TouchScreen)
+                    ? "touchscreen"
+                    : "unknown"));
     eventMsg = tr("Touch updated (%1; %2pts)")
                    .arg(device)
                    .arg(te->touchPoints().count());
