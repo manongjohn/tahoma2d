@@ -98,7 +98,7 @@
 #include "../../MinHook/include/MinHook.h"
 
 // Blacklist entries must be all lowercase
-std::vector<QString> dllBlackList = {"lvcod64.dll", "ff_vfw.dll"};
+std::vector<QString> dllBlackList = {"lvcod64.dll", "ff_vfw.dll", "tsccvid64.dll"};
 
 typedef HMODULE(WINAPI *LOADLIBRARYA)(LPCSTR);
 typedef HMODULE(WINAPI *LOADLIBRARYEXA)(LPCSTR, HANDLE, DWORD);
