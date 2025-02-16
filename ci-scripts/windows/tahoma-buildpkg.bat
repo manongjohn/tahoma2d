@@ -38,18 +38,17 @@ del Tahoma2D\*.ilk
 echo ">>> Configuring Tahoma2D.exe for deployment"
 
 REM Setup for local builds
-REM set QT_PATH=C:\Qt\5.9.7\msvc2019_64
-set QT_PATH=C:\Qt\5.15.2_wintab\msvc2019_64
+set QT_PATH=C:\Qt\6.7.3\msvc2019_64
 
 REM These are effective when running from Actions/Appveyor
-REM IF EXIST D:\a\tahoma2d\tahoma2d\thirdparty\qt\5.9\msvc2019_64 set QT_PATH=D:\a\tahoma2d\tahoma2d\thirdparty\qt\5.9\msvc2019_64
-IF EXIST D:\a\tahoma2d\tahoma2d\thirdparty\qt\5.15.2_wintab\msvc2019_64 set QT_PATH=D:\a\tahoma2d\tahoma2d\thirdparty\qt\5.15.2_wintab\msvc2019_64
+IF EXIST D:\a\tahoma2d\tahoma2d\thirdparty\qt\6.7.3\msvc2019_64 set QT_PATH=D:\a\tahoma2d\tahoma2d\thirdparty\qt\6.7.3\msvc2019_64
 
 set VCINSTALLDIR="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC"
 IF EXIST "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC" set VCINSTALLDIR="C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC"
 
 %QT_PATH%\bin\windeployqt.exe Tahoma2D\Tahoma2D.exe --opengl
 
+xcopy /Y /E /I %QT_PATH%\bin\Qt6Core5Compat.dll Tahoma2D
 xcopy /Y /E /I %VCINSTALLDIR%\Redist\MSVC\14.29.30133\x64\Microsoft.VC142.CRT Tahoma2D
 xcopy /Y /E /I %VCINSTALLDIR%\Redist\MSVC\14.29.30133\x64\Microsoft.VC142.OpenMP Tahoma2D
 

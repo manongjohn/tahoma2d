@@ -3,13 +3,7 @@ choco install boost-msvc-14.2 --version=1.74.0
 
 mkdir thirdparty\qt
 
-REM Install Qt 5.9
-REM curl -fsSL -o Qt5.9.7_msvc2019_64.zip https://github.com/tahoma2d/qt5/releases/download/v5.9.7/Qt5.9.7_msvc2019_64.zip
-REM 7z x Qt5.9.7_msvc2019_64.zip
-REM rename Qt5.9.7_msvc2019_64 5.9
-REM move 5.9 thirdparty\qt
-
-REM Install Custom Qt 5.15.2 with WinTab support
-curl -fsSL -o Qt5.15.2_wintab.zip https://github.com/tahoma2d/qt5/releases/download/v5.15.2/Qt5.15.2_wintab.zip
-7z x Qt5.15.2_wintab.zip
-move Qt5.15.2_wintab\5.15.2_wintab thirdparty\qt
+REM Install Qt 6.7
+curl -fsSL -o Qt6.7.3_msvc2019_64.zip https://github.com/tahoma2d/qt5/releases/download/v6.7.3/Qt6.7.3_msvc2019_64.zip
+7z x Qt6.7.3_msvc2019_64.zip
+move 6.7.3 thirdparty\qt
