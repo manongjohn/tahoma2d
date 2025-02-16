@@ -361,6 +361,11 @@ int main(int argc, char *argv[]) {
   if (Preferences::instance()->isHighDpiScalingEnabled())
     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
+  // Qt6's High DPI rounding policy (PassThrough) causes a drawing offset.
+  // Need to set it to Qt5's default rounding policy (Round)
+  QApplication::setHighDpiScaleFactorRoundingPolicy(
+      Qt::HighDpiScaleFactorRoundingPolicy::Round);
+
   QApplication a(argc, argv);
 
 #ifdef MACOSX
