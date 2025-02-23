@@ -11,13 +11,13 @@ then
 fi
 cd build
 
-if [ -d /usr/local/Cellar/qt@5 ]
+if [ -d /usr/local/Cellar/qt@6 ]
 then
-   QTVERSION=`ls /usr/local/Cellar/qt@5`
-   USEQTLIB="/usr/local/opt/qt@5/lib/"
+   QTVERSION=`ls /usr/local/Cellar/qt@6`
+   USEQTLIB="/usr/local/opt/qt@6/lib/"
 else
    QTVERSION=`ls /usr/local/Cellar/qt`
-   USEQTLIB="/usr/local/opt/qt/lib/"
+   USEQTLIB="/usr/local/opt/s/lib/"
 fi
 
 echo "QT Version detected: $QTVERSION"
