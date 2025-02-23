@@ -1,4 +1,5 @@
 
+#ifdef TOONZSCRIPTING
 
 #include "toonzqt/scriptconsole.h"
 #include "toonz/scriptengine.h"
@@ -181,3 +182,5 @@ void ScriptConsole::executeCommand(const QString &cmd) {
   moveCursor(QTextCursor::EndOfLine);
   onReturnKeyPress();
 }
+
+#endif // TOONZSCRIPTING

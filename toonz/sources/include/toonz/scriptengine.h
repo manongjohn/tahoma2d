@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef TOONZSCRIPTING
+
 #ifndef SCRIPTENGINE_H
 #define SCRIPTENGINE_H
 
@@ -82,3 +84,5 @@ signals:
 Q_DECLARE_METATYPE(ScriptEngine *)
 
 #endif
+
+#endif  // TOONZSCRIPTING

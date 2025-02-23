@@ -1,4 +1,5 @@
 
+#ifdef TOONZSCRIPTING
 
 #include "scriptconsolepanel.h"
 #include "toonzqt/scriptconsole.h"
@@ -180,3 +181,5 @@ void ScriptConsolePanel::executeCommand(const QString &cmd) {
 void ScriptConsolePanel::selectNone() {
   TApp::instance()->getCurrentSelection()->setSelection(0);
 }
+
+#endif  // TOONZSCRIPTING
