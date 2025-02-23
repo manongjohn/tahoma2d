@@ -14,7 +14,9 @@
 #include <QByteArray>
 #include <QAudioFormat>
 #include <QIODevice>
-#include <QAudioOutput>
+#include <QAudioSink>
+#include <QMediaDevices>
+#include <QAudioDevice>
 
 using namespace std;
 
@@ -22,7 +24,7 @@ using namespace std;
 
 class TSoundOutputDeviceImp: public std::enable_shared_from_this<TSoundOutputDeviceImp> {
 private:
-  QMutex m_mutex;
+  QRecursiveMutex m_mutex;
 
   double m_volume;
   bool m_looping;
@@ -31,19 +33,20 @@ private:
   qint64 m_bufferIndex;
 
   QByteArray m_buffer;
-  QPointer<QAudioOutput> m_audioOutput;
+  QAudioSink *m_audioOutput;
   QIODevice *m_audioBuffer;
 
 public:
   std::set<TSoundOutputDeviceListener *> m_listeners;
 
   TSoundOutputDeviceImp():
-    m_mutex(QMutex::Recursive),
+    m_mutex(),
     m_volume(0.5),
     m_looping(false),
     m_bytesSent(0),
     m_bufferIndex(0),
-    m_audioBuffer()
+    m_audioBuffer(),
+    m_audioOutput(0)
   { }
 
 private:
@@ -55,7 +58,7 @@ private:
     }
   }
 
-  void sendBuffer() {
+  void sendBuffer(qint64 bytes) {
     QMutexLocker lock(&m_mutex);
 
     if (!m_audioOutput) return;
@@ -137,7 +140,7 @@ public:
           }
         }
         */
-        sendBuffer();
+        sendBuffer(0);
       }
     }
   }
@@ -153,28 +156,33 @@ public:
     QMutexLocker lock(&m_mutex);
 
     QAudioFormat format;
-    format.setSampleSize(st->getBitPerSample());
-    format.setCodec("audio/pcm");
+//    format.setSampleSize(st->getBitPerSample());
+//    format.setCodec("audio/pcm");
     format.setChannelCount(st->getChannelCount());
-    format.setByteOrder(QAudioFormat::LittleEndian);
+//    format.setByteOrder(QAudioFormat::LittleEndian);
     switch (st->getSampleType()) {
     case TSound::INT:
-      format.setSampleType(QAudioFormat::SignedInt);
+      format.setSampleFormat(QAudioFormat::Int16);
       break;
     case TSound::UINT:
-      format.setSampleType(QAudioFormat::UnSignedInt);
+      format.setSampleFormat(QAudioFormat::UInt8);
       break;
     case TSound::FLOAT:
-      format.setSampleType(QAudioFormat::Float);
+      format.setSampleFormat(QAudioFormat::Float);
       break;
     default:
       break;
     }
     format.setSampleRate(st->getSampleRate());
 
-    QAudioDeviceInfo info(QAudioDeviceInfo::defaultOutputDevice());
-    if (!info.isFormatSupported((format)))
-      format = info.nearestFormat(format);
+    QAudioDevice info(QMediaDevices::defaultAudioOutput());
+    if (!info.isFormatSupported((format))) {
+      format.setSampleRate(
+          std::min((int)st->getSampleRate(), info.maximumSampleRate()));
+      format.setChannelCount(
+          std::min((int)st->getChannelCount(), info.maximumChannelCount()));
+      format.setSampleFormat(info.supportedSampleFormats().last());
+    }
 
     qint64 totalPacketCount = s1 - s0;
     qint64 fileByteCount    = (s1 - s0)*st->getSampleSize();
@@ -185,15 +193,18 @@ public:
     m_looping = loop;
     if (!m_audioOutput || m_audioOutput->format() != format) {
       if (m_audioOutput) m_audioOutput->stop();
-      m_audioOutput = new QAudioOutput(format);
+      m_audioOutput = new QAudioSink(format);
       m_audioOutput->setVolume(m_volume);
 
       // audio buffer size
       qint64 audioBufferSize = format.bytesForDuration(100000);
-      m_audioOutput->setBufferSize(audioBufferSize);
-      m_audioOutput->setNotifyInterval(50);
-      QObject::connect(m_audioOutput.data(), &QAudioOutput::notify, [=](){ sendBuffer(); });
+//      m_audioOutput->setBufferSize(audioBufferSize);
+//      m_audioOutput->setNotifyInterval(50);
+//      QObject::connect(m_audioOutput->data(), &QAudioSink::notify, [=](){ sendBuffer(); });
 
+      QObject::connect(m_audioBuffer, &QIODevice::bytesWritten,
+                       [=](qint64 bytes) { sendBuffer(bytes); }
+                      );
       reset();
     }/* audio buffer too small, so optimization not uses
     else {
@@ -207,7 +218,7 @@ public:
     }
     */
 
-    sendBuffer();
+    sendBuffer(0);
   }
 };
 
