@@ -14,8 +14,9 @@
 #include <vector>
 
 #include "InputParam.h"
+#include "SDef.h"
 
-#define P(d) tmsg_info(" - %d -\n", d)
+//#define P(d) tmsg_info(" - %d -\n", d)
 
 template <class EParam>
 class CParams {
