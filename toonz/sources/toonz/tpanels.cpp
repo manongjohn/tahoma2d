@@ -1455,6 +1455,8 @@ public:
 OpenFloatingPanel openTMessageCommand(MI_OpenTMessage, "TMessage",
                                       QObject::tr("Message Center"));
 
+#ifdef TOONZSCRIPTING
+
 //=============================================================================
 // ScriptConsolePanelFactory
 //-----------------------------------------------------------------------------
@@ -1481,6 +1483,8 @@ public:
 OpenFloatingPanel openTScriptConsoleCommand("MI_OpenScriptConsole",
                                             "ScriptConsole",
                                             QObject::tr("Script Console"));
+
+#endif // TOONZSCRIPTING
 
 //=============================================================================
 // ComboViewer : Viewer + Toolbar + Tool Options

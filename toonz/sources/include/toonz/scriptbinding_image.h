@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef TOONZSCRIPTING
+
 #ifndef SCRIPTBINDING_IMAGE_H
 #define SCRIPTBINDING_IMAGE_H
 
@@ -46,3 +48,5 @@ QJSValue checkImage(QScriptContext *context, const QJSValue &value,
 Q_DECLARE_METATYPE(TScriptBinding::Image *)
 
 #endif
+
+#endif  // TOONZSCRIPTING

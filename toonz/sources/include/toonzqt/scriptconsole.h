@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef TOONZSCRIPTING
+
 #ifndef SCRIPTCONSOLE_H
 #define SCRIPTCONSOLE_H
 
@@ -49,3 +51,5 @@ public slots:
 };
 
 #endif  // SCRIPTCONSOLE_H
+
+#endif // TOONZSCRIPTING

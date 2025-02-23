@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef TOONZSCRIPTING
+
 #ifndef SCRIPTBINDING_FILES_H
 #define SCRIPTBINDING_FILES_H
 
@@ -71,3 +73,5 @@ QJSValue checkFilePath(QScriptContext *context, const QJSValue &value,
 Q_DECLARE_METATYPE(TScriptBinding::FilePath *)
 
 #endif
+
+#endif  // TOONZSCRIPTING

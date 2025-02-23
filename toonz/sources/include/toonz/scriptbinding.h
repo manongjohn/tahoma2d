@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef TOONZSCRIPTING
+
 #ifndef SCRIPTBINDING_H
 #define SCRIPTBINDING_H
 
@@ -109,3 +111,5 @@ QJSValue checkColor(QScriptContext *context, const QString &colorName,
 Q_DECLARE_METATYPE(TScriptBinding::Void *)
 
 #endif
+
+#endif  // TOONZSCRIPTING

@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef TOONZSCRIPTING
+
 #ifndef SCRIPTCONSOLEPANEL_H
 #define SCRIPTCONSOLEPANEL_H
 
@@ -23,3 +25,5 @@ public slots:
 };
 
 #endif  // TESTPANEL_H
+
+#endif // TOONZSCRIPTING
