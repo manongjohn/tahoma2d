@@ -24,6 +24,7 @@
     STD_iwa_BokehRefFx
     STD_iwa_BokehAdvancedFx
     STD_iwa_FlowBlurFx
+    STD_antialiasFx
   </Blur>
   <Distort>
     STD_freeDistortFx

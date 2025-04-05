@@ -99,6 +99,7 @@ endif()
 
 set(SOURCES
     adjustlevelsfx.cpp
+    antialiasfx.cpp
     artcontourfx.cpp
     backlitfx.cpp
     blendtzfx.cpp
