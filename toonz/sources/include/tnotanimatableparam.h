@@ -192,20 +192,24 @@ class DVAPI TIntParam final : public TNotAnimatableParam<int> {
   PERSIST_DECLARATION(TIntParam);
   int minValue, maxValue;
   bool m_isWheelEnabled;
+  bool m_isSliderEnabled;
 
 public:
   TIntParam(int v = int())
       : TNotAnimatableParam<int>(v)
       , minValue(-(std::numeric_limits<int>::max)())
       , maxValue((std::numeric_limits<int>::max)())
-      , m_isWheelEnabled(false) {}
+      , m_isWheelEnabled(false)
+      , m_isSliderEnabled(false) {}
   TIntParam(const TIntParam &src) : TNotAnimatableParam<int>(src) {}
   TParam *clone() const override { return new TIntParam(*this); }
   void loadData(TIStream &is) override;
   void saveData(TOStream &os) override;
   void enableWheel(bool on);
+  void enableSlider(bool on);
 
   bool isWheelEnabled() const;
+  bool isSliderEnabled() const;
   void setValueRange(int min, int max);
   bool getValueRange(int &min, int &max) const;
 };

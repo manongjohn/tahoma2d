@@ -1,0 +1,7 @@
+<fxlayout>
+  <page name="Antialias (MLAA)">
+    <control>softness</control>
+    <control>threshold</control>
+  </page>
+
+</fxlayout>

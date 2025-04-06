@@ -1071,7 +1071,8 @@ void TLevelColumnFx::doCompute(TTile &tile, double frame,
                            TRect(size), vpalette);
 
       // obtain jaggy image when the Closest Pixel is set
-      if (info.m_quality == TRenderSettings::ClosestPixel_FilterResampleQuality)
+      if (info.m_disableAntiAlias ||
+          info.m_quality == TRenderSettings::ClosestPixel_FilterResampleQuality)
         rd.m_antiAliasing = false;
 
       if (!m_offlineContext || m_offlineContext->getLx() < size.lx ||
@@ -1190,7 +1191,7 @@ void TLevelColumnFx::doCompute(TTile &tile, double frame,
         TRop::whiteTransp(appRas);
         ras = appRas;
       }
-      if (levelProp->antialiasSoftness() > 0 &&
+      if (!info.m_disableAntiAlias && levelProp->antialiasSoftness() > 0 &&
           !rasF) {  // temporarily disabled with float raster
         TRasterP appRas = ras->create(ras->getLx(), ras->getLy());
         TRop::antialias(ras, appRas, 10, levelProp->antialiasSoftness());
@@ -1227,7 +1228,8 @@ void TLevelColumnFx::doCompute(TTile &tile, double frame,
       else
         ras = ti->getRaster();
 
-      if (sl->getProperties()->antialiasSoftness() > 0) {
+      if (!info.m_disableAntiAlias &&
+          sl->getProperties()->antialiasSoftness() > 0) {
         // convert colormap raster to fullcolor raster before applying antialias
         if (ti) {
           TRaster32P convRas(ras->getSize());

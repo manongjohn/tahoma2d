@@ -2025,5 +2025,9 @@
  <item>"Snap to pixel"				"Snap to pixel"			</item>
  <item>"Pressure gain"				"Pressure gain"			</item>
 
+  <item>"STD_antialiasFx"		"Antialias (MLAA)"	</item>
+  <item>"STD_antialiasFx.softness"	"Softness"		</item>
+  <item>"STD_antialiasFx.threshold"	"Threshold"		</item>
+
 </stringtable> 
 

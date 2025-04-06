@@ -35,12 +35,22 @@ void TIntParam::saveData(TOStream &os) {
   os << getDefaultValue();
   os << getValue();
 }
+
 //---------------------------------------------------------
 
 bool TIntParam::isWheelEnabled() const { return m_isWheelEnabled; }
+
 //---------------------------------------------------------
 
 void TIntParam::enableWheel(bool on) { m_isWheelEnabled = on; }
+
+//---------------------------------------------------------
+
+bool TIntParam::isSliderEnabled() const { return m_isSliderEnabled; }
+
+//---------------------------------------------------------
+
+void TIntParam::enableSlider(bool on) { m_isSliderEnabled = on; }
 
 //=========================================================
 

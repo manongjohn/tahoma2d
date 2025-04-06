@@ -1496,8 +1496,8 @@ IntParamField::IntParamField(QWidget *parent, QString name,
   QString str;
   m_paramName = str.fromStdString(param->getName());
   m_intField  = new IntField(this, false);
-  m_intField->setMaximumWidth(43);
-  m_intField->enableSlider(false);
+  if (!param->isSliderEnabled()) m_intField->setMaximumWidth(43);
+  m_intField->enableSlider(param->isSliderEnabled());
   m_intField->enableRoller(param->isWheelEnabled());
   int min, max;
   param->getValueRange(min, max);
@@ -1505,7 +1505,7 @@ IntParamField::IntParamField(QWidget *parent, QString name,
   m_intField->setRange(min, max);
   connect(m_intField, SIGNAL(valueChanged(bool)), SLOT(onChange(bool)));
 
-  m_layout->addWidget(m_intField);
+  m_layout->addWidget(m_intField, 1);
   m_layout->addStretch();
 
   setLayout(m_layout);

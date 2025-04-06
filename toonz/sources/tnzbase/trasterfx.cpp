@@ -1235,7 +1235,8 @@ TRenderSettings::TRenderSettings()
     , m_useMaskBox(false)
     , m_plasticMask(false)
     , m_lastFrame(0)
-    , m_isAlphaLockMask(false) {}
+    , m_isAlphaLockMask(false)
+    , m_disableAntiAlias(false) {}
 
 //------------------------------------------------------------------------------
 
@@ -1255,7 +1256,8 @@ std::string TRenderSettings::toString() const {
       "," + std::to_string(m_affine.a23) + ";" + std::to_string(m_maxTileSize) +
       ";" + std::to_string(m_isSwatch) + ";" + std::to_string(m_userCachable) +
       ";" + std::to_string(m_linearColorSpace) + ";" +
-      std::to_string(m_colorSpaceGamma) + ";{";
+      std::to_string(m_colorSpaceGamma) + ";" +
+      std::to_string(m_disableAntiAlias) + ";{";
   if (!m_data.empty()) {
     ss += m_data[0]->toString();
     for (int i = 1; i < (int)m_data.size(); i++)
@@ -1283,7 +1285,8 @@ bool TRenderSettings::operator==(const TRenderSettings &rhs) const {
       m_colorSpaceGamma != rhs.m_colorSpaceGamma ||
       m_applyMask != rhs.m_applyMask || m_invertedMask != rhs.m_invertedMask ||
       m_useMaskBox != rhs.m_useMaskBox || m_plasticMask != rhs.m_plasticMask ||
-      m_lastFrame != rhs.m_lastFrame)
+      m_lastFrame != rhs.m_lastFrame ||
+      m_disableAntiAlias != rhs.m_disableAntiAlias)
     return false;
 
   return std::equal(m_data.begin(), m_data.end(), rhs.m_data.begin(), areEqual);

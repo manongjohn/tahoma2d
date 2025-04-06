@@ -176,6 +176,8 @@ public:
 
   int m_lastFrame;
 
+  bool m_disableAntiAlias;
+
 public:
   TRenderSettings();
   ~TRenderSettings();
