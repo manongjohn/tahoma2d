@@ -39,14 +39,6 @@ jobs:
       - name: Get 3rd Party Apps
         run: |
           ci-scripts/osx/tahoma-get3rdpartyapps.sh
-      - name: Build ffmpeg
-        run: |
-          export PATH="/usr/local/opt/ccache/libexec:$PATH"
-          ci-scripts/osx/tahoma-buildffmpeg.sh
-      - name: Build OpenCV
-        run: |
-          export PATH="/usr/local/opt/ccache/libexec:$PATH"
-          ci-scripts/osx/tahoma-buildopencv.sh
       - name: Build libgphoto2
         run: |
           export PATH="/usr/local/opt/ccache/libexec:$PATH"

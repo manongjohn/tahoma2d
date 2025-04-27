@@ -43,21 +43,6 @@ jobs:
           unzip EDSDK_Linux.zip -d EDSDK_Linux
           mv EDSDK_Linux/EDSDK/* thirdparty/canon
           chmod 644 thirdparty/canon/Library/x86_64/lib*
-      - name: Build ffmpeg
-        run: |
-          export CC="ccache ${{ matrix.cc }}"
-          export CXX="ccache ${{ matrix.cxx }}"
-          ci-scripts/linux/tahoma-buildffmpeg.sh
-      - name: Build OpenCV
-        run: |
-          export CC="ccache ${{ matrix.cc }}"
-          export CXX="ccache ${{ matrix.cxx }}"
-          ci-scripts/linux/tahoma-buildopencv.sh
-      - name: Build libmypaint
-        run: |
-          export CC="ccache ${{ matrix.cc }}"
-          export CXX="ccache ${{ matrix.cxx }}"
-          ci-scripts/linux/tahoma-buildlibmypaint.sh
       - name: Build libgphoto2
         run: |
           export CC="ccache ${{ matrix.cc }}"
