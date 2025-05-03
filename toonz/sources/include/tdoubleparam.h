@@ -154,6 +154,7 @@ public:
   std::string getStreamTag() const;
 
   std::string getValueAlias(double frame, int precision) override;
+
 };
 
 DVAPI void splitSpeedInOutSegment(TDoubleKeyframe &k, TDoubleKeyframe &k0,

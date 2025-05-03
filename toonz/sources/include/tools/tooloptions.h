@@ -239,7 +239,9 @@ class ArrowToolOptionsBox final : public ToolOptionsBox {
 
   ToolOptionCheckbox *m_lockEWPosCheckbox;
   ToolOptionCheckbox *m_lockNSPosCheckbox;
-
+  // Drawing Number 
+  ClickableLabel *m_drawingNumberLabel;
+  PegbarChannelField *m_drawingNumberField;
   // SO = Stacked Order
   ClickableLabel *m_soLabel;
   PegbarChannelField *m_soField;

@@ -494,7 +494,11 @@ ArrowToolOptionsBox::ArrowToolOptionsBox(
   m_soLabel = new ClickableLabel(tr("SO:"), this);
   m_soField = new PegbarChannelField(m_tool, TStageObject::T_SO, "field",
                                      frameHandle, objHandle, xshHandle, this);
-
+  /* --- Drawing Number */
+  m_drawingNumberLabel = new ClickableLabel(tr("DN:"), this);
+  m_drawingNumberField =
+      new PegbarChannelField(m_tool, TStageObject::T_DrawingNumber, "field",
+                             frameHandle, objHandle, xshHandle, this);
   /* --- Rotation --- */
   m_rotationLabel = new ClickableLabel(tr("Rotation:"), this);
   m_rotationField =
@@ -597,6 +601,8 @@ ArrowToolOptionsBox::ArrowToolOptionsBox(
 
   m_zField->setPrecision(4);
   m_noScaleZField->setPrecision(4);
+
+  m_drawingNumberField->setPrecision(2); 
 
   m_hFlipButton = new QPushButton(this);
   m_vFlipButton = new QPushButton(this);
@@ -721,9 +727,15 @@ ArrowToolOptionsBox::ArrowToolOptionsBox(
         posLay->addWidget(m_soField, 10);
 
         posLay->addSpacing(ITEM_SPACING);
+
+        posLay->addWidget(m_drawingNumberLabel, 0);
+        posLay->addWidget(m_drawingNumberField, 10); 
+
         posLay->addWidget(new DVGui::Separator("", this, false));
 
         posLay->addStretch(1);
+
+
       }
       m_axisOptionWidgets[Position] = posFrame;
       mainLay->addWidget(m_axisOptionWidgets[Position], 0);
@@ -890,6 +902,7 @@ ArrowToolOptionsBox::ArrowToolOptionsBox(
   connectLabelAndField(m_ewPosLabel, m_ewPosField);
   connectLabelAndField(m_nsPosLabel, m_nsPosField);
   connectLabelAndField(m_zLabel, m_zField);
+  connectLabelAndField(m_drawingNumberLabel, m_drawingNumberField);
   connectLabelAndField(m_soLabel, m_soField);
   connectLabelAndField(m_rotationLabel, m_rotationField);
   connectLabelAndField(m_globalScaleLabel, m_globalScaleField);
@@ -1206,6 +1219,7 @@ void ArrowToolOptionsBox::updateStatus() {
   m_ewPosField->updateStatus();
   m_nsPosField->updateStatus();
   m_zField->updateStatus();
+  m_drawingNumberField->updateStatus(); 
   m_noScaleZField->updateStatus();
   m_lockEWPosCheckbox->updateStatus();
   m_lockNSPosCheckbox->updateStatus();

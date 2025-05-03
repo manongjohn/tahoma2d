@@ -1288,6 +1288,7 @@ void PegbarChannelField::onChange(TMeasuredValue *fld, bool addToUndo) {
       m_before.add(TStageObject::T_Y);
       m_before.add(TStageObject::T_Z);
       m_before.add(TStageObject::T_SO);
+      m_before.add(TStageObject::T_DrawingNumber);
       m_before.add(TStageObject::T_ScaleX);
       m_before.add(TStageObject::T_ScaleY);
       m_before.add(TStageObject::T_Scale);
@@ -1327,6 +1328,12 @@ void PegbarChannelField::onChange(TMeasuredValue *fld, bool addToUndo) {
   }
   if (!addToUndo && !m_firstMouseDrag) m_firstMouseDrag = true;
   m_objHandle->notifyObjectIdChanged(false);
+
+  if (m_actionId == TStageObject::T_DrawingNumber) {
+    
+    m_tool->getXsheet()->updateNonZeroDrawingNumberCells(
+        m_tool->getColumnIndex(), m_tool->getFrame());
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -1396,6 +1403,7 @@ void PegbarChannelField::onDelete(bool addToUndo) {
 void PegbarChannelField::updateStatus() {
   TXsheet *xsh         = m_tool->getXsheet();
   int frame            = m_tool->getFrame();
+  int col              = m_tool->getColumnIndex(); 
   TStageObjectId objId = m_tool->getObjectId();
   if (m_actionId == TStageObject::T_Z)
     setMeasure(objId.isCamera() ? "zdepth.cam" : "zdepth");
@@ -1403,8 +1411,8 @@ void PegbarChannelField::updateStatus() {
   double v = xsh->getStageObject(objId)->getParam(m_actionId, frame);
 
   if (getValue() == v) return;
-  setValue(v);
-  setCursorPosition(0);
+    setValue(v);
+    setCursorPosition(0);
 }
 
 //-----------------------------------------------------------------------------

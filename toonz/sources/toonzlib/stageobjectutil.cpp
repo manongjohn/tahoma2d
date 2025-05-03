@@ -196,6 +196,9 @@ QString TStageObjectValues::getStringForHistory() {
     case TStageObject::T_ShearY:
       channelStr = QObject::tr("Edit Shear Y");
       break;
+    case TStageObject::T_DrawingNumber:
+      channelStr = QObject::tr("Edit Drawing Number");
+      break;
     default:
       channelStr = QObject::tr("Move");
       break;

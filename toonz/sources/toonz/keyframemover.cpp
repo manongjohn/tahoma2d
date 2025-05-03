@@ -57,6 +57,7 @@ void KeyframeMover::setKeyframes() {
     for (auto const &frame : keyframes) {
       stObj->removeKeyframeWithoutUndo(frame.first);
     }
+    xsh->updateNonZeroDrawingNumberCells(c, key.first);
   }
   m_lastKeyframeData->getKeyframes(m_lastKeyframes, xsh);
 }
@@ -150,8 +151,11 @@ bool KeyframeMover::moveKeyframes(
         if (m_qualifiers & eCopyKeyframes) {
           firstTime = true;
           stObj->setKeyframeWithoutUndo(r + dr, stObj->getKeyframe(r));
+          xsh->updateNonZeroDrawingNumberCellsAfterMoving(c, r + dr, dr); 
         } else
           stObj->moveKeyframe(r + dr, r);
+        xsh->updateNonZeroDrawingNumberCellsAfterMoving(c, r + dr, dr); 
+        
         newPositions.insert(TKeyframeSelection::Position(r + dr, c));
       }
     } else {  // ... and vice versa
@@ -165,8 +169,10 @@ bool KeyframeMover::moveKeyframes(
         if (m_qualifiers & eCopyKeyframes) {
           firstTime = true;
           stObj->setKeyframeWithoutUndo(r + dr, stObj->getKeyframe(r));
+          xsh->updateNonZeroDrawingNumberCellsAfterMoving(c, r + dr, dr); 
         } else
           stObj->moveKeyframe(r + dr, r);
+        xsh->updateNonZeroDrawingNumberCellsAfterMoving(c, r + dr, dr); 
         newPositions.insert(TKeyframeSelection::Position(r + dr, c));
       }
     }
@@ -205,15 +211,20 @@ bool KeyframeMover::moveKeyframes(
 
     if (m_qualifiers & eOverwriteKeyframes) {
       stObj->removeKeyframeWithoutUndo(r + dr);
-      if (m_qualifiers & eCopyKeyframes)
+      if (m_qualifiers & eCopyKeyframes) {
         stObj->setKeyframeWithoutUndo(r + dr, stObj->getKeyframe(r));
-      else
+        xsh->updateNonZeroDrawingNumberCellsAfterMoving(c, r + dr, dr);
+      } else {
         stObj->moveKeyframe(r + dr, r);
+        xsh->updateNonZeroDrawingNumberCellsAfterMoving(c, r + dr, dr);
+      }
       newPositions.insert(TKeyframeSelection::Position(r + dr, c));
     } else if (m_qualifiers & eInsertKeyframes) {
       int s                           = r;
       TStageObject::Keyframe keyframe = stObj->getKeyframe(r);
-      if (!(m_qualifiers & eCopyKeyframes)) stObj->removeKeyframeWithoutUndo(r);
+      if (!(m_qualifiers & eCopyKeyframes)) {
+        stObj->removeKeyframeWithoutUndo(r);
+      }
       std::set<int> keyframeToShift;
       while (stObj->isKeyframe(s + dr) && s + dr != r) {
         keyframeToShift.insert(s + dr);
@@ -221,6 +232,7 @@ bool KeyframeMover::moveKeyframes(
       }
       stObj->moveKeyframes(keyframeToShift, 1);
       stObj->setKeyframeWithoutUndo(r + dr, keyframe);
+      xsh->updateNonZeroDrawingNumberCellsAfterMoving(c, r + dr, dr);
       newPositions.insert(TKeyframeSelection::Position(r + dr, c));
     }
   }
@@ -453,6 +465,7 @@ void KeyframeMoverTool::onClick(const QMouseEvent *event) {
   if (!getCellSelection()->isEmpty()) {
     cellsSelected = true;
     getCellSelection()->getSelectedCells(r0, c0, r1, c1);
+    xsheet->updateNonZeroDrawingNumberCellsBox(r0, c0, r1, c1); 
   }
 
   if (!m_startSelection.isEmpty()) {

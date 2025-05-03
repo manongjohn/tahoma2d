@@ -567,11 +567,14 @@ void KeyframeSetter::setUnitName(std::string unitName) {
   m_param->setKeyframe(m_kIndex, m_keyframe);
 }
 
+#include <QDebug>
+
 void KeyframeSetter::setValue(double value) {
   assert(m_kIndex >= 0 && m_indices.size() == 1);
   if (m_keyframe.m_value == value) return;
   m_changed          = true;
   m_keyframe.m_value = value;
+  
   m_param->setKeyframe(m_kIndex, m_keyframe);
 }
 

@@ -55,6 +55,7 @@ TEnv::IntVar LockGlobalScale("EditToolLockGlobalScale", 0);
 
 TEnv::IntVar ShowEWNSposition("EditToolShowEWNSposition", 1);
 TEnv::IntVar ShowZposition("EditToolShowZposition", 1);
+TEnv::IntVar ShowDrawingNumber("EditToolShowDrawingNumber", 0);
 TEnv::IntVar ShowSOposition("EditToolShowSOposition", 1);
 TEnv::IntVar ShowRotation("EditToolShowRotation", 1);
 TEnv::IntVar ShowGlobalScale("EditToolShowGlobalScale", 1);
@@ -172,6 +173,7 @@ public:
       m_before.add(TStageObject::T_X);
       m_before.add(TStageObject::T_Y);
       m_before.add(TStageObject::T_Z);
+      m_before.add(TStageObject::T_DrawingNumber);
       m_before.add(TStageObject::T_SO);
       m_before.add(TStageObject::T_ScaleX);
       m_before.add(TStageObject::T_ScaleY);
@@ -198,6 +200,7 @@ public:
       m_before.add(TStageObject::T_X);
       m_before.add(TStageObject::T_Y);
       m_before.add(TStageObject::T_Z);
+      m_before.add(TStageObject::T_DrawingNumber);
       m_before.add(TStageObject::T_SO);
       m_before.add(TStageObject::T_ScaleX);
       m_before.add(TStageObject::T_ScaleY);
@@ -263,7 +266,7 @@ public:
 // DragPositionTool
 //-----------------------------------------------------------------------------
 
-class DragPositionTool final : public DragChannelTool {
+class DragPositionTool : public DragChannelTool {
   bool m_lockPositionX;
   bool m_lockPositionY;
 
@@ -602,31 +605,65 @@ public:
 // DragZTool
 //-----------------------------------------------------------------------------
 
-class DragZTool final : public DragChannelTool {
+
+class DragZTool : public DragChannelTool {
   TPointD m_lastPos;
   TTool::Viewer *m_viewer;
   double m_dz;
+  double m_dx;
+  double i_x; 
 
 public:
+  int currentDrawingNumber    = 0;
+  bool affectingDrawingNumber = false; 
+
   DragZTool(TTool::Viewer *viewer, bool globalKeyframesEnabled)
-      : DragChannelTool(TStageObject::T_Z, globalKeyframesEnabled)
-      , m_viewer(viewer) {}
+      : DragChannelTool(TStageObject::T_Z, TStageObject::T_DrawingNumber,  globalKeyframesEnabled)
+      , m_viewer(viewer) {
+
+  }
+  
 
   void leftButtonDown(const TPointD &pos, const TMouseEvent &e) override {
     m_lastPos  = e.m_pos;
     m_firstPos = pos;
     m_dz       = 0;
+    m_dx       = 0; 
+    i_x                  = 0; 
+    //currentDrawingNumber = getOldValue(1); 
     start();
+  }
+  void updateDrawingNumber() { 
+    //currentDrawingNumber = getOldValue(1); 
+  }
+  void setCurrentDrawingNumber(double val) {
+    int dn = std::max(0, (int)std::round(val));
+    setValues(getOldValue(0) + m_dx, dn);
+    currentDrawingNumber = dn; 
+    i_x                  = dn; 
+  }
+  void shiftToggle() { 
+    affectingDrawingNumber = !affectingDrawingNumber;
   }
   void leftButtonDrag(const TPointD &pos, const TMouseEvent &e) override {
     double dz = m_viewer->projectToZ(e.m_pos - m_lastPos);
+    double dx = (e.m_pos - m_lastPos).x * 0.07;
     // precise control with pressing Alt key
-    if (e.isAltPressed()) dz *= 0.1;
-    m_lastPos = e.m_pos;
-    if (dz != 0.0) {
-      m_dz += dz;
-      setValue(getOldValue(0) + m_dz);
+    if (e.isAltPressed()) {
+      dz *= 0.1;
+      dx *= 0.1;
     }
+    m_lastPos = e.m_pos;
+
+    if (affectingDrawingNumber && dx != 0.0) {
+      m_dx += dx; 
+    } else if (!affectingDrawingNumber && dz != 0.0) {
+      m_dz += dz;
+    }
+    int dn = std::max(0, (int)std::round(i_x + getOldValue(1) + m_dx));
+    setValues(getOldValue(0) + m_dz, dn);
+
+    currentDrawingNumber = dn; 
   }
 };
 
@@ -668,6 +705,7 @@ EditTool::EditTool()
     , m_lockGlobalScale("Lock Global Scale", false)
     , m_showEWNSposition("X and Y Positions", true)
     , m_showZposition("Z Position", true)
+    , m_showDrawingNumber("Drawing Number", true)
     , m_showSOposition("SO", true)
     , m_showRotation("Rotation", true)
     , m_showGlobalScale("Global Scale", true)
@@ -677,7 +715,8 @@ EditTool::EditTool()
     , m_dragTool(0)
     , m_firstTime(true)
     , m_activeAxis("Active Axis")
-    , m_isAltPressed(false) {
+    , m_isAltPressed(false)
+    , m_isShiftPressed(false) {
   bind(TTool::AllTargets);
   m_prop.bind(m_scaleConstraint);
   m_prop.bind(m_autoSelect);
@@ -696,6 +735,7 @@ EditTool::EditTool()
 
   m_prop.bind(m_showEWNSposition);
   m_prop.bind(m_showZposition);
+  m_prop.bind(m_showDrawingNumber);
   m_prop.bind(m_showSOposition);
   m_prop.bind(m_showRotation);
   m_prop.bind(m_showGlobalScale);
@@ -761,6 +801,7 @@ void EditTool::updateTranslation() {
   m_lockGlobalScale.setQStringName(tr("Lock Global Scale"));
   m_showEWNSposition.setQStringName(tr("X and Y Positions"));
   m_showZposition.setQStringName(tr("Z Position"));
+  m_showDrawingNumber.setQStringName(tr("Drawing Number"));
   m_showSOposition.setQStringName(tr("SO"));
   m_showRotation.setQStringName(tr("Rotation"));
   m_showGlobalScale.setQStringName(tr("Global Scale"));
@@ -816,6 +857,13 @@ const TStroke *EditTool::getSpline() const {
 //-----------------------------------------------------------------------------
 
 void EditTool::mouseMove(const TPointD &, const TMouseEvent &e) {
+  DragZTool *ztool = dynamic_cast<DragZTool *>(m_dragTool);
+  if (ztool != nullptr) {
+    if (m_isShiftJustPressed) ztool->shiftToggle();
+    currentDrawingNumberDisplay = ztool->currentDrawingNumber;
+  } 
+  
+  
   /*-- return while left dragging --*/
   if (e.isLeftButtonPressed()) return;
 
@@ -845,7 +893,23 @@ void EditTool::mouseMove(const TPointD &, const TMouseEvent &e) {
   }
 
   // for adding decoration to the cursor while pressing Alt key
-  m_isAltPressed = e.isAltPressed();
+  m_isAltPressed   = e.isAltPressed();
+  m_isShiftPressed = e.isShiftPressed();
+
+  //DragZTool *ztool = dynamic_cast<DragZTool *>(m_dragTool);
+  if (m_isShiftJustPressed)
+    m_isShiftJustPressed = false;
+  else if (m_isShiftPressed)
+    m_isShiftJustPressed = true;
+
+  if (m_isShiftJustPressed) {
+    if (ztool) {
+      ztool->shiftToggle();
+      isDisplayingDrawingNumber = ztool->affectingDrawingNumber;
+    } else {
+      isDisplayingDrawingNumber = !isDisplayingDrawingNumber;
+    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -925,6 +989,27 @@ void EditTool::leftButtonDown(const TPointD &ppos, const TMouseEvent &e) {
       break;
     case ZTranslation:
       m_dragTool = new DragZTool(m_viewer, m_globalKeyframes.getValue());
+      DragZTool *ztool = dynamic_cast<DragZTool *>(m_dragTool); 
+      if (isDisplayingDrawingNumber) {
+        ztool->shiftToggle(); 
+      }
+      int currentCol =
+          TTool::getApplication()->getCurrentColumn()->getColumnIndex();
+      int currentFrame = TTool::getApplication()->getCurrentFrame()->getFrame();
+      TXshCell cell =
+          TTool::getApplication()->getCurrentXsheet()->getXsheet()->getCell(
+              currentFrame, currentCol);
+
+      int cellNum = cell.getFrameId().getNumber(); 
+      if (cellNum == -1) cellNum = 0; 
+      TStageObject* pegbar = TTool::getApplication()
+          ->getCurrentXsheet()
+          ->getXsheet()
+          ->getStageObjectTree()
+          ->getStageObject(currentCol);
+      //if (pegbar && pegbar->getDrawingNumber(currentFrame) == 0) cellNum = 0; 
+      ztool->setCurrentDrawingNumber(cellNum); 
+      currentDrawingNumberDisplay = ztool->currentDrawingNumber;
       break;
     }
   }
@@ -969,7 +1054,7 @@ void EditTool::onEditAllLeftButtonDown(TPointD &pos, const TMouseEvent &e) {
             TStageObjectId colId = xsh->getColumnObjectId(columnIndex);
             TStageObjectCmd::setParent(curColId, colId, "", xshHandle);
             m_what = None;
-            xshHandle->notifyXsheetChanged();
+            xshHandle->notifyXsheetChanged();  
           } else {
             TXshColumn *column = xsh->getColumn(columnIndex);
             if (!column || !column->isLocked()) {
@@ -993,6 +1078,7 @@ void EditTool::onEditAllLeftButtonDown(TPointD &pos, const TMouseEvent &e) {
 void EditTool::leftButtonDrag(const TPointD &pos, const TMouseEvent &e) {
   if (!m_dragTool) return;
   m_dragTool->leftButtonDrag(pos, e);
+
   TTool::getApplication()->getCurrentObject()->notifyObjectIdChanged(true);
   invalidate();
 }
@@ -1085,6 +1171,69 @@ void drawCameraIcon() {
   glVertex2i(5, 6);
   glVertex2i(5, 0);
   glEnd();
+}
+
+void drawSimpleArrowNoBack() { 
+  glBegin(GL_LINE_STRIP);
+  glVertex2f(5, 3);
+  glVertex2f(-3, 3);
+  glVertex2f(-3, 6);
+  glVertex2f(-8, 0);
+  glVertex2f(-3, -6);
+  glVertex2f(-3, -3);
+  glVertex2f(5, -3);
+  //glVertex2f(5, 3);
+  glEnd();
+}
+void drawTwoSidedArrow() {
+  glBegin(GL_LINE_STRIP);
+  glVertex2f(5, 3);
+  glVertex2f(-3, 3);
+  glVertex2f(-3, 6);
+  glVertex2f(-8, 0);
+  glVertex2f(-3, -6);
+  glVertex2f(-3, -3);
+  glVertex2f(5, -3);
+  //glVertex2f(5, 3);
+  glEnd();
+}
+
+
+void drawDrawingNumberBox() {
+  /*
+  glBegin(GL_LINE_LOOP);
+  glVertex2i(-5,-5);
+  glVertex2i(5, -5);
+  glVertex2i(5, 5);
+  glVertex2i(-5, 5);
+  glEnd();
+  */
+  /*
+  glPushMatrix(); 
+  glTranslatef(-10, 0, 0);
+  drawSimpleArrow(); 
+
+  glPopMatrix(); 
+
+  glPushMatrix();
+  glRotatef(180, 0, 0, 1);  
+  glTranslatef(-10, 0, 0);
+  drawSimpleArrow();
+  glPopMatrix(); 
+  */
+
+  int dist = -5; 
+  glPushMatrix();
+  glTranslatef(0, 0, 0);
+  glTranslatef(dist, 0, 0);
+  drawSimpleArrowNoBack(); 
+  glRotatef(180,0,0,1.0);
+  glTranslatef(2 * dist, 0, 0);
+  drawSimpleArrowNoBack(); 
+
+  glPopMatrix();
+
+  
 }
 
 void drawZArrow() {
@@ -1374,7 +1523,56 @@ void EditTool::draw() {
     tglMultMatrix(camParentAff.inv() *
                   TTranslation(camAff * TPointD(0.0, 0.0)));
     glScaled(unit * 8, unit * 8, 1);
-    drawZArrow();
+
+    DragZTool *ztool = dynamic_cast<DragZTool *>(m_dragTool); 
+    if (!ztool) {
+      int currentCol =
+          TTool::getApplication()->getCurrentColumn()->getColumnIndex();
+      int currentFrame = TTool::getApplication()->getCurrentFrame()->getFrame();
+      TXshCell cell =
+          TTool::getApplication()->getCurrentXsheet()->getXsheet()->getCell(
+              currentFrame, currentCol);
+
+      int cellNum          = cell.getFrameId().getNumber();
+      if (cellNum == -1) cellNum = 0; 
+      TStageObject *pegbar = TTool::getApplication()
+                                 ->getCurrentXsheet()
+                                 ->getXsheet()
+                                 ->getStageObjectTree()
+                                 ->getStageObject(TStageObjectId::ColumnId(currentCol));
+      if (pegbar && pegbar->getDrawingNumber(currentFrame) == 0) cellNum = 0; 
+      //if (pegbar) cellNum = pegbar->getParam(TStageObject::T_DrawingNumber)->getValue(currentFrame);
+      currentDrawingNumberDisplay = cellNum;
+    }
+
+    if (ztool && ztool->affectingDrawingNumber) {
+      currentDrawingNumberDisplay = ztool->currentDrawingNumber;
+    }
+
+
+    if (isDisplayingDrawingNumber)
+    {
+      glPushMatrix();   
+      glScaled(0.5,0.5,0.5);
+      drawDrawingNumberBox();
+      // Inside your draw() or onDraw() method of a tool:
+      double unit = 0.5;  // or something like viewer->getPixelSize()
+      TPointD pos(0, unit * 20);  // Position in world coordinates
+     
+      std::string label;
+      label = "ID: " + std::to_string(currentDrawingNumberDisplay);
+
+      drawText(pos, unit, label);
+      glPopMatrix(); 
+    }
+    else
+    {
+      drawZArrow();
+    }
+   
+
+    
+
     glPopMatrix();
   }
   /*-- Rotation, Position : Draw vertical and horizontal lines --*/
@@ -1485,6 +1683,8 @@ void EditTool::onActivate() {
 
     m_showEWNSposition.setValue(ShowEWNSposition ? 1 : 0);
     m_showZposition.setValue(ShowZposition ? 1 : 0);
+    m_showDrawingNumber.setValue(ShowDrawingNumber ? 1 : 0);
+
     m_showSOposition.setValue(ShowSOposition ? 1 : 0);
     m_showRotation.setValue(ShowRotation ? 1 : 0);
     m_showGlobalScale.setValue(ShowGlobalScale ? 1 : 0);
@@ -1567,6 +1767,8 @@ bool EditTool::onPropertyChanged(std::string propertyName) {
 
   else if (propertyName == m_showZposition.getName())
     ShowZposition = (int)m_showZposition.getValue();
+  else if (propertyName == m_showDrawingNumber.getName())
+    ShowDrawingNumber = (int)m_showDrawingNumber.getValue();
 
   else if (propertyName == m_showSOposition.getName())
     ShowSOposition = (int)m_showSOposition.getValue();

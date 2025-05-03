@@ -65,6 +65,7 @@ bool shiftKeyframesWithoutUndo(int r0, int r1, int c0, int c1, bool cut,
     }
     isShifted = stObj->moveKeyframes(keyToShift, delta);
   }
+  xsh->updateNonZeroDrawingNumberCellsBox(r0,c0,r1,c1);
   return isShifted;
 }
 
@@ -112,6 +113,7 @@ bool deleteKeyframesWithoutUndo(
     areAllColumnLocked = false;
     assert(pegbar);
     pegbar->removeKeyframeWithoutUndo(row);
+    ///xsh->updateNonZeroDrawingNumberCells(col,row);
   }
   if (areAllColumnLocked) return false;
 

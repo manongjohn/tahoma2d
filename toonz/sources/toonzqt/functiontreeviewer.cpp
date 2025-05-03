@@ -593,6 +593,8 @@ QVariant FunctionTreeModel::Channel::data(int role) const {
       color = QColor("darkorange");
     else if (name == "Shear V")
       color = QColor("darkorange");
+    else if (name == "Drawing Number")
+      color = QColor("lightgreen"); 
     else if (name == "posPath")
       color = QColor("darksalmon");
     else
@@ -703,6 +705,8 @@ QString FunctionTreeModel::Channel::getExprRefName() const {
       tmpName = "shx";
     else if (tmpName == "Shear V")
       tmpName = "shy";
+    else if (tmpName == "W_Drawing_Number")
+      tmpName = "drawingnumber";
     else if (tmpName == "posPath")
       tmpName = "path";
     else if (tmpName == "Scale")
@@ -884,7 +888,7 @@ void FunctionTreeModel::refreshStageObjects(TXsheet *xsh) {
       TStageObject::T_X,      TStageObject::T_Y,      TStageObject::T_Z,
       TStageObject::T_SO,     TStageObject::T_Path,   TStageObject::T_Angle,
       TStageObject::T_ScaleX, TStageObject::T_ScaleY, TStageObject::T_Scale,
-      TStageObject::T_ShearX, TStageObject::T_ShearY};  // Explicitly ordered
+      TStageObject::T_ShearX, TStageObject::T_ShearY, TStageObject::T_DrawingNumber};  // Explicitly ordered
                                                         // channels
 
   // Retrieve all (not-empty) root stage objects, and add them in the tree model
