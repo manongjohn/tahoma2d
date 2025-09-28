@@ -1161,18 +1161,30 @@ void TRasterImagePatternStrokeStyle::loadLevel(const std::string &patternName) {
   assert(!m_basePath.isEmpty());
 
   // leggo tutti i livelli contenuti
-  TFilePathSet fps;
-  TSystem::readDirectory(fps, m_basePath);
-
-  // prendo il primo livello il cui nome sia patternName
-  // (puo' essere un pli, ma anche un png, ecc.)
   TFilePath fp;
-  TFilePathSet::iterator fpIt;
-  for (fpIt = fps.begin(); fpIt != fps.end(); ++fpIt) {
-    if (fpIt->getName() == patternName) {
-      fp = *fpIt;
-      break;
+  std::list<TFilePath> queue;
+  queue.push_front(m_basePath);
+  while (!queue.empty()) {
+    TFilePath dir = queue.front();
+    queue.pop_front();
+
+    TFilePathSet fps;
+    TSystem::readDirectory(fps, dir, true, true);
+
+    TFilePathSet::iterator fpIt;
+    for (fpIt = fps.begin(); fpIt != fps.end(); ++fpIt) {
+      if (fpIt->getName() == patternName) {
+        fp = *fpIt;
+        break;
+      }
     }
+
+    if (!fp.isEmpty()) break;
+
+    QStringList fpList;
+    TSystem::readDirectory_DirItems(fpList, dir);
+    for (int i = 0; i < fpList.count(); i++)
+      queue.push_front(dir + TFilePath(fpList[i]));
   }
 
   // se non ho trovato nulla esco
@@ -1602,7 +1614,35 @@ void TVectorImagePatternStrokeStyle::loadLevel(const std::string &patternName) {
   m_name  = patternName;
   assert(
       !m_basePath.isEmpty());  // se e' vuota, non si e' chiamata la setRoot(..)
-  TFilePath fp = m_basePath + (patternName + ".pli");
+
+  TFilePath fp;
+  std::list<TFilePath> queue;
+  queue.push_front(m_basePath);
+  while (!queue.empty()) {
+    TFilePath dir = queue.front();
+    queue.pop_front();
+
+    TFilePathSet fps;
+    TSystem::readDirectory(fps, dir, true, true);
+
+    TFilePathSet::iterator fpIt;
+    for (fpIt = fps.begin(); fpIt != fps.end(); ++fpIt) {
+      if (fpIt->getName() == patternName) {
+        fp = *fpIt;
+        break;
+      }
+    }
+
+    if (!fp.isEmpty()) break;
+
+    QStringList fpList;
+    TSystem::readDirectory_DirItems(fpList, dir);
+    for (int i = 0; i < fpList.count(); i++)
+      queue.push_front(dir + TFilePath(fpList[i]));
+  }
+
+  if (fp == TFilePath() || !TSystem::doesExistFileOrLevel(fp)) return;
+
   TLevelReaderP lr(fp);
   m_level = lr->loadInfo();
   TLevel::Iterator frameIt;

@@ -14,6 +14,7 @@
 #include "tvectorimage.h"
 #include "toonz/toonzscene.h"
 #include "toonz/imagestyles.h"
+#include "tsystem.h"
 
 //*************************************************************************************
 //    TTextureStyle  implementation
@@ -720,6 +721,8 @@ void TTextureStyle::setParamValue(int index, double value) {
 
 //------------------------------------------------------------
 bool TTextureStyle::loadTextureRaster() {
+  if (m_texturePath == TFilePath()) return false;
+
   if (m_texturePathLoaded != TFilePath() &&
       m_texturePath == m_texturePathLoaded)
     return true;
@@ -737,7 +740,33 @@ bool TTextureStyle::loadTextureRaster() {
     }
   } else  // is a library texture
   {
-    path = m_texturePath.withParentDir(m_libraryDir + "textures");
+    TFilePath fp;
+    std::list<TFilePath> queue;
+    queue.push_front(TFilePath(m_libraryDir + "textures"));
+    while (!queue.empty()) {
+      TFilePath dir = queue.front();
+      queue.pop_front();
+
+      TFilePathSet fps;
+      TSystem::readDirectory(fps, dir, true, true);
+
+      TFilePathSet::iterator fpIt;
+      for (fpIt = fps.begin(); fpIt != fps.end(); ++fpIt) {
+        if (fpIt->getName() == m_texturePath.getName()) {
+          fp = *fpIt;
+          break;
+        }
+      }
+
+      if (!fp.isEmpty()) break;
+
+      QStringList fpList;
+      TSystem::readDirectory_DirItems(fpList, dir);
+      for (int i = 0; i < fpList.count(); i++)
+        queue.push_front(dir + TFilePath(fpList[i]));
+    }
+
+    path = fp;
   }
 
   TRasterP aux;
@@ -837,9 +866,13 @@ void TTextureStyle::loadData(TInputStreamInterface &is) {
 void TTextureStyle::saveData(TOutputStreamInterface &os) const {
   // TOutlineStyle::saveData(os);
   // os << m_texture;
-  std::wstring wstr = m_texturePath.getWideString();
+  TFilePath textureName = m_texturePath - (m_libraryDir + "textures");
   std::string str;
-  str.assign(wstr.begin(), wstr.end());
+  if (textureName == m_texturePath) {
+    std::wstring wstr = m_texturePath.getWideString();
+    str.assign(wstr.begin(), wstr.end());
+  } else
+    str = textureName.getName();
   os << str;
 
   os << m_params.m_patternColor;

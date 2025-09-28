@@ -11,6 +11,7 @@
 #include "tmathutil.h"
 #include "tlevel_io.h"
 #include "tenv.h"
+#include "tsystem.h"
 
 #include "tvectorbrushstyle.h"
 
@@ -205,7 +206,33 @@ void TVectorBrushStyle::loadBrush(const std::string &brushName) {
 
   if (!m_brush) {
     // Load the image associated with fp
-    TFilePath fp(m_basePath + TFilePath(brushName + ".pli"));
+    TFilePath fp;
+    std::list<TFilePath> queue;
+    queue.push_front(m_basePath);
+    while (!queue.empty()) {
+      TFilePath dir = queue.front();
+      queue.pop_front();
+
+      TFilePathSet fps;
+      TSystem::readDirectory(fps, dir, true, true);
+
+      TFilePathSet::iterator fpIt;
+      for (fpIt = fps.begin(); fpIt != fps.end(); ++fpIt) {
+        if (fpIt->getName() == brushName) {
+          fp = *fpIt;
+          break;
+        }
+      }
+
+      if (!fp.isEmpty()) break;
+
+      QStringList fpList;
+      TSystem::readDirectory_DirItems(fpList, dir);
+      for (int i = 0; i < fpList.count(); i++)
+        queue.push_front(dir + TFilePath(fpList[i]));
+    }
+
+    if (fp == TFilePath() || !TSystem::doesExistFileOrLevel(fp)) return;
 
     TLevelReaderP lr(fp);
     TLevelP level = lr->loadInfo();
