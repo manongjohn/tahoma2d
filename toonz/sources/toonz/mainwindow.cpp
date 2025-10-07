@@ -1925,6 +1925,9 @@ void MainWindow::defineActions() {
       MI_ExportTvpJson,
       QT_TRANSLATE_NOOP("MainWindow", "Export TVPaint JSON File"), "",
       "export_tvpaint");
+
+#ifdef TOONZSCRIPTING
+
   createMenuFileAction(
       "MI_RunScript", QT_TR_NOOP("Run Script..."), "", "run_script",
       tr("Run a script to perform a series of actions on a scene."));
@@ -1932,6 +1935,9 @@ void MainWindow::defineActions() {
       "MI_OpenScriptConsole", QT_TR_NOOP("Open Script Console..."), "",
       "console",
       tr("Open a console window where you can enter script commands."));
+
+ #endif // TOONZSCRIPTING
+
   createMenuFileAction(MI_Print, QT_TR_NOOP("&Print Current Frame..."),
                        "Ctrl+P", "printer");
   createMenuFileAction(MI_Quit, QT_TR_NOOP("&Quit"), "Ctrl+Q", "quit",

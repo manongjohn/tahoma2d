@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef TOONZSCRIPTING
+
 #ifndef SCRIPTBINDING_IMAGE_BUILDER_H
 #define SCRIPTBINDING_IMAGE_BUILDER_H
 
@@ -61,3 +63,5 @@ Q_DECLARE_METATYPE(TScriptBinding::Transform *)
 Q_DECLARE_METATYPE(TScriptBinding::ImageBuilder *)
 
 #endif
+
+#endif  // TOONZSCRIPTING

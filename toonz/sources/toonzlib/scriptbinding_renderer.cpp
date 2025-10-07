@@ -1,4 +1,5 @@
 
+#ifdef TOONZSCRIPTING
 
 #include "toonz/scriptbinding_renderer.h"
 #include "toonz/scriptbinding_scene.h"
@@ -339,3 +340,5 @@ void Renderer::dumpCache() {
 }
 
 }  // namespace TScriptBinding
+
+#endif  // TOONZSCRIPTING

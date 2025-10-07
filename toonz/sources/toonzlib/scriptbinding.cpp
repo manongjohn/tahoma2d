@@ -1,4 +1,5 @@
 
+#ifdef TOONZSCRIPTING
 
 #include "toonz/scriptbinding.h"
 #include "toonz/scriptbinding_scene.h"
@@ -170,3 +171,5 @@ void bindAll(QJSEngine &engine) {
 }
 
 }  // namespace TScriptBinding
+
+#endif  // TOONZSCRIPTING
