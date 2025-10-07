@@ -1,6 +1,6 @@
 # Build Tahoma2D on Windows
 
-This software can be built using Visual Studio 2019 or above and Qt 5 (min 5.15.2)
+This software can be built using Visual Studio 2019 or above and Qt 6 (min 6.7.3)
 
 Throughout these instructions `$tahoma2d` represents the full path to your local Git repository for Tahoma2D.
 
@@ -13,21 +13,28 @@ Throughout these instructions `$tahoma2d` represents the full path to your local
   - [ ] During the installation, make sure to select all the Visual C++ packages.
 
 ### Qt - cross-platform GUI framework.
-- [ ] Install via **one** of the following methods.
-  - If you want WinTab support, install the customized Qt 5.15.2 w/ WinTab support created by Shun-iwasawa. **(This is required if you plan on running on a Wacom tablet!)**
-	- [ ] Download `Qt5.15.2_wintab.zip` from https://github.com/shun-iwasawa/qt5/releases/tag/v5.15.2_wintab
-	- [ ] Extract the contents to `C:\Qt\5.15.2_wintab`
-
-  - Install Qt 5.15.x (min 5.15.2) from https://www.qt.io/download-open-source/.
+- [ ] Install Qt 6.x (min 6.7.3) from https://www.qt.io/download-open-source/.
     - [ ] Click the `Download the Qt Online Installer` button at the bottom of the page.
     - [ ] Run the the installer and choose the Qt version to install.
-      - If you do not see 5.15.x you may need to tick the Archive checkbox to see older versions in the list.
       - Include the following components
-        - `MSVC 2019 64-bit`
-        - `Qt Script (Deprecated)`
-        - `Qt Charts`
-        - `Qt Data Visualization`
-        - `Qt Network Authorization`
+        - `MSVC 2019 64-bit` or `MSVC 2022 65-bit`
+        - `Qt 5 Compatibility Module`
+		- `Qt Shader Tools`
+		- `Addtional Libraries`
+		  - `Qt 3D`
+          - `Qt Charts`
+          - `Qt Data Visualization`
+		  - `Qt Location (TP)`
+		  - `Qt Multimedia`
+          - `Qt Network Authorization`
+		  - `Qt Positioning`
+		  - `Qt Remote Objects`
+		  - `Qt Sensors`
+		  - `Qt Serial Bus`
+		  - `Qt Serial Port`
+		  - `Qt Web Channel`
+		  - `Qt Web Sockets`
+		- (Optional) `Qt Debug Information Files`
 
 ### CMake
 This will be used to create the `MSVC` project file.
@@ -65,11 +72,10 @@ You can use GitHub Desktop https://desktop.github.com/ or Git command line.
   - Select the version of Visual Studio you are using. 
   - Select the `x64` Target Environment.
 - [ ] Click on the value for `QT_PATH` in the top half of the CMake window and update the path to match where your QT library was installed.
-    - For example: `C:\Qt\5.15.5_wintab\msvc2019_64` for Visual Studio 2019. 
+    - For example: `C:\Qt\6.7.3\msvc2019_64` for Visual Studio 2019. 
 - [ ] Select the following as desired
     - `WITH_CANON` - For Stop motion with Canon DSLR cameras. (Only use if you have the Canon SDK)
   	- `WITH_GPHOTO2` - For Stop Motion using non-Canon cameras.
-  	- `WITH_WINTAB` - Only use if you installed the customized Qt 5.15.2 w/ WinTab, mentioned above
 - [ ] For generating PDB files needed for detailed crash reporting, add `/Zi` to the following entries (example: `/MDd /Zi /Ob0 /Od /RTC1`)
   - `CMAKE_CXX_FLAGS_DEBUG`
   - `CMAKE_CXX_FLAGS_RELWITHDEBINFO`
@@ -113,7 +119,7 @@ Rename the following files:
 
 ## Build/Debug
 - [ ] Start Visual Studio by double-clicking on`$tahoma2d\toonz\build\Tahoma2D.sln`.
-- [ ] Change the Solution Configuration to `Debug`, `RelWithDebInfo` or, `Release` in the top bar.
+- [ ] Change the Solution Configuration to `Debug`, `RelWithDebInfo` (recommended) or, `Release` in the top bar.
 - [ ] To build: `Build` -> `Build Solution`
 - [ ] To debug:
   - [ ] In the Solution Explorer window, right click on `Tahoma2D` and choose `Set as StartUp Project`.
@@ -128,28 +134,28 @@ Rename the following files:
      - (option 2) Another way to do this is to open two windows in Windows Explorer. In the first window navigate to the folder containing `windeployqt.exe`. In a second window navigate to and drag and drop `C:\Tahoma2D\Tahoma2D.exe` onto `windeployqt.exe` in the other window.
 
 - [ ] Confirm the following files and folders have been added to `C:\Tahoma2D`
-  - `Qt5Core.dll`
-  - `Qt5Gui.dll`
-  - `Qt5Multimedia.dll`
-  - `Qt5Network.dll`
-  - `Qt5OpenGL.dll`
-  - `Qt5PrintSupport.dll`
-  - `Qt5Script.dll`
-  - `Qt5SerialPort.dll`
-  - `Qt5Svg.dll`
-  - `Qt5Widgets.dll`
-  - `Qt5Xml.dll`
-  - `audio\`
-  - `bearer\`
+  - `Qt6Core.dll`
+  - `Qt6Core5Compat.dll`
+  - `Qt6Gui.dll`
+  - `Qt6Multimedia.dll`
+  - `Qt6Network.dll`
+  - `Qt6OpenGL.dll`
+  - `Qt6OpenGLwidgets.dll`
+  - `Qt6PrintSupport.dll`
+  - `Qt6SerialPort.dll`
+  - `Qt6Svg.dll`
+  - `Qt6UiTools.dll`
+  - `Qt6Widgets.dll`
+  - `Qt6Xml.dll`
+  - `generic\`
   - `iconengines\`
   - `imageformats\`
-  - `mediaservice\`
+  - `multimedia\`
+  - `networkinformation\`
   - `platforms\`
-  - `playlistformats\`
-  - `printsupport\`
+  - `styles\`
+  - `tls\`
   - `translations\`
-  - `concrt140.dll`
-  - `msvcp140.dll`
   
 - [ ] Copy the following files and folders to `C:\Tahoma2D`
   - `$tahoma2d\thirdparty\freeglut\bin\x64\freeglut.dll`

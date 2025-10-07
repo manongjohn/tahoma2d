@@ -13,14 +13,13 @@ REM Setup for local builds
 set MSVCVERSION="Visual Studio 17 2022"
 set BOOST_ROOT=C:\boost\boost_1_87_0
 set OPENCV_DIR=C:\opencv\4110\build
-set QT_PATH=C:\Qt\5.15.2_wintab\msvc2019_64
+set QT_PATH=C:\Qt\6.7.3\msvc2022_64
 
 REM These are effective when running from Actions
 IF EXIST C:\local\boost_1_87_0 set BOOST_ROOT=C:\local\boost_1_87_0
 IF EXIST C:\tools\opencv set OPENCV_DIR=C:\tools\opencv\build
 
-set WITH_WINTAB=Y
-IF EXIST ..\..\thirdparty\qt\5.15.2_wintab\msvc2019_64 set QT_PATH=..\..\thirdparty\qt\5.15.2_wintab\msvc2019_64
+IF EXIST ..\..\thirdparty\qt\6.7.3\msvc2022_64 set QT_PATH=..\..\thirdparty\qt\6.7.3\msvc2022_64
 
 set WITH_CANON=N
 IF EXIST ..\..\thirdparty\canon\Header set WITH_CANON=Y
@@ -28,7 +27,7 @@ IF EXIST ..\..\thirdparty\canon\Header set WITH_CANON=Y
 set WITH_GPHOTO2=N
 IF EXIST ..\..\thirdparty\libgphoto2\include set WITH_GPHOTO2=Y
 
-cmake ..\sources -G %MSVCVERSION%  -Ax64 -DQT_PATH=%QT_PATH% -DBOOST_ROOT=%BOOST_ROOT% -DOpenCV_DIR=%OPENCV_DIR% -DWITH_CANON=%WITH_CANON% -DWITH_GPHOTO2=%WITH_GPHOTO2% -DWITH_WINTAB=%WITH_WINTAB%
+cmake ..\sources -G %MSVCVERSION%  -Ax64 -DQT_PATH=%QT_PATH% -DBOOST_ROOT=%BOOST_ROOT% -DOpenCV_DIR=%OPENCV_DIR% -DWITH_CANON=%WITH_CANON% -DWITH_GPHOTO2=%WITH_GPHOTO2%
 
 
 IF EXIST C:\ProgramData\chocolatey\bin\cl.exe (
