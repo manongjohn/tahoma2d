@@ -63,15 +63,16 @@ copy /Y "%VCRUNTIME_PATH%\msvcp140_1.dll" Tahoma2D
 echo ">>> Configuring Tahoma2D.exe for deployment"
 
 REM Setup for local builds
-set QT_PATH=C:\Qt\5.15.2_wintab\msvc2019_64
+set QT_PATH=C:\Qt\6.7.3\msvc2022_64
 
 REM These are effective when running from Actions/Appveyor
-IF EXIST ..\..\thirdparty\qt\5.15.2_wintab\msvc2019_64 set QT_PATH=..\..\thirdparty\qt\5.15.2_wintab\msvc2019_64
+IF EXIST ..\..\thirdparty\qt\6.7.3\msvc2022_64 set QT_PATH=..\..\thirdparty\qt\6.7.3\msvc2022_64
 echo "QT_PATH=%QT_PATH%"
 
 
 %QT_PATH%\bin\windeployqt.exe Tahoma2D\Tahoma2D.exe --opengl
 
+xcopy /Y /E /I %QT_PATH%\bin\Qt6Core5Compat.dll Tahoma2D
 
 IF EXIST ..\..\thirdparty\apps\ffmpeg\bin (
    echo ">>> Copying FFmpeg to Tahoma2D\ffmpeg"
