@@ -1,12 +1,12 @@
 #!/bin/bash
 export TAHOMA2DVERSION=1.5.4
 
-if [ -d /usr/local/Cellar/qt@5 ]
+if [ -d /usr/local/Cellar/qt@6 ]
 then
-   export QTDIR=/usr/local/opt/qt@5
-elif [ -d /opt/homebrew/opt/qt@5 ]
+   export QTDIR=/usr/local/opt/qt@6
+elif [ -d /opt/homebrew/opt/qt@6 ]
 then
-   export QTDIR=/opt/homebrew/opt/qt@5
+   export QTDIR=/opt/homebrew/opt/qt@6
 else
    export QTDIR=/usr/local/opt/qt
 fi
@@ -103,7 +103,7 @@ $QTDIR/bin/macdeployqt $TOONZDIR/Tahoma2D.app -verbose=0 -always-overwrite \
    -executable=$TOONZDIR/Tahoma2D.app/Contents/MacOS/tfarmcontroller \
    -executable=$TOONZDIR/Tahoma2D.app/Contents/MacOS/tfarmserver 
 
-for FW in `echo "QtDBus QtPdf QtQml QtQmlModels QtQuick QtVirtualKeyboard"`
+for FW in `echo "QtDBus QtQml QtQmlModels QtQuick"`
 do
    if [ ! -d $TOONZDIR/Tahoma2D.app/Contents/Frameworks/$FW.framework ]
    then

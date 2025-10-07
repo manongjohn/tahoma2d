@@ -20,7 +20,7 @@ SVNPartialLockReader::SVNPartialLockReader(const QString &xmlSVNResponse)
     readNext();
 
     if (isStartElement()) {
-      if (name() == L"target") readTarget();
+      if (name().toString() == "target") readTarget();
     }
   }
 }
@@ -28,7 +28,7 @@ SVNPartialLockReader::SVNPartialLockReader(const QString &xmlSVNResponse)
 //-----------------------------------------------------------------------------
 
 void SVNPartialLockReader::readTarget() {
-  Q_ASSERT(isStartElement() && name() == L"target");
+  Q_ASSERT(isStartElement() && name().toString() == "target");
 
   QString fileName = attributes().value("path").toString();
 
@@ -40,7 +40,7 @@ void SVNPartialLockReader::readTarget() {
 
     if (isEndElement()) break;
     if (isStartElement()) {
-      if (name() == L"property") {
+      if (name().toString() == "property") {
         readProperty();
       } else
         readUnknownElement();
@@ -51,7 +51,7 @@ void SVNPartialLockReader::readTarget() {
 //-----------------------------------------------------------------------------
 
 void SVNPartialLockReader::readProperty() {
-  Q_ASSERT(isStartElement() && name() == L"property");
+  Q_ASSERT(isStartElement() && name().toString() == "property");
 
   if (attributes().value("name").toString() == "partial-lock") {
     QString text = readElementText();
@@ -114,9 +114,9 @@ SVNConfigReader::SVNConfigReader(const QString &xml) : m_data(xml), m_path() {
     readNext();
 
     if (isStartElement()) {
-      if (name() == L"repository")
+      if (name().toString() == "repository")
         readRepository();
-      else if (name() == L"svnPath")
+      else if (name().toString() == "svnPath")
         readSVNPath();
     }
   }
@@ -125,7 +125,7 @@ SVNConfigReader::SVNConfigReader(const QString &xml) : m_data(xml), m_path() {
 //-----------------------------------------------------------------------------
 
 void SVNConfigReader::readRepository() {
-  Q_ASSERT(isStartElement() && name() == L"repository");
+  Q_ASSERT(isStartElement() && name().toString() == "repository");
 
   QString repoName, repoPath, localPath, username, password;
 
@@ -134,13 +134,13 @@ void SVNConfigReader::readRepository() {
 
     if (isEndElement()) break;
     if (isStartElement()) {
-      if (name() == L"name") {
+      if (name().toString() == "name") {
         repoName = readElementText();
         readNext();
-      } else if (name() == L"localPath") {
+      } else if (name().toString() == "localPath") {
         localPath = readElementText();
         readNext();
-      } else if (name() == L"repoPath") {
+      } else if (name().toString() == "repoPath") {
         repoPath = readElementText();
         readNext();
       } else
@@ -162,7 +162,7 @@ void SVNConfigReader::readRepository() {
 //-----------------------------------------------------------------------------
 
 void SVNConfigReader::readSVNPath() {
-  Q_ASSERT(isStartElement() && name() == L"svnPath");
+  Q_ASSERT(isStartElement() && name().toString() == "svnPath");
   m_path = readElementText();
   readNext();
 }
@@ -195,7 +195,7 @@ SVNStatusReader::SVNStatusReader(const QString &xmlSVNResponse)
     readNext();
 
     if (isStartElement()) {
-      if (name() == L"entry") readEntry();
+      if (name().toString() == "entry") readEntry();
     }
   }
 }
@@ -220,7 +220,7 @@ void SVNStatusReader::resetCurrentValues() {
 //-----------------------------------------------------------------------------
 
 void SVNStatusReader::readEntry() {
-  Q_ASSERT(isStartElement() && name() == L"entry");
+  Q_ASSERT(isStartElement() && name().toString() == "entry");
 
   m_currentPath = attributes().value("path").toString();
 
@@ -229,9 +229,9 @@ void SVNStatusReader::readEntry() {
 
     if (isEndElement()) break;
     if (isStartElement()) {
-      if (name() == L"wc-status") {
+      if (name().toString() == "wc-status") {
         readWCStatus();
-      } else if (name() == L"repos-status") {
+      } else if (name().toString() == "repos-status") {
         readRepoStatus();
       } else
         readUnknownElement();
@@ -244,7 +244,7 @@ void SVNStatusReader::readEntry() {
 //-----------------------------------------------------------------------------
 
 void SVNStatusReader::readRepoStatus() {
-  Q_ASSERT(isStartElement() && name() == L"repos-status");
+  Q_ASSERT(isStartElement() && name().toString() == "repos-status");
 
   QString props = attributes().value("props").toString();
   QString item  = attributes().value("item").toString();
@@ -254,7 +254,7 @@ void SVNStatusReader::readRepoStatus() {
 
     if (isEndElement()) break;
     if (isStartElement()) {
-      if (name() == L"lock") {
+      if (name().toString() == "lock") {
         readLock(true);
       } else
         readUnknownElement();
@@ -270,7 +270,7 @@ void SVNStatusReader::readRepoStatus() {
 //-----------------------------------------------------------------------------
 
 void SVNStatusReader::readWCStatus() {
-  Q_ASSERT(isStartElement() && name() == L"wc-status");
+  Q_ASSERT(isStartElement() && name().toString() == "wc-status");
 
   QString props = attributes().value("props").toString();
   QString item  = attributes().value("item").toString();
@@ -284,9 +284,9 @@ void SVNStatusReader::readWCStatus() {
 
     if (isEndElement()) break;
     if (isStartElement()) {
-      if (name() == L"commit") {
+      if (name().toString() == "commit") {
         readCommit();
-      } else if (name() == L"lock") {
+      } else if (name().toString() == "lock") {
         readLock(false);
       } else
         readUnknownElement();
@@ -327,7 +327,7 @@ void SVNStatusReader::readWCStatus() {
 //-----------------------------------------------------------------------------
 
 void SVNStatusReader::readLock(bool statusAlreadyAdded) {
-  Q_ASSERT(isStartElement() && name() == L"lock");
+  Q_ASSERT(isStartElement() && name().toString() == "lock");
 
   if (statusAlreadyAdded)
     m_status.last().m_isLocked = true;
@@ -339,13 +339,13 @@ void SVNStatusReader::readLock(bool statusAlreadyAdded) {
 
     if (isEndElement()) break;
     if (isStartElement()) {
-      if (name() == L"owner") {
+      if (name().toString() == "owner") {
         if (statusAlreadyAdded)
           m_status.last().m_lockOwner = readElementText();
         else
           m_currentLockOwner = readElementText();
         readNext();
-      } else if (name() == L"comment") {
+      } else if (name().toString() == "comment") {
         if (statusAlreadyAdded) {
           // Split the lock comment to retrieve the lock hostName
           QString lockComment = readElementText();
@@ -360,7 +360,7 @@ void SVNStatusReader::readLock(bool statusAlreadyAdded) {
         } else
           m_currentLockComment = readElementText();
         readNext();
-      } else if (name() == L"created") {
+      } else if (name().toString() == "created") {
         if (statusAlreadyAdded)
           m_status.last().m_lockDate = readElementText();
         else
@@ -375,7 +375,7 @@ void SVNStatusReader::readLock(bool statusAlreadyAdded) {
 //-----------------------------------------------------------------------------
 
 void SVNStatusReader::readCommit() {
-  Q_ASSERT(isStartElement() && name() == L"commit");
+  Q_ASSERT(isStartElement() && name().toString() == "commit");
 
   m_currentCommitRevision = attributes().value("revision").toString();
 
@@ -384,10 +384,10 @@ void SVNStatusReader::readCommit() {
 
     if (isEndElement()) break;
     if (isStartElement()) {
-      if (name() == L"author") {
+      if (name().toString() == "author") {
         m_currentAuthor = readElementText();
         readNext();
-      } else if (name() == L"date") {
+      } else if (name().toString() == "date") {
         m_currentDate = readElementText();
         readNext();
       } else
@@ -422,14 +422,14 @@ SVNLogReader::SVNLogReader(const QString &xmlSVNResponse)
     readNext();
 
     if (isStartElement()) {
-      if (name() == L"logentry") readEntry();
+      if (name().toString() == "logentry") readEntry();
     }
   }
 }
 //-----------------------------------------------------------------------------
 
 void SVNLogReader::readEntry() {
-  Q_ASSERT(isStartElement() && name() == L"logentry");
+  Q_ASSERT(isStartElement() && name().toString() == "logentry");
 
   m_currentRevision = attributes().value("revision").toString();
 
@@ -438,13 +438,13 @@ void SVNLogReader::readEntry() {
 
     if (isEndElement()) break;
     if (isStartElement()) {
-      if (name() == L"author") {
+      if (name().toString() == "author") {
         m_currentAuthor = readElementText();
         readNext();
-      } else if (name() == L"date") {
+      } else if (name().toString() == "date") {
         m_currentDate = readElementText();
         readNext();
-      } else if (name() == L"msg") {
+      } else if (name().toString() == "msg") {
         m_currentMsg = readElementText();
         readNext();
       } else
@@ -487,7 +487,7 @@ SVNInfoReader::SVNInfoReader(const QString &xmlSVNResponse)
     readNext();
 
     if (isStartElement()) {
-      if (name() == L"entry") readEntry();
+      if (name().toString() == "entry") readEntry();
     }
   }
 }
@@ -495,7 +495,7 @@ SVNInfoReader::SVNInfoReader(const QString &xmlSVNResponse)
 //-----------------------------------------------------------------------------
 
 void SVNInfoReader::readEntry() {
-  Q_ASSERT(isStartElement() && name() == L"entry");
+  Q_ASSERT(isStartElement() && name().toString() == "entry");
 
   m_revision = attributes().value("revision").toString();
 
@@ -504,7 +504,7 @@ void SVNInfoReader::readEntry() {
 
     if (isEndElement()) break;
     if (isStartElement()) {
-      if (name() == L"url") {
+      if (name().toString() == "url") {
         m_url = readElementText();
         readNext();
       } else
@@ -539,7 +539,7 @@ SVNListReader::SVNListReader(const QString &xmlSVNResponse)
     readNext();
 
     if (isStartElement()) {
-      if (name() == L"entry") readEntry();
+      if (name().toString() == "entry") readEntry();
     }
   }
 }
@@ -547,7 +547,7 @@ SVNListReader::SVNListReader(const QString &xmlSVNResponse)
 //-----------------------------------------------------------------------------
 
 void SVNListReader::readEntry() {
-  Q_ASSERT(isStartElement() && name() == L"entry");
+  Q_ASSERT(isStartElement() && name().toString() == "entry");
 
   QString entryKind = attributes().value("kind").toString();
   QString entryName = "";
@@ -557,7 +557,7 @@ void SVNListReader::readEntry() {
 
     if (isEndElement()) break;
     if (isStartElement()) {
-      if (name() == L"name") {
+      if (name().toString() == "name") {
         entryName = readElementText();
         readNext();
       } else

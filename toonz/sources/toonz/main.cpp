@@ -380,7 +380,7 @@ int main(int argc, char *argv[]) {
 
   public:
     bool nativeEventFilter(const QByteArray &eventType, void *message,
-                           long *) Q_DECL_OVERRIDE {
+                           qintptr *) override {
       if (IsLeftMouseDown(message)) {
         leftButtonPressed = true;
       }

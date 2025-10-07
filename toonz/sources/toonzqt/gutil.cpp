@@ -248,7 +248,7 @@ QSize determineSvgSize(const QString &svgFilePath) {
       continue;
     }
     if (token == QXmlStreamReader::StartElement) {
-      if (xml.name() == L"svg") {
+      if (xml.name().toString() == "svg") {
         foreach (const QXmlStreamAttribute &attr, xml.attributes()) {
           if (attr.name().toString() == "viewBox") {
             QStringList parts = attr.value().toString().split(" ");
