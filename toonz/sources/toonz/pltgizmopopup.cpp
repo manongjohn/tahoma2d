@@ -110,7 +110,7 @@ public:
     int n = std::min(styles.size(), colors.size());
     for (int i = 0; i < n; i++) {
       QString gname = QString::fromStdWString(styles[i]->getGlobalName());
-      if (!gname.isEmpty() && gname[0] != L'-') continue;
+      if (!gname.isEmpty() && gname[0] != '-') continue;
       styles[i]->setMainColor(colors[i]);
       styles[i]->setIsEditedFlag(flags[i]);
       styles[i]->invalidateIcon();

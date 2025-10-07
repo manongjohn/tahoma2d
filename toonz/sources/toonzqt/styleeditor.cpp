@@ -5588,7 +5588,7 @@ bool StyleEditor::setStyle(TColorStyle *currentStyle) {
   // if(!gname.isEmpty() && gname == "ColorFieldSimpleColor")
   //	isStyleNull = true;
   // else
-  if (!gname.isEmpty() && gname[0] != L'-') {
+  if (!gname.isEmpty() && gname[0] != '-') {
     currentStyle = 0;
     isStyleNull  = true;
   }

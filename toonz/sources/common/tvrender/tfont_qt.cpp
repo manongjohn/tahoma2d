@@ -80,7 +80,7 @@ TPoint TFont::drawChar(TVectorImageP &image, wchar_t charcode,
                        wchar_t nextCharCode) const {
   QRawFont raw(QRawFont::fromFont(m_pimpl->m_font));
 
-  QChar chars[2] = {charcode, nextCharCode};
+  QChar chars[2] = {QChar(charcode), QChar(nextCharCode)};
   quint32 indices[2];
   int count = 2;
 
@@ -164,7 +164,7 @@ TPoint TFont::drawChar(QImage &outImage, TPoint &unused, wchar_t charcode,
                        wchar_t nextCharCode) const {
   QRawFont raw(QRawFont::fromFont(m_pimpl->m_font));
 
-  QChar chars[2] = {charcode, nextCharCode};
+  QChar chars[2] = {QChar(charcode), QChar(nextCharCode)};
   quint32 indices[2];
   int count = 2;
 
