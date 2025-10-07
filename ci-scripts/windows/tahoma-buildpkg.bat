@@ -1,5 +1,11 @@
 cd toonz\build
 
+REM Setup for local builds
+set MSVCVERSION="Visual Studio 17 2022"
+set BOOST_ROOT=C:\boost\boost_1_87_0
+set OPENCV_DIR=C:\opencv\4110\build
+set QT_PATH=C:\Qt\5.15.2_wintab\msvc2019_64
+
 echo ">>> Creating Tahoma2D directory"
 
 IF EXIST Tahoma2D rmdir /S /Q Tahoma2D
@@ -48,8 +54,11 @@ IF EXIST "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC" set VCINS
 
 %QT_PATH%\bin\windeployqt.exe Tahoma2D\Tahoma2D.exe --opengl
 
-xcopy /Y /E /I %VCINSTALLDIR%\Redist\MSVC\14.42.34433\x64\Microsoft.VC143.CRT Tahoma2D
-xcopy /Y /E /I %VCINSTALLDIR%\Redist\MSVC\14.42.34433\x64\Microsoft.VC143.OpenMP Tahoma2D
+REM xcopy /Y /E /I %VCINSTALLDIR%\Redist\MSVC\14.42.34433\x64\Microsoft.VC143.CRT Tahoma2D
+REM xcopy /Y /E /I %VCINSTALLDIR%\Redist\MSVC\14.42.34433\x64\Microsoft.VC143.OpenMP Tahoma2D
+
+REM xcopy /Y /E /I %VCINSTALLDIR%\Redist\MSVC\14.29.30133\x64\Microsoft.VC142.CRT Tahoma2D
+REM xcopy /Y /E /I %VCINSTALLDIR%\Redist\MSVC\14.29.30133\x64\Microsoft.VC142.OpenMP Tahoma2D
 
 del /A- /S Tahoma2D\tahomastuff\*.gitkeep
 
