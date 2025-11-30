@@ -16,3 +16,4 @@ jobs:
         with:
           name: Tahoma2D-portable-win
           path: toonz\build\Tahoma2D-portable-win.zip
+          compression-level: 0
