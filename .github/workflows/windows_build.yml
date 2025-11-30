@@ -13,7 +13,7 @@ jobs:
           mkdir artifact
           cp -r toonz\build\Tahoma2D artifact
           cd artifact
-          dir /s
+          Get-ChildItem -Path "artifact" -Recurse
       - uses: actions/upload-artifact@v4
         with:
           name: Tahoma2D-portable-win
