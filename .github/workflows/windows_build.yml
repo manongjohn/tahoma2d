@@ -20,3 +20,8 @@ jobs:
         with:
           name: Tahoma2D-portable-win-prezipped
           path: toonz\build\Tahoma2D-portable-win.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Tahoma2D-portable-win-prezipped-nocompression
+          path: toonz\build\Tahoma2D-portable-win.zip
+          compression-level: 0
