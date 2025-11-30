@@ -12,7 +12,7 @@ jobs:
           ci-scripts\windows\tahoma-buildpkg.bat
           mkdir artifact
           cp -r toonz\build\Tahoma2D artifact
-          find artifact
+          dir /s artifact
       - uses: actions/upload-artifact@v4
         with:
           name: Tahoma2D-portable-win
