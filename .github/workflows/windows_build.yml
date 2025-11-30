@@ -12,7 +12,8 @@ jobs:
           ci-scripts\windows\tahoma-buildpkg.bat
           mkdir artifact
           cp -r toonz\build\Tahoma2D artifact
-          dir /s artifact
+          cd artifact
+          dir /s
       - uses: actions/upload-artifact@v4
         with:
           name: Tahoma2D-portable-win
