@@ -14,5 +14,9 @@ jobs:
           cp -r toonz\build\Tahoma2D artifact
       - uses: actions/upload-artifact@v4
         with:
-          name: Tahoma2D-portable-win
+          name: Tahoma2D-portable-win-fromartifact
           path: artifact
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Tahoma2D-portable-win-prezipped
+          path: toonz\build\Tahoma2D-portable-win.zip
