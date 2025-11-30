@@ -14,11 +14,12 @@ mkdir Tahoma2D
 
 echo ">>> Creating Tahoma2D Windows Portable package"
 
-xcopy /Y /E /I ..\..\stuff Tahoma2D\tahomastuff
-
 echo ">>> Remove unnecessary files"
 REM Remove github keep files
-del /A- /S Tahoma2D\tahomastuff\*.gitkeep
+del /A- /S ..\..\stuff\*.gitkeep
+
+xcopy /Y /E /I ..\..\stuff Tahoma2D\tahomastuff
+
 
 7z --help
 
