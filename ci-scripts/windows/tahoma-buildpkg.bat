@@ -21,7 +21,7 @@ REM Remove github keep files
 del /A- /S Tahoma2D\tahomastuff\*.gitkeep
 
 IF EXIST Tahoma2D-portable-win.zip del Tahoma2D-portable-win.zip
-7z a -r0 Tahoma2D-portable-win.zip Tahoma2D\*
+7z a -r Tahoma2D-portable-win.zip Tahoma2D
 
 7z l Tahoma2D-portable-win.zip
 
