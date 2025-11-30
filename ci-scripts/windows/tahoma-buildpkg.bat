@@ -89,12 +89,6 @@ IF EXIST ..\..\thirdparty\apps\rhubarb (
    xcopy /Y /E /I ..\..\thirdparty\apps\rhubarb\res "Tahoma2D\rhubarb\res"
 )
 
-echo ">>> Remove unnecessary files"
-REM Remove ILK files
-del Tahoma2D\*.ilk
-REM Remove github keep files
-del /A- /S Tahoma2D\tahomastuff\*.gitkeep
-
 echo ">>> Creating Tahoma2D Windows Installer"
 IF NOT EXIST installer mkdir installer
 cd installer
@@ -105,6 +99,10 @@ xcopy /Y /E /I ..\Tahoma2D program
 IF EXIST stuff rmdir /S /Q stuff
 xcopy /Y /E /I ..\..\..\stuff stuff
 
+echo ">>> Remove unnecessary files"
+REM Remove github keep files
+del /A- /S stuff\*.gitkeep
+
 python ..\..\installer\windows\filelist_python3.py %cd%
 ISCC.exe /I. /O.. ..\..\installer\windows\setup.iss
 
@@ -113,6 +111,10 @@ cd ..
 echo ">>> Creating Tahoma2D Windows Portable package"
 
 xcopy /Y /E /I ..\..\stuff Tahoma2D\tahomastuff
+
+echo ">>> Remove unnecessary files"
+REM Remove github keep files
+del /A- /S Tahoma2D\tahomastuff\*.gitkeep
 
 IF EXIST Tahoma2D-portable-win.zip del Tahoma2D-portable-win.zip
 7z a Tahoma2D-portable-win.zip Tahoma2D
