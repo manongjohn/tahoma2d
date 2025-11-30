@@ -20,6 +20,8 @@ echo ">>> Remove unnecessary files"
 REM Remove github keep files
 del /A- /S Tahoma2D\tahomastuff\*.gitkeep
 
+7z --help
+
 IF EXIST Tahoma2D-portable-win.zip del Tahoma2D-portable-win.zip
 7z a -r0 Tahoma2D-portable-win.zip Tahoma2D\*
 
