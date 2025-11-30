@@ -12,8 +12,7 @@ jobs:
           ci-scripts\windows\tahoma-buildpkg.bat
           mkdir artifact
           cp -r toonz\build\Tahoma2D artifact
-          Get-ChildItem -Path "artifact" -Recurse
       - uses: actions/upload-artifact@v4
         with:
           name: Tahoma2D-portable-win
-          path: artifact
+          path: toonz\build\Tahoma2D-portable-win.zip
