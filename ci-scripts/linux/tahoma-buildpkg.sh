@@ -107,6 +107,9 @@ rm appdir/AppRun
 cp ../sources/scripts/AppRun appdir
 chmod 775 appdir/AppRun
 
+mkdir -p appDir/usr/plugins/platforms
+cp /usr/lib/x86_64-linux-gnu/qt5/plugins/platforms/libqwayland* appDir/usr/plugins/platforms/
+
 $LINUXDEPLOYQT appdir/usr/bin/Tahoma2D -appimage -no-strip 
 
 mv Tahoma2D*.AppImage Tahoma2D/Tahoma2D.AppImage

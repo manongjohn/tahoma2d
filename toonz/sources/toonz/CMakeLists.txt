@@ -564,6 +564,12 @@ elseif(BUILD_ENV_UNIXLIKE AND WITH_CANON)
         ${EXTRA_LIBS} dl
     )
 
+    if (WAYLAND_SUPPORT)
+        target_link_libraries(Tahoma2D
+            Qt5::WaylandClient
+            Qt5::WaylandCompositor
+        )
+    endif()
 elseif(BUILD_ENV_UNIXLIKE)
     _find_toonz_library(EXTRA_LIBS "tnzcore;tnzbase;toonzlib;colorfx;tnzext;image;sound;toonzqt;tnztools")
 
@@ -586,6 +592,12 @@ elseif(BUILD_ENV_UNIXLIKE)
         ${GL_LIB} ${GLUT_LIB} ${GLU_LIB} ${TURBOJPEG_LIB} ${OpenCV_LIBS}
         ${EXTRA_LIBS} dl
     )
+    if (WAYLAND_SUPPORT)
+        target_link_libraries(Tahoma2D
+            Qt5::WaylandClient
+            Qt5::WaylandCompositor
+        )
+    endif()
 endif()
 
 if(BUILD_ENV_APPLE)

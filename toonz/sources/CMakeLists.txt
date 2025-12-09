@@ -281,6 +281,21 @@ find_package(Qt5 REQUIRED
     UiTools
 )
 
+if(BUILD_ENV_UNIXLIKE)
+    find_package(Qt5 REQUIRED 
+        WaylandClient 
+        WaylandCompositor
+    )
+endif()
+
+# Set a variable to easily check later if Wayland was successfully found
+if (Qt5WaylandClient_FOUND AND Qt5WaylandCompositor_FOUND)
+    set(WAYLAND_SUPPORT TRUE)
+    message(STATUS "Wayland support enabled.")
+else()
+    set(WAYLAND_SUPPORT FALSE)
+endif()
+
 set(QT_MINIMUM_VERSION 5.5.0)
 if(Qt5Core_VERSION VERSION_LESS QT_MINIMUM_VERSION)
     MESSAGE(FATAL_ERROR "Minimum supported Qt version: ${QT_MINIMUM_VERSION}.
