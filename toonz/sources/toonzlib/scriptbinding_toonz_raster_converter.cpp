@@ -1,4 +1,5 @@
 
+#ifdef TOONZSCRIPTING
 
 #include "toonz/scriptbinding_toonz_raster_converter.h"
 #include "toonz/scriptbinding_level.h"
@@ -54,3 +55,5 @@ QJSValue ToonzRasterConverter::convert(QScriptContext *context,
 }
 
 }  // namespace TScriptBinding
+
+#endif  // TOONZSCRIPTING

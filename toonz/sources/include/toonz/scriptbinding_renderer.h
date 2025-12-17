@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef TOONZSCRIPTING
+
 #ifndef SCRIPTBINDING_RENDERER_H
 #define SCRIPTBINDING_RENDERER_H
 
@@ -30,3 +32,5 @@ public:
 Q_DECLARE_METATYPE(TScriptBinding::Renderer *)
 
 #endif
+
+#endif  // TOONZSCRIPTING

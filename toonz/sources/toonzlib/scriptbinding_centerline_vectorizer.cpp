@@ -1,4 +1,5 @@
 
+#ifdef TOONZSCRIPTING
 
 #include "toonz/scriptbinding_centerline_vectorizer.h"
 #include "toonz/scriptbinding_level.h"
@@ -171,3 +172,5 @@ bool CenterlineVectorizer::getEir() const { return m_parameters->m_naaSource; }
 void CenterlineVectorizer::setEir(bool v) { m_parameters->m_naaSource = v; }
 
 }  // namespace TScriptBinding
+
+#endif  // TOONZSCRIPTING

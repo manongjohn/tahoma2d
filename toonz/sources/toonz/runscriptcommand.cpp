@@ -1,5 +1,7 @@
 
 
+#ifdef TOONZSCRIPTING
+
 #include "columncommand.h"
 #include "toonzqt/menubarcommand.h"
 #include "tmsgcore.h"
@@ -69,3 +71,5 @@ TFilePath fp(fileNameStr.toStdWString());
 if(fp.getType()=="") fp = fp.withType("mpath");
 */
 }
+
+#endif // TOONZSCRIPTING

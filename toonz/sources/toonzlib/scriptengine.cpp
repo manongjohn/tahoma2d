@@ -1,4 +1,5 @@
 
+#ifdef TOONZSCRIPTING
 
 #include "toonz/scriptengine.h"
 #include "toonz/scriptbinding.h"
@@ -269,3 +270,5 @@ void ScriptEngine::onTerminated() {
   delete m_executor;
   m_executor = 0;
 }
+
+#endif // TOONZSCRIPTING

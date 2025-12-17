@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef TOONZSCRIPTING
+
 #ifndef SCRIPTBINDING_OUTLINE_VECTORIZER_H
 #define SCRIPTBINDING_OUTLINE_VECTORIZER_H
 
@@ -69,3 +71,5 @@ public:
 Q_DECLARE_METATYPE(TScriptBinding::OutlineVectorizer *)
 
 #endif
+
+#endif  // TOONZSCRIPTING

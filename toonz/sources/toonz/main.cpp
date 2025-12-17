@@ -242,6 +242,9 @@ project->setUseScenePath(TProject::Extras, false);
 //-----------------------------------------------------------------------------
 
 static void script_output(int type, const QString &value) {
+
+#ifdef TOONZSCRIPTING
+
   if (type == ScriptEngine::ExecutionError ||
       type == ScriptEngine::SyntaxError ||
       type == ScriptEngine::UndefinedEvaluationResult ||
@@ -249,6 +252,8 @@ static void script_output(int type, const QString &value) {
     std::cerr << value.toStdString() << std::endl;
   else
     std::cout << value.toStdString() << std::endl;
+
+#endif // TOONZSCRIPTING
 }
 
 //-----------------------------------------------------------------------------
@@ -726,6 +731,9 @@ int main(int argc, char *argv[]) {
         oldProjectPath = pm->getCurrentProjectPath();
         pm->setCurrentProjectPath(sceneProject->getProjectPath());
       }
+
+#ifdef TOONZSCRIPTING
+
       ScriptEngine engine;
       QObject::connect(&engine, &ScriptEngine::output, script_output);
       QString s = QString::fromStdWString(loadFilePath.getWideString())
@@ -734,6 +742,9 @@ int main(int argc, char *argv[]) {
       QString cmd = QString("run(\"%1\")").arg(s);
       engine.evaluate(cmd);
       engine.wait();
+
+#endif // TOONZSCRIPTING
+
       if (!oldProjectPath.isEmpty()) pm->setCurrentProjectPath(oldProjectPath);
       return 1;
     } else {

@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef TOONZSCRIPTING
+
 #ifndef SCRIPTBINDING_LEVEL_H
 #define SCRIPTBINDING_LEVEL_H
 
@@ -70,3 +72,5 @@ public:
 Q_DECLARE_METATYPE(TScriptBinding::Level *)
 
 #endif
+
+#endif  // TOONZSCRIPTING

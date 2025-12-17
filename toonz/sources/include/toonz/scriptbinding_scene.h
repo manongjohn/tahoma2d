@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef TOONZSCRIPTING
+
 #ifndef SCRIPTBINDING_SCENE_H
 #define SCRIPTBINDING_SCENE_H
 
@@ -51,3 +53,5 @@ public:
 Q_DECLARE_METATYPE(TScriptBinding::Scene *)
 
 #endif
+
+#endif  // TOONZSCRIPTING

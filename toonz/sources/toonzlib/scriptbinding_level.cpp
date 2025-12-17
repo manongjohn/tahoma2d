@@ -1,4 +1,5 @@
 
+#ifdef TOONZSCRIPTING
 
 #include "toonz/scriptbinding_level.h"
 #include "toonz/scriptbinding_files.h"
@@ -413,3 +414,5 @@ int Level::setFrame(const TFrameId &fid, const TImageP &img) {
 }
 
 }  // namespace TScriptBinding
+
+#endif  // TOONZSCRIPTING

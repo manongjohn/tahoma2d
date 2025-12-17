@@ -1,4 +1,5 @@
 
+#ifdef TOONZSCRIPTING
 
 #include "toonz/scriptbinding_image.h"
 #include "toonz/scriptbinding_level.h"
@@ -209,3 +210,5 @@ QJSValue checkImage(QScriptContext *context, const QJSValue &value,
 }
 
 }  // namespace TScriptBinding
+
+#endif  // TOONZSCRIPTING

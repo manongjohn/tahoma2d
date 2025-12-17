@@ -1,4 +1,5 @@
 
+#ifdef TOONZSCRIPTING
 
 #include "toonz/scriptbinding_rasterizer.h"
 #include "toonz/scriptbinding_image.h"
@@ -167,3 +168,5 @@ double Rasterizer::getDpi() const { return m_dpi; }
 void Rasterizer::setDpi(double v) { m_dpi = v; }
 
 }  // namespace TScriptBinding
+
+#endif  // TOONZSCRIPTING

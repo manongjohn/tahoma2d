@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef TOONZSCRIPTING
+
 #ifndef SCRIPTBINDING_TOONZ_RASTER_CONVERTER_H
 #define SCRIPTBINDING_TOONZ_RASTER_CONVERTER_H
 
@@ -36,3 +38,5 @@ public:
 Q_DECLARE_METATYPE(TScriptBinding::ToonzRasterConverter *)
 
 #endif
+
+#endif  // TOONZSCRIPTING

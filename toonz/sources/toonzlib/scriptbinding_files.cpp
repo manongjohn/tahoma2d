@@ -1,4 +1,5 @@
 
+#ifdef TOONZSCRIPTING
 
 #include "toonz/scriptbinding_files.h"
 #include <QJSEngine>
@@ -146,3 +147,5 @@ QJSValue checkFilePath(QScriptContext *context, const QJSValue &value,
 }
 
 }  // namespace TScriptBinding
+
+#endif  // TOONZSCRIPTING

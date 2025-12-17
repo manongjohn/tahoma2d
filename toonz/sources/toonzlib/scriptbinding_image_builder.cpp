@@ -1,4 +1,5 @@
 
+#ifdef TOONZSCRIPTING
 
 #include "toonz/scriptbinding_image_builder.h"
 #include "toonz/scriptbinding_image.h"
@@ -288,3 +289,5 @@ QJSValue ImageBuilder::add(QJSValue imgArg,
 }
 
 }  // namespace TScriptBinding
+
+#endif  // TOONZSCRIPTING

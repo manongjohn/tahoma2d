@@ -358,12 +358,18 @@ void TopBar::loadMenubar() {
   addMenuItem(fileMenu, MI_PrintXsheet);
   addMenuItem(fileMenu, MI_Print);
   addMenuItem(fileMenu, MI_Export);
+
+#ifdef TOONZSCRIPTING
+
   fileMenu->addSeparator();
   QMenu *scriptMenu = fileMenu->addMenu(tr("Script"));
   {
     addMenuItem(scriptMenu, "MI_RunScript");
     addMenuItem(scriptMenu, "MI_OpenScriptConsole");
   }
+
+#endif // TOONZSCRIPTING
+
   fileMenu->addSeparator();
   addMenuItem(fileMenu, MI_Preferences);
   addMenuItem(fileMenu, MI_ShortcutPopup);

@@ -1,4 +1,5 @@
 
+#ifdef TOONZSCRIPTING
 
 #include "toonz/scriptbinding_outline_vectorizer.h"
 #include "toonz/scriptbinding_level.h"
@@ -183,3 +184,5 @@ int OutlineVectorizer::getToneThreshold() const {
 void OutlineVectorizer::setToneThreshold(int v) { m_parameters->m_toneTol = v; }
 
 }  // namespace TScriptBinding
+
+#endif  // TOONZSCRIPTING

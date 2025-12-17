@@ -1,4 +1,5 @@
 
+#ifdef TOONZSCRIPTING
 
 #include "toonz/scriptbinding_scene.h"
 #include "toonz/scriptbinding_level.h"
@@ -230,3 +231,5 @@ QJSValue Scene::deleteColumn(int col) {
 }
 
 }  // namespace TScriptBinding
+
+#endif  // TOONZSCRIPTING

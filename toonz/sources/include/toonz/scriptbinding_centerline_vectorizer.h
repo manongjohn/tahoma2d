@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef TOONZSCRIPTING
+
 #ifndef SCRIPTBINDING_CENTERLINE_VECTORIZER_H
 #define SCRIPTBINDING_CENTERLINE_VECTORIZER_H
 
@@ -66,3 +68,5 @@ private:
 Q_DECLARE_METATYPE(TScriptBinding::CenterlineVectorizer *)
 
 #endif
+
+#endif  // TOONZSCRIPTING
