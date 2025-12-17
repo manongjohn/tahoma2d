@@ -1713,7 +1713,7 @@ bool parsePathName(const QString &fullpath, QString &parentPath, QString &name,
 
   index--;
 
-  if (filename.at(index) == "." || filename.at(index) == "_") {
+  if (filename.at(index) == QChar('.') || filename.at(index) == QChar('_')) {
     name = filename.left(index);
     return true;  // .. or ._ file level notation
   }

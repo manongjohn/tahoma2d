@@ -814,7 +814,9 @@ void BoardList::addFile(QListWidgetItem *lwi, int atIndex) {
   QStyledItemDelegate *delegate =
       qobject_cast<QStyledItemDelegate *>(itemDelegate());
   QModelIndex idx = model()->index(row(lwi), 0);
-  QSize iconSize  = delegate->sizeHint(viewOptions(), idx);
+  QStyleOptionViewItem option;
+  initViewItemOption(&option);
+  QSize iconSize = delegate->sizeHint(option, idx);
   if (iconSize != m_maxWidgetSize) {
     m_maxWidgetSize = m_maxWidgetSize.expandedTo(iconSize);
     item(count() - 1)->setSizeHint(m_maxWidgetSize);
@@ -1254,7 +1256,7 @@ void BoardList::onExpandSequnce() {
   }
 
   QString filter = QString::fromStdString(
-      fp.getName() + (fp.getSepChar() == "." ? ".*." : "_*.") + fp.getType());
+      fp.getName() + (fp.getSepChar() == QChar('.') ? ".*." : "_*.") + fp.getType());
   QDir dir(fp.getParentDir().getQString(), filter);
   QStringList list = dir.entryList();
 
