@@ -236,9 +236,8 @@ public:
 //      workingDirectoryTmp = TFilePath(appPath).getParentDir().getQString();
 //#endif
 
-    QByteArray ba                = workingDirectoryTmp.toLatin1();
-    const char *workingDirectory = ba.data();
-    m_workingDirectory           = workingDirectory;
+    QByteArray ba                = workingDirectoryTmp.toUtf8();
+    m_workingDirectory           = std::string(ba.constData(), ba.length());
 
     // check if portable
     TFilePath portableCheck = TFilePath(m_workingDirectory + "\\tahomastuff\\");
