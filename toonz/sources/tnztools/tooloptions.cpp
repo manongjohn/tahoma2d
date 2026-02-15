@@ -3047,7 +3047,8 @@ TapeToolOptionsBox::TapeToolOptionsBox(QWidget *parent, TTool *tool,
     , m_joinStrokesMode(0)
     , m_toolMode(0)
     , m_autocloseLabel(0)
-    , m_autocloseField(0) {
+    , m_autocloseField(0)
+    , m_dehookField(0){
   TPropertyGroup *props = tool->getProperties(0);
   assert(props->getPropertyCount() > 0);
 
@@ -3074,9 +3075,32 @@ TapeToolOptionsBox::TapeToolOptionsBox(QWidget *parent, TTool *tool,
   m_autocloseLabel->setEnabled(!isNormalType);
   m_multiFrameMode->setEnabled(!isNormalType);
 
+  bool isFreehandType = m_typeMode->getProperty()->getValue() == L"Freehand";
+  m_dehookField = dynamic_cast<ToolOptionPairSlider*>(m_controls.value("Dehook"));
+  if (m_dehookField){
+    m_dehookLabel = m_labels.value(m_dehookField->propertyName());
+  }
+  m_dehookField->setEnabled(isFreehandType);
+  m_dehookLabel->setEnabled(isFreehandType);
+
+
+  m_dehookAngleThresholdField = dynamic_cast<ToolOptionSlider*>(m_controls.value("DehookAngleThreshold"));
+  if (m_dehookAngleThresholdField) {
+    m_dehookAngleThresholdLabel = m_labels.value(m_dehookAngleThresholdField->propertyName());
+  }
+  m_dehookAngleThresholdField->setEnabled(isFreehandType);
+  m_dehookAngleThresholdLabel->setEnabled(isFreehandType);
+
+  m_lineExtAngleField = dynamic_cast<ToolOptionSlider*>(m_controls.value("LineExtAngle"));
+  if (m_lineExtAngleField) {
+    m_lineExtAngleLabel = m_labels.value(m_lineExtAngleField->propertyName());
+  }
+  m_lineExtAngleField->setEnabled(isFreehandType);
+  m_lineExtAngleLabel->setEnabled(isFreehandType);
+
   bool isLineToLineMode =
       m_toolMode->getProperty()->getValue() == L"Line to Line";
-  m_joinStrokesMode->setEnabled(!isLineToLineMode);
+  m_joinStrokesMode->setEnabled(!isLineToLineMode || isFreehandType);
 
   bool isJoinStrokes = m_joinStrokesMode->isChecked();
   m_smoothMode->setEnabled(!isLineToLineMode && isJoinStrokes);
@@ -3107,6 +3131,14 @@ void TapeToolOptionsBox::onToolTypeChanged(int index) {
   m_autocloseField->setEnabled(!isNormalType);
   m_autocloseLabel->setEnabled(!isNormalType);
   m_multiFrameMode->setEnabled(!isNormalType);
+
+  bool isFreehandType               = range[index] == L"Freehand";
+  m_dehookField->setEnabled(isFreehandType);
+  m_dehookLabel->setEnabled(isFreehandType);
+  m_dehookAngleThresholdField->setEnabled(isFreehandType);
+  m_dehookAngleThresholdLabel->setEnabled(isFreehandType);
+  m_lineExtAngleField->setEnabled(isFreehandType);
+  m_lineExtAngleLabel->setEnabled(isFreehandType);
 }
 
 //-----------------------------------------------------------------------------

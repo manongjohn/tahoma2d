@@ -31,6 +31,12 @@
 #include <QContextMenuEvent>
 #include <QStyle>
 
+#include "toonz/stage2.h"
+
+//#include "../tnztools/vectortapetool.h"
+//#include "tools/tool.h"
+//#include "tproperty.h"
+
 TEnv::IntVar ShowAllToolsToggle("ShowAllToolsToggle", 1);
 
 //=============================================================================
@@ -345,6 +351,22 @@ void Toolbar::onToolChanged() {
   ToolHandle *toolHandle = TApp::instance()->getCurrentTool();
   TTool *tool            = toolHandle->getTool();
   std::string toolName   = tool->getName();
+    
+  // ToonzCheck usually records the status of user-ticked checkboxes
+  // Here we update ToonzCheck programmatically based on the active tool
+  std::cout << "The tool name is:" << toolName << "\n";
+  ToonzCheck* check = ToonzCheck::instance();
+  
+  if (toolName == T_Selection || toolName == T_ControlPointEditor) {
+    check->setCheck(ToonzCheck::eLineExtensionGapClose);
+  }
+  else if (toolName == T_Tape) {
+    // leave it to VectorTapeTool to set the status
+  }
+  else {
+    check->clearCheck(ToonzCheck::eLineExtensionGapClose);
+  }
+
   QAction *act = CommandManager::instance()->getAction(toolName.c_str());
   if (!act || act->isChecked()) return;
   act->setChecked(true);

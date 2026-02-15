@@ -47,7 +47,8 @@ public:
     eGap          = 0x10,  //!< Gaps check.
     eAutoclose    = 0x20,  //!< Autoclose check.
     eInksOnly     = 0x40,  //!< Inks only (transparent paints).
-    eInk1         = 0x80   //!< Ink#1 check (show style#1 on inks).
+    eInk1         = 0x80,   //!< Ink#1 check (show style#1 on inks).
+    eLineExtensionGapClose = 0x100   //!< Gap closing by line extension.
   };
 
 public:
@@ -70,6 +71,18 @@ public:
 
     m_colorIndex = index;
     return true;
+  }
+
+  void setCheck(int checkType) {
+    m_mask |= checkType;
+  }
+
+  void clearCheck(int checkType) {
+    m_mask &= ~checkType;
+  }
+
+  bool isCheckEnabled(int checkType) const {
+    return (m_mask & checkType) != 0;
   }
 
 private:
