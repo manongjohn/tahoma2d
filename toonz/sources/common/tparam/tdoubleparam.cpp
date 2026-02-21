@@ -479,7 +479,6 @@ void TDoubleParam::copy(TParam *src) {
   if (!p) throw TException("invalid source for copy");
   setName(src->getName());
   m_imp->copy(p->m_imp);
-  
   m_imp->notify(TParamChange(this, 0, 0, true, false, false));
 }
 
@@ -1201,8 +1200,6 @@ is >> m_imp->m_defaultValue;
     }
     if (!is.matchEndTag()) throw TException(tagName + " : missing endtag");
   }
-
-
   if (m_imp->m_keyframes.empty() && !is.eos()) {
     // vecchio sistema (prima 16/1/2003)
     while (!is.eos()) {

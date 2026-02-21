@@ -95,8 +95,6 @@ responsibility of the
   TStageObjectTree class.
 */
 
-
-
 class DVAPI TStageObject final : public TSmartObject, public TParamObserver {
   DECLARE_CLASS_CODE
 
@@ -618,7 +616,6 @@ private:
   void updateKeyframes(LazyData &ld) const;
 
   void onChange(const class TParamChange &c) override;
-
 };
 
 //-----------------------------------------------------------------------------

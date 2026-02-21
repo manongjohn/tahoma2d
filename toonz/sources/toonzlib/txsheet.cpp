@@ -40,11 +40,8 @@
 #include "toonz/txsheet.h"
 #include "toonz/preferences.h"
 
-
-
 // STD includes
 #include <set>
-#include <QDebug>
 
 using namespace std;
 
@@ -562,133 +559,146 @@ int TXsheet::getMaxFrame(int col) const {
   if (!column) return 0;
   return column->getMaxFrame();
 }
-/*
-QPair<int, int> chooseBounds(, int frame, int frameEnd,
-                             int keyframeStart,
-                             int keyframeEnd) {
 
-}*/
 //-----------------------------------------------------------------------------
-void TXsheet::getUpdateRange(
-    int col, int frame, QPair<int, int> *output,
-                             int channel
-                                 = TStageObject::T_DrawingNumber) {
+
+void TXsheet::getUpdateRange(int col, int frame, QPair<int, int> *output,
+                             int channel = TStageObject::T_DrawingNumber) {
   TStageObject *pegbar = getStageObject(TStageObjectId::ColumnId(col));
-  if (pegbar == nullptr) return; 
-  TDoubleParamP drawingNumberParamP = pegbar->getParam((TStageObject::Channel)channel);
-  TXshColumn *column          = getColumn(col); 
-  if (column == nullptr) return; 
-  int keyframeAmount = drawingNumberParamP->getKeyframeCount(); 
-  if (drawingNumberParamP->getKeyframeCount() == 0) return; 
+  if (pegbar == nullptr) return;
+  TDoubleParamP drawingNumberParamP =
+      pegbar->getParam((TStageObject::Channel)channel);
+  TXshColumn *column = getColumn(col);
+  if (column == nullptr) return;
+  int keyframeAmount = drawingNumberParamP->getKeyframeCount();
+  if (drawingNumberParamP->getKeyframeCount() == 0) return;
   int closestIndex = drawingNumberParamP->getClosestKeyframe(frame);
 
-  int prevKeyFrameIndex = std :: max(closestIndex-1, 0); 
-  int nextKeyFrameIndex = std :: min(closestIndex+1, keyframeAmount-1); 
+  int prevKeyFrameIndex = std ::max(closestIndex - 1, 0);
+  int nextKeyFrameIndex = std ::min(closestIndex + 1, keyframeAmount - 1);
 
-  // set variabels 
-  int maximumFrame = column->getMaxFrame(); 
-  // get surrounding keyframes, 
-  output->first  = drawingNumberParamP->keyframeIndexToFrame(prevKeyFrameIndex); 
+  // set variabels
+  int maximumFrame = column->getMaxFrame();
+  // get surrounding keyframes,
+  output->first  = drawingNumberParamP->keyframeIndexToFrame(prevKeyFrameIndex);
   output->second = drawingNumberParamP->keyframeIndexToFrame(nextKeyFrameIndex);
-  int trueOrNot  = drawingNumberParamP->isCycleEnabled(); 
+  int trueOrNot  = drawingNumberParamP->isCycleEnabled();
 
   if (pegbar->isCycleEnabled() && nextKeyFrameIndex == keyframeAmount - 1) {
     for (int c = 0; c < getColumnCount(); c++) {
-      output->second = std::max(getMaxFrame(c), output->second); 
+      output->second = std::max(getMaxFrame(c), output->second);
     }
   }
 
-  qDebug() << "hello:" << output->first << "," << output->second << "," << frame << prevKeyFrameIndex << "," << nextKeyFrameIndex << "\n";
   if (frame < output->first) {
-    output->first = frame; 
+    output->first = frame;
   } else if (frame > output->second) {
-    output->second = frame;   
+    output->second = frame;
   }
-
 }
+
+//-----------------------------------------------------------------------------
+
 void TXsheet::updateNonZeroDrawingNumberCellsParam(int col,
-                                              const TParamChange &c) {
-  updateNonZeroDrawingNumberCells(col, c.m_firstAffectedFrame,c.m_lastAffectedFrame); 
+                                                   const TParamChange &c) {
+  updateNonZeroDrawingNumberCells(col, c.m_firstAffectedFrame,
+                                  c.m_lastAffectedFrame);
 }
 
-void TXsheet::updateNonZeroDrawingNumberCellsAfterMoving(int col, int frameAfter, int dt) {
+//-----------------------------------------------------------------------------
+
+void TXsheet::updateNonZeroDrawingNumberCellsAfterMoving(int col,
+                                                         int frameAfter,
+                                                         int dt) {
   TStageObject *pegbar = getStageObject(TStageObjectId::ColumnId(col));
   if (pegbar == nullptr) return;
   TDoubleParamP drawingNumberParamP = pegbar->getDrawingNumberParamP();
-  if (drawingNumberParamP->getKeyframeCount() <= 1) return; 
+  if (drawingNumberParamP->getKeyframeCount() <= 1) return;
   int firstkeyframeindex = drawingNumberParamP->keyframeIndexToFrame(0);
-  int lastkeyframeindex  = drawingNumberParamP->keyframeIndexToFrame(drawingNumberParamP->getKeyframeCount()-1); 
-  
-  if (frameAfter <= firstkeyframeindex)
-  {
-    updateNonZeroDrawingNumberCells(col, std::min(frameAfter - dt, frameAfter )); 
+  int lastkeyframeindex  = drawingNumberParamP->keyframeIndexToFrame(
+      drawingNumberParamP->getKeyframeCount() - 1);
+
+  if (frameAfter <= firstkeyframeindex) {
+    updateNonZeroDrawingNumberCells(col, std::min(frameAfter - dt, frameAfter));
   } else if (frameAfter >= lastkeyframeindex) {
-    updateNonZeroDrawingNumberCells(col, std::max(frameAfter - dt, frameAfter)); 
+    updateNonZeroDrawingNumberCells(col, std::max(frameAfter - dt, frameAfter));
   } else {
-    updateNonZeroDrawingNumberCells(col, frameAfter); 
+    updateNonZeroDrawingNumberCells(col, frameAfter);
   }
 
-  //updateNonZeroDrawingNumberCells(col, frameAfter - dt);
+  // updateNonZeroDrawingNumberCells(col, frameAfter - dt);
 }
-void TXsheet::updateNonZeroDrawingNumberCellsBox(int r0, int c0, int r1, int c1) {
-  
+
+//-----------------------------------------------------------------------------
+
+void TXsheet::updateNonZeroDrawingNumberCellsBox(int r0, int c0, int r1,
+                                                 int c1) {
   for (int c = c0; c <= c1; c++) {
-    updateNonZeroDrawingNumberCells(c, r0, r1); 
+    updateNonZeroDrawingNumberCells(c, r0, r1);
   }
-  
 }
-bool TXsheet::updateNonZeroDrawingNumberCellsBox(int r0, int c0, int r1, int c1,
+
+//-----------------------------------------------------------------------------
+
+bool TXsheet::updateNonZeroDrawingNumberCellsBox(
+    int r0, int c0, int r1, int c1,
     std::vector<std::pair<TRect, TXshCell>> &undoCells) {
   for (int c = c0; c <= c1; c++) {
     updateNonZeroDrawingNumberCells(c, r0, r1);
   }
-  return true; 
+  return true;
 }
 
+//-----------------------------------------------------------------------------
 
-void TXsheet::updateNonZeroDrawingNumberCells(int col, int frame,
-                                              int frameEnd, int keyframeStart,
+void TXsheet::updateNonZeroDrawingNumberCells(int col, int frame, int frameEnd,
+                                              int keyframeStart,
                                               int keyframeEnd) {
-
   // check whether column and stage object are valid
-  int overrideOutside  = true; 
-  TStageObject *pegbar        = getStageObject(TStageObjectId::ColumnId(col)); 
-  if (pegbar == nullptr) return; 
+  int overrideOutside  = true;
+  TStageObject *pegbar = getStageObject(TStageObjectId::ColumnId(col));
+  if (pegbar == nullptr) return;
   TDoubleParamP drawingNumberParamP = pegbar->getDrawingNumberParamP();
-  TXshColumn* column = getColumn(col); 
-  qDebug() << frame << "\n"; 
-  if (column == nullptr || column->getColumnType() != TXshColumn::eLevelType) return; 
+  TXshColumn *column                = getColumn(col);
+
+  if (column == nullptr || column->getColumnType() != TXshColumn::eLevelType)
+    return;
   // do not alter locked columns
-  if (column->isLocked() || column->getParentFolder() != nullptr && column->isParentFolderLocked()) return; 
+  if (column->isLocked() ||
+      column->getParentFolder() != nullptr && column->isParentFolderLocked())
+    return;
   // only alter if it has keyframes for drawingnumber
-  if (!drawingNumberParamP->hasKeyframes()) return; 
+  if (!drawingNumberParamP->hasKeyframes()) return;
   // get keyframe indexes
-  if (frame == INT_MAX) frame = column->getMaxFrame(); 
+  if (frame == INT_MAX) frame = column->getMaxFrame();
   QPair<int, int> updateRange{-1, -1};
-  getUpdateRange(col, frame, &updateRange); 
-  qDebug() << updateRange.first << "," << updateRange.second << "\n";
-  if (updateRange.first == -1 || updateRange.second == -1) return; 
+  getUpdateRange(col, frame, &updateRange);
+
+  if (updateRange.first == -1 || updateRange.second == -1) return;
   TXshCell zeroCell = TXshCell(0, 0);
 
-  TXshCell cell; 
+  TXshCell cell;
   // ensure first cell is not empty
-  TXshCell firstcell = getCell(updateRange.first, col); 
-  int firstcellindex              = updateRange.first; 
+  TXshCell firstcell = getCell(updateRange.first, col);
+  int firstcellindex = updateRange.first;
   while (firstcell.isEmpty()) {
-    if (firstcellindex >= updateRange.second - 1) return; 
+    if (firstcellindex >= updateRange.second - 1) return;
     firstcellindex++;
-    firstcell = getCell(firstcellindex, col);  
+    firstcell = getCell(firstcellindex, col);
   }
-  int behindCellDrawingNumber = -1; 
+  int behindCellDrawingNumber = -1;
 
   int firstkeyframeindex = drawingNumberParamP->keyframeIndexToFrame(0);
-  int lastkeyframeindex  = pegbar->isCycleEnabled() ? INT_MAX : drawingNumberParamP->keyframeIndexToFrame(
-      drawingNumberParamP->getKeyframeCount() - 1); 
-  
-  // loop through cells and set their id 
+  int lastkeyframeindex =
+      pegbar->isCycleEnabled()
+          ? INT_MAX
+          : drawingNumberParamP->keyframeIndexToFrame(
+                drawingNumberParamP->getKeyframeCount() - 1);
+
+  // loop through cells and set their id
   for (int r = updateRange.first; r <= updateRange.second; r++) {
     double drawingNumberDouble = pegbar->getDrawingNumber(r);
-    int drawingNumber = drawingNumberDouble;
+    int drawingNumber          = drawingNumberDouble;
     if (overrideOutside && (r < firstkeyframeindex || r > lastkeyframeindex)) {
       if (drawingNumber) {
         setCell(r, col, zeroCell);
@@ -698,16 +708,14 @@ void TXsheet::updateNonZeroDrawingNumberCells(int col, int frame,
     if (behindCellDrawingNumber &&
         behindCellDrawingNumber >= drawingNumberDouble) {
       drawingNumber = std::ceil(drawingNumberDouble);
-    }
-    else
-    {
+    } else {
       drawingNumber = std::floor(drawingNumberDouble);
     }
-    behindCellDrawingNumber = drawingNumber; 
-    if (!drawingNumber) continue; // check for non zero drawing number
-    cell                       = getCell(r, col);
-    if (cell.isEmpty()) cell.m_level = firstcell.m_level; 
-    cell.m_frameId = drawingNumber; 
+    behindCellDrawingNumber = drawingNumber;
+    if (!drawingNumber) continue;  // check for non zero drawing number
+    cell = getCell(r, col);
+    if (cell.isEmpty()) cell.m_level = firstcell.m_level;
+    cell.m_frameId = drawingNumber;
     setCell(r, col, cell);
   }
   // trigger implicit holds
@@ -718,7 +726,6 @@ void TXsheet::updateNonZeroDrawingNumberCells(int col, int frame,
                                : -1;
 
     for (int r = updateRange.first; r <= updateRange.second; r++) {
-      qDebug() << r << "lol";
       if (r < firstkeyframeindex || r > lastkeyframeindex) {
         if (overrideOutside) setCell(r, col, zeroCell);
         continue;
@@ -1764,26 +1771,26 @@ PERSIST_IDENTIFIER(TXsheet, "xsheet")
 void TXsheet::insertColumn(int col, TXshColumn::ColumnType type) {
   insertColumn(col, TXshColumn::createEmpty(type));
 }
+
+//-----------------------------------------------------------------------------
+
 void TXsheet ::addDrawingNumberObserversAll() {
   for (int c = 0; c < getColumnCount(); c++) {
     TXshColumn *column = getColumn(c);
     addDrawingNumberObserver(c, column);
   }
 }
-  void TXsheet::addDrawingNumberObserver(int col, TXshColumn *column) {
-  if (column->getColumnType() != TXshColumn::ColumnType::eLevelType) return; 
+void TXsheet::addDrawingNumberObserver(int col, TXshColumn *column) {
+  if (column->getColumnType() != TXshColumn::ColumnType::eLevelType) return;
   TStageObject *pegbar =
       getStageObjectTree()->getStageObject(TStageObjectId::ColumnId(col));
 
   pegbar->setDrawingNumberCallback(
-      std::bind(&TXsheet::updateNonZeroDrawingNumberCellsParam,
-                this, col,
-                std::placeholders::_1)
-  );
+      std::bind(&TXsheet::updateNonZeroDrawingNumberCellsParam, this, col,
+                std::placeholders::_1));
 }
 
-//class TXsheet::addDrawingNumberObserver : 
-      //-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 void TXsheet::insertColumn(int col, TXshColumn *column) {
   if (col < 0) col = 0;

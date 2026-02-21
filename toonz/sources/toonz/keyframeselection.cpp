@@ -113,7 +113,6 @@ bool deleteKeyframesWithoutUndo(
     areAllColumnLocked = false;
     assert(pegbar);
     pegbar->removeKeyframeWithoutUndo(row);
-    ///xsh->updateNonZeroDrawingNumberCells(col,row);
   }
   if (areAllColumnLocked) return false;
 

@@ -734,8 +734,6 @@ ArrowToolOptionsBox::ArrowToolOptionsBox(
         posLay->addWidget(new DVGui::Separator("", this, false));
 
         posLay->addStretch(1);
-
-
       }
       m_axisOptionWidgets[Position] = posFrame;
       mainLay->addWidget(m_axisOptionWidgets[Position], 0);

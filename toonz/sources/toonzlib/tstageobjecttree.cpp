@@ -170,7 +170,7 @@ void TStageObjectTree::checkIntegrity() {
 //-----------------------------------------------------------------------------
 
 TStageObject *TStageObjectTree::getStageObject(const TStageObjectId &id,
-    bool create) {
+                                               bool create) {
   std::map<TStageObjectId, TStageObject *> &pegbars     = m_imp->m_pegbarTable;
   std::map<TStageObjectId, TStageObject *>::iterator it = pegbars.find(id);
   if (it != pegbars.end()) {

@@ -30,7 +30,6 @@
 
 // Qt includes
 #include <QMetaObject>
-#include <QDebug>
 
 // STD includes
 #include <fstream>
@@ -42,7 +41,6 @@ using namespace std;
 // Per un problema su alcune macchine, solo Release.
 // il problema si verifica ruotando gli oggetti sul camera stand
 //
-
 
 #ifdef _MSC_VER
 #pragma optimize("", off)
@@ -275,8 +273,7 @@ bool setKeyframe(const TDoubleParamP &param, const TDoubleKeyframe &kf,
 void setkey(const TDoubleParamP &param, int frame) {
   KeyframeSetter setter(param.getPointer(), -1, false);
   setter.createKeyframe(frame);
-
- }
+}
 
 //-----------------------------------------------------------------------------
 
@@ -405,8 +402,7 @@ TStageObject::TStageObject(TStageObjectTree *tree, TStageObjectId id)
     , m_noScaleZ(0)
     , m_pinnedRangeSet(0)
     , m_ikflag(0)
-    , m_groupSelector(-1)
-    {
+    , m_groupSelector(-1) {
   // NOTA: per le unita' di misura controlla anche tooloptions.cpp
   m_x->setName("W_X");
   m_x->setMeasureName("length.x");
@@ -446,7 +442,7 @@ TStageObject::TStageObject(TStageObjectTree *tree, TStageObjectId id)
   m_sheary->setName("W_ShearV");
   m_sheary->setMeasureName("shear");
   m_sheary->addObserver(this);
-  
+
   m_posPath->setName("posPath");
   m_posPath->setMeasureName("percentage2");
   m_posPath->addObserver(this);
@@ -476,17 +472,21 @@ TStageObject::TStageObject(TStageObjectTree *tree, TStageObjectId id)
   m_pinnedRangeSet = new TPinnedRangeSet();
 }
 
-    //-----------------------------------------------------------------------------
-void TStageObject::DrawingNumberObserver::onChange(
-    const TParamChange &c) {
+//-----------------------------------------------------------------------------
+
+void TStageObject::DrawingNumberObserver::onChange(const TParamChange &c) {
   if (m_callback != nullptr) {
     m_callback(c);
   }
 };
 
+//-----------------------------------------------------------------------------
+
 void TStageObject::setDrawingNumberCallback(DrawingNumberCallback callback) {
   m_drawingNumberObserver.m_callback = callback;
 }
+
+//-----------------------------------------------------------------------------
 
 TStageObject::~TStageObject() {
   if (m_spline) {
@@ -505,11 +505,10 @@ TStageObject::~TStageObject() {
   if (m_shearx) m_shearx->removeObserver(this);
   if (m_sheary) m_sheary->removeObserver(this);
   if (m_posPath) m_posPath->removeObserver(this);
-  if (m_drawingnumber)
-  {
+  if (m_drawingnumber) {
     m_drawingnumber->removeObserver(this);
-    m_drawingnumber->removeObserver((TParamObserver *)(&
-                                    m_drawingNumberObserver));
+    m_drawingnumber->removeObserver(
+        (TParamObserver *)(&m_drawingNumberObserver));
   }
 
   if (m_skeletonDeformation) {
@@ -908,7 +907,8 @@ TStageObject::Keyframe TStageObject::getKeyframe(int frame) const {
     k.m_channels[TStageObject::T_Path]   = m_posPath->getValue(frame);
     k.m_channels[TStageObject::T_ShearX] = m_shearx->getValue(frame);
     k.m_channels[TStageObject::T_ShearY] = m_sheary->getValue(frame);
-    k.m_channels[TStageObject::T_DrawingNumber] = m_drawingnumber->getValue(frame); 
+    k.m_channels[TStageObject::T_DrawingNumber] =
+        m_drawingnumber->getValue(frame); 
 
     if (m_skeletonDeformation)
       m_skeletonDeformation->getKeyframeAt(frame, k.m_skeletonKeyframe);
@@ -943,6 +943,8 @@ TStageObject::KeyFrameMarker* TStageObject::tryDequeueKeyFrameChangeRangeQueue()
   if (keyFrameChangeRangeQueue.isEmpty()) return nullptr;
   return &keyFrameChangeRangeQueue.dequeue();
 }
+
+//-----------------------------------------------------------------------------
 
 void TStageObject::setKeyframeWithoutUndo(int frame,
                                           const TStageObject::Keyframe &k) {
@@ -1222,7 +1224,7 @@ TDoubleParam *TStageObject::getParam(Channel channel) const {
   case T_ShearX:
     return m_shearx.getPointer();
   case T_ShearY:
-    return m_sheary.getPointer();   
+    return m_sheary.getPointer();
   case T_DrawingNumber:
     return m_drawingnumber.getPointer(); 
   default:
@@ -1345,9 +1347,7 @@ bool TStageObject::isCycleEnabled() const { return m_cycleEnabled; }
 
 //-----------------------------------------------------------------------------
 
-void TStageObject::enableCycle(bool on) { 
-  m_cycleEnabled = on; 
-}
+void TStageObject::enableCycle(bool on) { m_cycleEnabled = on; }
 
 //-----------------------------------------------------------------------------
 
@@ -1534,7 +1534,9 @@ double TStageObject::getSO(double t) {
   else
     return m_so->getValue(tt);
 }
-// 
+
+//-----------------------------------------------------------------------------
+
 double TStageObject::getDrawingNumber(double t) {
   double tt = paramsTime(t);
   if (m_parent)

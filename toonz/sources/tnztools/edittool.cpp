@@ -619,11 +619,8 @@ public:
 
   DragZTool(TTool::Viewer *viewer, bool globalKeyframesEnabled)
       : DragChannelTool(TStageObject::T_Z, TStageObject::T_DrawingNumber,  globalKeyframesEnabled)
-      , m_viewer(viewer) {
-
-  }
-  
-
+      , m_viewer(viewer) {}
+ 
   void leftButtonDown(const TPointD &pos, const TMouseEvent &e) override {
     m_lastPos  = e.m_pos;
     m_firstPos = pos;
@@ -1054,7 +1051,7 @@ void EditTool::onEditAllLeftButtonDown(TPointD &pos, const TMouseEvent &e) {
             TStageObjectId colId = xsh->getColumnObjectId(columnIndex);
             TStageObjectCmd::setParent(curColId, colId, "", xshHandle);
             m_what = None;
-            xshHandle->notifyXsheetChanged();  
+            xshHandle->notifyXsheetChanged();
           } else {
             TXshColumn *column = xsh->getColumn(columnIndex);
             if (!column || !column->isLocked()) {
@@ -1078,7 +1075,6 @@ void EditTool::onEditAllLeftButtonDown(TPointD &pos, const TMouseEvent &e) {
 void EditTool::leftButtonDrag(const TPointD &pos, const TMouseEvent &e) {
   if (!m_dragTool) return;
   m_dragTool->leftButtonDrag(pos, e);
-
   TTool::getApplication()->getCurrentObject()->notifyObjectIdChanged(true);
   invalidate();
 }

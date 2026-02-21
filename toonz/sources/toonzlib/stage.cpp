@@ -50,8 +50,6 @@
 
 #include "toonz/stage.h"
 
-#include <QDebug>
-
 // #define  NUOVO_ONION
 
 //=============================================================================
@@ -739,12 +737,6 @@ void StageBuilder::addFrame(PlayerSet &players, ToonzScene *scene, TXsheet *xsh,
     TStageObject *pegbar = xsh->getStageObject(TStageObjectId::ColumnId(c));
     double columnSO      = pegbar->getSO(row);
     shuffle.push_back(std::make_pair(columnSO, c));
-
-    /*
-    This is the code to handle drawing numbers;
-    */
-    //xsh->updateNonZeroDrawingNumberCells(c, row);
-    //
   }
   std::stable_sort(shuffle.begin(), shuffle.end(), StackingOrder());
 

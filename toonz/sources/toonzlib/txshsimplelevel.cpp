@@ -569,7 +569,7 @@ TFrameId TXshSimpleLevel::index2fid(int index) const {
 TImageP TXshSimpleLevel::getFrame(const TFrameId &fid, UCHAR imFlags,
                                   int subsampling) const {
   assert(m_type != UNKNOWN_XSHLEVEL);
- 
+
   // If the required frame is not in range, quit
   if (m_frames.count(fid) == 0) return TImageP();
 
