@@ -25,26 +25,10 @@
 #include "tenv.h"
 #include "tinbetween.h"
 
-
-
-// -----added by TomDoingArt - Freehand mode--------
 #include "vectorbrush.h"
-#include "tproperty.h"
-#include "drawutil.h"
-
-#include "../common/tvectorimage/tvectorimageP.h"
-
-//#include "tapeenv.h"
-
-// ------------------------------------------------
-
-
 
 // For Qt translation support
 #include <QCoreApplication>
-
-bool debug_mode = true;  // Set to false to disable debug output
-#define DEBUG_LOG(x) if (debug_mode) std::cout << x // << std::endl
 
 using namespace ToolUtils;
 
@@ -66,10 +50,6 @@ TEnv::StringVar TapeType("InknpaintTapeType1", "Normal");
 TEnv::DoubleVar AutocloseFactorMin("InknpaintAutocloseFactorMin", 1.15);
 TEnv::DoubleVar AutocloseFactor("InknpaintAutocloseFactor", 4.0);
 TEnv::IntVar TapeRange("InknpaintTapeRange", 0);
-
-TEnv::DoubleVar TapeDehookFactorMin("InknpaintTapeDehookMin", 0.01);
-TEnv::DoubleVar TapeDehookFactorMax("InknpaintTapeDehookMax", 0.20);
-TEnv::DoubleVar TapeDehookAngleThreshold("InknpaintTapeDehookAngleThreshold", 30.00);
 TEnv::DoubleVar LineExtensionAngle("InknpaintTapeLineExtensionAngle", 0.30);
 
 namespace {
@@ -130,7 +110,6 @@ public:
   void undo() const override {
     TTool::Application *app = TTool::getApplication();
     if (!app) return;
-    DEBUG_LOG("\nUndoAutoclose.undo() was called.\n");
     if (app->getCurrentFrame()->isEditingScene()) {
       app->getCurrentColumn()->setColumnIndex(m_column);
       app->getCurrentFrame()->setFrame(m_row);
@@ -164,7 +143,6 @@ public:
   void redo() const override {
     TTool::Application *app = TTool::getApplication();
     if (!app) return;
-    DEBUG_LOG("\nUndoAutoclose.redo() was called.\n");
 
     if (app->getCurrentFrame()->isEditingScene()) {
       app->getCurrentColumn()->setColumnIndex(m_column);
@@ -206,185 +184,6 @@ public:
 
 }  // namespace
 
-/*
-namespace {
-
-  class UndoLineExtensionAutoclose final : public ToolUtils::TToolUndo {
-    int m_oldStrokeId1;
-    int m_oldStrokeId2;
-    int m_pos1, m_pos2;
-
-    VIStroke* m_oldStroke1;
-    VIStroke* m_oldStroke2;
-
-    std::vector<TFilledRegionInf>* m_fillInformation;
-
-    int m_row;
-    int m_column;
-    std::vector<int> m_changedStrokes;
-
-  public:
-    VIStroke* m_newStroke;
-    int m_newStrokeId;
-    int m_newStrokePos;
-    std::vector<VIStroke*> m_addedStrokes;
-    std::vector<int> m_addedStrokeIDs;
-
-    UndoLineExtensionAutoclose(TXshSimpleLevel* level, const TFrameId& frameId) : ToolUtils::TToolUndo(level, frameId) 
-    {
-      DEBUG_LOG("\nUndoLineExtensionAutoclose(TXshSimpleLevel* level, const TFrameId& frameId)\n");
-      TVectorImageP image = level->getFrame(m_frameId, true);
-      m_frameId = frameId;
-      TTool::Application* app = TTool::getApplication();
-      if (app) {
-        m_row = app->getCurrentFrame()->getFrame();
-        m_column = app->getCurrentColumn()->getColumnIndex();
-      }
-    }
-        
-    UndoLineExtensionAutoclose(TXshSimpleLevel* level, const TFrameId& frameId,
-      const std::vector<VIStroke*> addedStrokes, std::vector<int> newStrokeIDs)
-          : ToolUtils::TToolUndo(level, frameId)
-      , m_addedStrokeIDs(newStrokeIDs)
-      , m_addedStrokes(addedStrokes){
-      DEBUG_LOG("\nUndoLineExtensionAutoclose(TXshSimpleLevel * level, const TFrameId & frameId,const std::vector<VIStroke*> addedStrokes, std::vector<int> newStrokeIDs)\n");
-      TVectorImageP image = level->getFrame(m_frameId, true);
-      //if (pos1 != -1) {
-      //  m_oldStrokeId1 = image->getStroke(pos1)->getId();
-      //  m_oldStroke1 = cloneVIStroke(image->getVIStroke(pos1));
-      //}
-      //if (pos2 != -1 && pos1 != pos2 && image) {
-      //  m_oldStrokeId2 = image->getStroke(pos2)->getId();
-      //  m_oldStroke2 = cloneVIStroke(image->getVIStroke(pos2));
-      //}
-      TTool::Application* app = TTool::getApplication();
-      if (app) {
-        m_row = app->getCurrentFrame()->getFrame();
-        m_column = app->getCurrentColumn()->getColumnIndex();
-      }
-    }
-
-    ~UndoLineExtensionAutoclose() {
-      if (true) return;
-      //deleteVIStroke(m_newStroke);
-      //if (m_oldStroke1) deleteVIStroke(m_oldStroke1);
-      //if (m_oldStroke2) deleteVIStroke(m_oldStroke2);
-      //if (m_isLastInBlock) delete m_fillInformation;
-      // delete stroke collection
-      for (VIStroke* currStroke : m_addedStrokes) {
-        deleteVIStroke(currStroke);
-      }
-    }
-
-    void undo() const override {
-      DEBUG_LOG("\nUndoLineExtensionAutoclose.undo() was called.\n");
-      //if (true) return;
-      // delete the strokes added
-      TTool::Application* app = TTool::getApplication();
-      if (!app) return;
-      if (app->getCurrentFrame()->isEditingScene()) {
-        app->getCurrentColumn()->setColumnIndex(m_column);
-        app->getCurrentFrame()->setFrame(m_row);
-      }
-      else
-        app->getCurrentFrame()->setFid(m_frameId);
-      TVectorImageP image = m_level->getFrame(m_frameId, true);
-      assert(!!image);
-      if (!image) return;
-      QMutexLocker lock(image->getMutex());
-
-      DEBUG_LOG("undo has made it to step 1. m_addedStrokeIDs.size():" << m_addedStrokeIDs.size() << "\n");
-
-      for (int currStrokeId : m_addedStrokeIDs) {
-        int strokeIndex = image->getStrokeIndexById(currStrokeId);
-        if (strokeIndex != -1){
-          image->removeStroke(strokeIndex);
-          DEBUG_LOG("remove stroke index:" << strokeIndex << "\n");
-        }
-        //if (m_oldStroke1)
-        //  image->insertStrokeAt(cloneVIStroke(m_oldStroke1), m_pos1);
-        //if (m_oldStroke2)
-        //  image->insertStrokeAt(cloneVIStroke(m_oldStroke2), m_pos2);
-
-      }
-
-      DEBUG_LOG("undo has made it to step 2. m_isLastInBlock:" << m_isLastInBlock <<"\n");
-      //image->notifyChangedStrokes(m_changedStrokes, std::vector<TStroke*>());
-
-      if (!m_isLastInBlock) return;
-
-      //for (UINT i = 0; i < m_fillInformation->size(); i++) {
-      //  TRegion* reg = image->getRegion((*m_fillInformation)[i].m_regionId);
-      //  assert(reg);
-      //  if (reg) reg->setStyle((*m_fillInformation)[i].m_styleId);
-      //}
-      DEBUG_LOG("undo has made it to step 3\n");
-      app->getCurrentXsheet()->notifyXsheetChanged();
-      DEBUG_LOG("undo has made it to step 4\n");
-      notifyImageChanged();
-      DEBUG_LOG("undo has made it to step 5\n");
-    }
-
-
-    void redo() const override {
-      DEBUG_LOG("\nUndoLineExtensionAutoclose.redo() was called.\n");
-      //if (true) return;
-      TTool::Application* app = TTool::getApplication();
-      if (!app) return;
-
-      if (app->getCurrentFrame()->isEditingScene()) {
-        app->getCurrentColumn()->setColumnIndex(m_column);
-        app->getCurrentFrame()->setFrame(m_row);
-      }
-      else
-        app->getCurrentFrame()->setFid(m_frameId);
-
-      TVectorImageP image = m_level->getFrame(m_frameId, true);
-      assert(!!image);
-      if (!image) return;
-      QMutexLocker lock(image->getMutex());
-      
-      //if (m_oldStroke1) {
-      //  int strokeIndex = image->getStrokeIndexById(m_oldStrokeId1);
-      //  if (strokeIndex != -1) image->removeStroke(strokeIndex);
-      //}
-
-      //if (m_oldStroke2) {
-      //  int strokeIndex = image->getStrokeIndexById(m_oldStrokeId2);
-      //  if (strokeIndex != -1) image->removeStroke(strokeIndex);
-      //}
-
-      // iterate through the vector of gap close strokes and add them to the image
-
-      for (VIStroke *currStroke : m_addedStrokes) {
-        VIStroke *gapCloseStroke = cloneVIStroke(currStroke);
-        TStroke *myStroke        = gapCloseStroke->m_s;
-        image->addStroke(myStroke);
-      }
-
-      //VIStroke* stroke = cloneVIStroke(m_newStroke);
-      //image->insertStrokeAt(stroke, m_pos1 == -1 ? m_newStrokePos : m_pos1,
-      //  false);
-
-//      image->notifyChangedStrokes(m_changedStrokes, std::vector<TStroke*>());
-
-      app->getCurrentXsheet()->notifyXsheetChanged();
-      notifyImageChanged();
-    }
-
-    int getSize() const override {
-      return sizeof(*this);
-      //return sizeof(*this) +
-      //  m_fillInformation->capacity() * sizeof(TFilledRegionInf) + 500;
-    }
-
-    QString getToolName() override { return QString("Line Extension Autoclose Tool"); }
-    int getHistoryType() override { return HistoryType::AutocloseTool; }
-  };
-
-}  // namespace
-*/
-
 //=============================================================================
 // Autoclose Tool
 //-----------------------------------------------------------------------------
@@ -408,8 +207,6 @@ class VectorTapeTool final : public TTool {
   TDoublePairProperty m_autocloseFactor;
   TEnumProperty m_type;
   TEnumProperty m_multi;
-  TDoublePairProperty m_dehookFactor;
-  TDoubleProperty m_dehookAngleThreshold;
   TDoubleProperty m_lineExtensionAngle;
 
   SymmetryStroke m_polyline;
@@ -420,9 +217,8 @@ class VectorTapeTool final : public TTool {
   int m_firstFrameIdx;
   std::pair<int, int> m_currCell;
   SymmetryStroke m_firstPolyline;
+  std::vector<TStroke *> m_firstStrokes;
   TXshSimpleLevelP m_level;
-  //TStroke m_freehandLasso;
-  TStroke* m_firstFreehandLasso;
 
 public:
   VectorTapeTool()
@@ -434,8 +230,6 @@ public:
       , m_w2(-1.0)
       , m_pixelSize(1)
       , m_lineExtensionAngle("LineExtAngle", 0.05, 0.9, .30) // (label, min, max, default)
-      , m_dehookAngleThreshold("DehookAngleThreshold", 10.0, 180.0, 30.00) // (label, min, max, default)
-      , m_dehookFactor("Dehook", 0.0, 0.90, 0.0, .30)
       , m_smooth("Smooth", false)  // W_ToolOptions_Smooth
       , m_joinStrokes("JoinStrokes", false)
       , m_mode("Mode")
@@ -477,15 +271,8 @@ public:
     m_autocloseFactor.setId("Distance");
     m_multi.setId("FrameRange");
 
-    m_dehookFactor.setId("Dehook");
-    m_prop.bind(m_dehookFactor);
-
-    m_dehookFactor.setId("DehookAngleThreshold");
-    m_prop.bind(m_dehookAngleThreshold);
-
     m_lineExtensionAngle.setId("LineExtAngle");
     m_prop.bind(m_lineExtensionAngle);
-    
   }
 
   //-----------------------------------------------------------------------------
@@ -494,85 +281,7 @@ public:
 
   //-----------------------------------------------------------------------------
 
-  //void setGapCheck() {
-  //  std::wstring s = m_type.getValue();
-  //  if (!s.empty()) {
-  //    std::cout << "\tTape type:" << ::to_string(s) << "\n";
-
-  //    ToonzCheck* check = ToonzCheck::instance();
-
-  //    if (s == FREEHAND) {
-  //      check->setCheck(ToonzCheck::eLineExtensionGapClose);
-  //    }
-  //    else {
-  //      check->clearCheck(ToonzCheck::eLineExtensionGapClose);
-  //    }
-
-  //  }
-  //  else {
-  //    std::cout << "\tTape type unknown\n";
-  //  }
-  //}
-
-  //void setGapCheck() {
-  //  std::wstring s = m_type.getValue();
-  //  if (s.empty()) {
-  //    std::cout << "\tTape type unknown\n";
-  //    return;
-  //  }
-
-  //  std::cout << "\tTape type:" << ::to_string(s) << "\n";
-
-  //  ToonzCheck* check = ToonzCheck::instance();
-  //  bool isFreehand = (s == FREEHAND);
-
-  //  // Only update if the state has changed
-  //  if (isFreehand != (check->getChecks() & ToonzCheck::eLineExtensionGapClose)) {
-  //    if (isFreehand) {
-  //      check->setCheck(ToonzCheck::eLineExtensionGapClose);
-  //    }
-  //    else {
-  //      check->clearCheck(ToonzCheck::eLineExtensionGapClose);
-  //    }
-  //  }
-  //}
-
-
-  void setGapCheck() {
-    std::wstring s = m_type.getValue();
-    if (s.empty()) {
-      std::cout << "\tTape type unknown\n";
-      return;
-    }
-
-    std::cout << "\tTape type:" << ::to_string(s) << "\n";
-
-    ToonzCheck* check = ToonzCheck::instance();
-    bool isFreehand = (s == FREEHAND);
-    bool isCurrentlySet = check->isCheckEnabled(ToonzCheck::eLineExtensionGapClose);
-
-    if (isFreehand != isCurrentlySet) {
-      if (isFreehand) {
-        check->setCheck(ToonzCheck::eLineExtensionGapClose);
-      }
-      else {
-        check->clearCheck(ToonzCheck::eLineExtensionGapClose);
-      }
-    }
-  }
-
-
-
-  //-----------------------------------------------------------------------------
-
-  //const TEnumProperty& getTypeProperty() const {
-  //  return m_type;
-  //}
-  
-  //-----------------------------------------------------------------------------
-
   bool onPropertyChanged(std::string propertyName) override {
-    //DEBUG_LOG("onPropertyChanged() for:" << propertyName << "\n");
     TapeMode       = ::to_string(m_mode.getValue());
     TapeSmooth     = (int)(m_smooth.getValue());
     TapeRange      = m_multi.getIndex();
@@ -583,29 +292,9 @@ public:
     AutocloseFactor = (double)(m_autocloseFactor.getValue().second);
     m_selectionRect = TRectD();
     m_startRect     = TPointD();
-    TapeDehookFactorMin = (double)(m_dehookFactor.getValue().first);
-    TapeDehookFactorMax = (double)(m_dehookFactor.getValue().second);
-    TapeDehookAngleThreshold = (double)(m_dehookAngleThreshold.getValue());
     LineExtensionAngle = (double)(m_lineExtensionAngle.getValue());
 
-    if (propertyName == "Type") {
-      setGapCheck();
-      return true;
-    }
-
     if (propertyName == "Distance" &&
-      (ToonzCheck::instance()->getChecks() & ToonzCheck::eAutoclose)) {
-      notifyImageChanged();
-      return true;
-    }
-
-    if ((propertyName == "Dehook") &&
-      (ToonzCheck::instance()->getChecks() & ToonzCheck::eAutoclose)) {
-      notifyImageChanged();
-      return true;
-    }
-
-    if ((propertyName == "DehookAngleThreshold") &&
       (ToonzCheck::instance()->getChecks() & ToonzCheck::eAutoclose)) {
       notifyImageChanged();
       return true;
@@ -616,6 +305,8 @@ public:
       notifyImageChanged();
       return true;
     }
+
+    return false;
   }
 
   //-----------------------------------------------------------------------------
@@ -623,8 +314,6 @@ public:
     //m_startAt.setQStringName(tr("Start At"));
     //m_incBy.setQStringName(tr("Inc. By"));
     m_lineExtensionAngle.setQStringName(tr("Line Ext. Angle"));
-    m_dehookAngleThreshold.setQStringName(tr("Threshold Angle"));
-    m_dehookFactor.setQStringName(tr("Dehook"));
 
     m_smooth.setQStringName(tr("Smooth"));
     m_joinStrokes.setQStringName(tr("Join Vectors"));
@@ -653,7 +342,6 @@ public:
   TPropertyGroup *getProperties(int targetType) override { return &m_prop; }
 
   void drawConnection(TThickPoint point1, TThickPoint point2) {
-    DEBUG_LOG("drawConnection()\n");
     tglColor(TPixelD(0.1, 0.9, 0.1));
 
     m_pixelSize  = getPixelSize();
@@ -674,7 +362,7 @@ public:
 
     TVectorImageP vi(getImage(false));
     if (!vi) return;
-    //DEBUG_LOG("draw()\n");
+
     glLineWidth(1.0 * devPixRatio);
 
     // TAffine viewMatrix = getViewer()->getViewMatrix();
@@ -698,13 +386,7 @@ public:
     }
 
     if (m_type.getValue() == FREEHAND) {
-      //if (m_multi.getIndex() && m_firstFrameSelected) {
-      //  if (m_firstPolyline.size() > 1) {
-      //    m_firstPolyline.drawRectangle(color);
-      //  }
-      //  else
-      //    ToolUtils::drawRect(m_firstRect, color, 0x3F33, true);
-      //}
+
       if (!m_track.isEmpty()) {
         double pixelSize2 = getPixelSize() * getPixelSize();
         m_thick           = sqrt(pixelSize2) / 2.0;
@@ -715,13 +397,6 @@ public:
         tglColor(color);
         m_track.drawAllFragments();
       }
-      //if (!m_selectionRect.isEmpty()){
-      //  if (m_polyline.size() > 1) {
-      //    m_polyline.drawRectangle(color);
-      //  } else {
-      //    ToolUtils::drawRect(m_selectionRect, color, 0x3F33, true);
-      //  }
-      //}
       return;
     }
 
@@ -767,7 +442,6 @@ public:
 
   void findFirstStroke(TPointD pos, TVectorImageP vi, int &strokeIndex1,
                        double &w1) {
-    DEBUG_LOG("findFirstStroke()\n");
     double minDistance2 = 10000000000.;
 
     int i, strokeNumber = vi->getStrokeCount();
@@ -814,7 +488,6 @@ public:
 
   void findSecondStroke(TPointD pos, TVectorImageP vi, int strokeIndex1,
                         double w1, int &strokeIndex, double &w) {
-    DEBUG_LOG("findSecondStroke()\n");
     double minDistance2 = 900 * m_pixelSize;
 
     int i, strokeNumber = vi->getStrokeCount();
@@ -933,12 +606,10 @@ public:
 
   //! The lasso is closed (the last point is added to m_track) and the stroke representing the lasso is created.
   void closeFreehand(const TPointD& pos) {
-    DEBUG_LOG("closeFreehand()\n");
 #if defined(MACOSX)
     //		m_viewer->enableRedraw(true);
 #endif
     if (m_track.isEmpty()) {
-      DEBUG_LOG("closeFreehand, m_track is empty.\n");
       return;
     }
     double pixelSize2 = getPixelSize() * getPixelSize();
@@ -949,56 +620,6 @@ public:
     m_stroke = m_track.makeStroke(error);
     m_stroke->setStyle(1);
   }
-
-  /*
-  // =========================================================================================================
-
-  //! Viene aggiunto \b pos a \b m_track e disegnato il primo pezzetto del
-//! lazzo. Viene inizializzato \b m_firstPos
-  void startFreehand(const TPointD& pos) {
-    m_track.reset();
-
-    SymmetryTool* symmetryTool = dynamic_cast<SymmetryTool*>(
-      TTool::getTool("T_Symmetry", TTool::RasterImage));
-    TPointD dpiScale = getViewer()->getDpiScale();
-    SymmetryObject symmObj = symmetryTool->getSymmetryObject();
-
-    if (symmetryTool && symmetryTool->isGuideEnabled()) {
-      m_track.addSymmetryBrushes(symmObj.getLines(), symmObj.getRotation(),
-        symmObj.getCenterPoint(),
-        symmObj.isUsingLineSymmetry(), dpiScale);
-    }
-
-    m_firstPos = pos;
-    double pixelSize2 = getPixelSize() * getPixelSize();
-    m_track.add(TThickPoint(pos, m_thick), pixelSize2);
-  }
-
-  //------------------------------------------------------------------
-
-  //! Viene aggiunto \b pos a \b m_track e disegnato un altro pezzetto del
-  //! lazzo.
-  void freehandDrag(const TPointD& pos) {
-    double pixelSize2 = getPixelSize() * getPixelSize();
-    m_track.add(TThickPoint(pos, m_thick), pixelSize2);
-  }
-
-  //------------------------------------------------------------------
-
-  //! Viene chiuso il lazzo (si aggiunge l'ultimo punto ad m_track) e viene
-  //! creato lo stroke rappresentante il lazzo.
-  void closeFreehand(const TPointD& pos) {
-    if (m_track.isEmpty()) return;
-    double pixelSize2 = getPixelSize() * getPixelSize();
-    m_track.add(TThickPoint(m_firstPos, m_thick), pixelSize2);
-    m_track.filterPoints();
-    double error = (30.0 / 11) * sqrt(pixelSize2);
-    m_stroke = m_track.makeStroke(error);
-    m_stroke->setStyle(1);
-  }
-
-  // =========================================================================================================
-  */
 
   //-----------------------------------------------------------------------------
 
@@ -1027,8 +648,6 @@ public:
             TPointD(m_selectionRect.x1, m_selectionRect.y1));
       }
     } else if (m_type.getValue() == FREEHAND) {
-        DEBUG_LOG("leftButtonDown(), FREEHAND\n");
-
         startFreehand(pos);
     } else if (m_strokeIndex1 != -1) {
       m_secondPoint = true;
@@ -1058,11 +677,8 @@ public:
     }
 
     if (m_type.getValue() == FREEHAND) {
-      //DEBUG_LOG("leftButtonDrag(), FREEHAND\n");
-
       // update the selection line while dragging
       freehandDrag(pos);
-
       return;
     }
 
@@ -1081,7 +697,6 @@ public:
 
   void joinPointToPoint(const TVectorImageP &vi,
                         std::vector<TFilledRegionInf> *fillInfo) {
-    DEBUG_LOG("joinPointToPoint()\n");
     int minindex = std::min(m_strokeIndex1, m_strokeIndex2);
     int maxindex = std::max(m_strokeIndex1, m_strokeIndex2);
 
@@ -1123,7 +738,6 @@ public:
 
   void joinPointToLine(const TVectorImageP &vi,
                        std::vector<TFilledRegionInf> *fillInfo) {
-    DEBUG_LOG("joinPointToLine()\n");
     TUndo *undo                  = 0;
     UndoAutoclose *autoCloseUndo = 0;
     if (TTool::getApplication()->getCurrentObject()->isSpline())
@@ -1163,7 +777,6 @@ public:
 
   void joinLineToLine(const TVectorImageP &vi,
                       std::vector<TFilledRegionInf> *fillInfo) {
-    DEBUG_LOG("joinLineToLine()\n");
     if (TTool::getApplication()->getCurrentObject()->isSpline())
       return;  // Caanot add vectros to spline... Spline can be only one
                // std::vector
@@ -1207,7 +820,6 @@ public:
   void inline rearrangeClosingPoints(const TVectorImageP &vi,
                                      std::pair<int, double> &closingPoint,
                                      const TPointD &p) {
-    DEBUG_LOG("rearrangeClosingPoints()\n");
     int erasedIndex = std::max(m_strokeIndex1, m_strokeIndex2);
     int joinedIndex = std::min(m_strokeIndex1, m_strokeIndex2);
 
@@ -1222,10 +834,72 @@ public:
 
   //-------------------------------------------------------------------------------------
 
-#define p2p 1
-#define p2l 2
-#define l2p 3
-#define l2l 4
+  #define p2p 1
+  #define p2l 2
+  #define l2p 3
+  #define l2l 4
+
+  void tapeSelection(const TVectorImageP &vi, std::vector<std::pair<int, double>> startPoints, std::vector<std::pair<int, double>> endPoints, std::vector<TFilledRegionInf> *fillInformation, bool undoBlockStarted) {
+    assert(startPoints.size() == endPoints.size());
+
+    if (m_joinStrokes.getValue()) {
+      std::vector<TPointD> startP(startPoints.size()), endP(startPoints.size());
+
+      if (!startPoints.empty()) {
+        if (!undoBlockStarted) TUndoManager::manager()->beginBlock();
+        for (UINT i = 0; i < startPoints.size(); i++) {
+          startP[i] = vi->getStroke(startPoints[i].first)
+                          ->getPoint(startPoints[i].second);
+          endP[i] =
+              vi->getStroke(endPoints[i].first)->getPoint(endPoints[i].second);
+        }
+      }
+  
+      for (UINT i = 0; i < startPoints.size(); i++) {
+        m_strokeIndex1 = startPoints[i].first;
+        m_strokeIndex2 = endPoints[i].first;
+        m_w1           = startPoints[i].second;
+        m_w2           = endPoints[i].second;
+        int type       = doTape(vi, fillInformation, m_joinStrokes.getValue());
+        if (type == p2p && m_strokeIndex1 != m_strokeIndex2) {
+          for (UINT j = i + 1; j < startPoints.size(); j++) {
+            rearrangeClosingPoints(vi, startPoints[j], startP[j]);
+            rearrangeClosingPoints(vi, endPoints[j], endP[j]);
+          }
+        } else if (type == p2l ||
+                  (type == p2p && m_strokeIndex1 == m_strokeIndex2)) {
+          for (UINT j = i + 1; j < startPoints.size(); j++) {
+            if (startPoints[j].first == m_strokeIndex1)
+              startPoints[j].second =
+                  vi->getStroke(m_strokeIndex1)->getW(startP[j]);
+            if (endPoints[j].first == m_strokeIndex1)
+              endPoints[j].second = vi->getStroke(m_strokeIndex1)->getW(endP[j]);
+          }
+        }
+      }
+    } else {
+      std::vector<int> startId(startPoints.size()), endId(startPoints.size());
+
+      if (!startPoints.empty()) {
+        if (!undoBlockStarted) TUndoManager::manager()->beginBlock();
+        for (UINT i = 0; i < startPoints.size(); i++) {
+          startId[i] = vi->getStroke(startPoints[i].first)->getId();
+          endId[i] = vi->getStroke(endPoints[i].first)->getId();
+        }
+      }
+  
+      for (UINT i = 0; i < startPoints.size(); i++) {
+        m_strokeIndex1 = vi->getStrokeIndexById(startId[i]);
+        m_strokeIndex2 = vi->getStrokeIndexById(endId[i]);
+        m_w1           = startPoints[i].second;
+        m_w2           = endPoints[i].second;
+        int type       = doTape(vi, fillInformation, m_joinStrokes.getValue());
+      }
+    }
+    if (!startPoints.empty() && !undoBlockStarted) TUndoManager::manager()->endBlock();
+  }
+
+  //-------------------------------------------------------------------------------------
 
   inline TRectD interpolateRect(const TRectD &r1, const TRectD &r2, double t) {
     return TRectD(r1.x0 + (r2.x0 - r1.x0) * t, r1.y0 + (r2.y0 - r1.y0) * t,
@@ -1242,57 +916,17 @@ public:
     bool initUndoBlock = false;
 
     std::vector<std::pair<int, double>> startPoints, endPoints;
-    getClosingPoints(rect, m_autocloseFactor.getValue().first,
-                     m_autocloseFactor.getValue().second, vi, startPoints,
-                     endPoints);
+    std::vector<std::pair<std::pair<double, double>, std::pair<double, double>>> lineExtensions;
+    getLineExtensionClosingPoints(rect, vi, startPoints, endPoints, lineExtensions);
 
-    assert(startPoints.size() == endPoints.size());
-
-    std::vector<TPointD> startP(startPoints.size()), endP(startPoints.size());
-
-    if (!startPoints.empty()) {
-      if (!undoBlockStarted) TUndoManager::manager()->beginBlock();
-      for (UINT i = 0; i < startPoints.size(); i++) {
-        startP[i] = vi->getStroke(startPoints[i].first)
-                        ->getPoint(startPoints[i].second);
-        endP[i] =
-            vi->getStroke(endPoints[i].first)->getPoint(endPoints[i].second);
-      }
-    }
-
-    for (UINT i = 0; i < startPoints.size(); i++) {
-      m_strokeIndex1 = startPoints[i].first;
-      m_strokeIndex2 = endPoints[i].first;
-      m_w1           = startPoints[i].second;
-      m_w2           = endPoints[i].second;
-      int type       = doTape(vi, fillInformation, m_joinStrokes.getValue());
-      if (type == p2p && m_strokeIndex1 != m_strokeIndex2) {
-        for (UINT j = i + 1; j < startPoints.size(); j++) {
-          rearrangeClosingPoints(vi, startPoints[j], startP[j]);
-          rearrangeClosingPoints(vi, endPoints[j], endP[j]);
-        }
-      } else if (type == p2l ||
-                 (type == p2p && m_strokeIndex1 == m_strokeIndex2)) {
-        for (UINT j = i + 1; j < startPoints.size(); j++) {
-          if (startPoints[j].first == m_strokeIndex1)
-            startPoints[j].second =
-                vi->getStroke(m_strokeIndex1)->getW(startP[j]);
-          if (endPoints[j].first == m_strokeIndex1)
-            endPoints[j].second = vi->getStroke(m_strokeIndex1)->getW(endP[j]);
-        }
-      }
-    }
-    if (!startPoints.empty() && !undoBlockStarted)
-      TUndoManager::manager()->endBlock();
+    tapeSelection(vi, startPoints, endPoints, fillInformation, undoBlockStarted);
   }
 
   //----------------------------------------------------------------------
   
   void tapeFreehand(const TVectorImageP& vi, TStroke* stroke, bool undoBlockStarted) {
-    DEBUG_LOG("tapeFreehand()\n");
 
     if (!vi || !stroke) {
-      DEBUG_LOG("tapeFreehand(), (!vi || !stroke) so returning.\n");
       return;
     }
 
@@ -1301,106 +935,73 @@ public:
 
     std::vector<std::pair<int, double>> startPoints, endPoints;
     std::vector<std::pair<std::pair<double, double>, std::pair<double, double>>> lineExtensions;
-    getLineExtensionClosingPoints(stroke->getBBox(), vi, startPoints, endPoints, lineExtensions, false, false);
+    getLineExtensionClosingPoints(stroke, vi, startPoints, endPoints, lineExtensions);
 
-    assert(startPoints.size() == endPoints.size());
-
-    std::vector<TPointD> startP(startPoints.size()), endP(startPoints.size());
-    for (UINT i = 0; i < startPoints.size(); i++) {
-      startP[i] = vi->getStroke(startPoints[i].first)->getPoint(startPoints[i].second);
-      endP[i] = vi->getStroke(endPoints[i].first)->getPoint(endPoints[i].second);
-    }
-
-    if (!startPoints.empty()) {
-      if (!undoBlockStarted) TUndoManager::manager()->beginBlock();
-
-      for (UINT i = 0; i < startPoints.size(); i++) {
-        startP[i] = vi->getStroke(startPoints[i].first)
-          ->getPoint(startPoints[i].second);
-        endP[i] =
-          vi->getStroke(endPoints[i].first)->getPoint(endPoints[i].second);
-      }
-
-    }
-    for (UINT i = 0; i < startPoints.size(); i++) {
-      m_strokeIndex1 = startPoints[i].first;
-      m_strokeIndex2 = endPoints[i].first;
-      m_w1 = startPoints[i].second;
-      m_w2 = endPoints[i].second;
-
-      int type = doTape(vi, fillInformation, m_joinStrokes.getValue());
-
-      if (type == p2p && m_strokeIndex1 != m_strokeIndex2) {
-        for (UINT j = i + 1; j < startPoints.size(); j++) {
-          rearrangeClosingPoints(vi, startPoints[j], startP[j]);
-          rearrangeClosingPoints(vi, endPoints[j], endP[j]);
-        }
-      }
-      else if (type == p2l || (type == p2p && m_strokeIndex1 == m_strokeIndex2)) {
-        for (UINT j = i + 1; j < startPoints.size(); j++) {
-          if (startPoints[j].first == m_strokeIndex1)
-            startPoints[j].second = vi->getStroke(m_strokeIndex1)->getW(startP[j]);
-          if (endPoints[j].first == m_strokeIndex1)
-            endPoints[j].second = vi->getStroke(m_strokeIndex1)->getW(endP[j]);
-        }
-      }
-    }
-
-    if (!startPoints.empty() && !undoBlockStarted) TUndoManager::manager()->endBlock(); // ToDo - should this be endBlock if undoBlockStarted?
-
+    tapeSelection(vi, startPoints, endPoints, fillInformation, undoBlockStarted);
   }
 
   //----------------------------------------------------------------------
 
-  void multiTapeFreehand(TStroke* stroke, TFrameId firstFrameId, TFrameId lastFrameId) {
+  void multiTapeFreehand(TFrameId firstFrameId, TFrameId lastFrameId,
+                         const std::vector<TStroke *> firstStrokes,
+                         const std::vector<TStroke *> lastStrokes) {
     TTool::Application* app = TTool::getApplication();
+    TVectorImageP firstImage = new TVectorImage();
+    TVectorImageP lastImage  = new TVectorImage();
+    for (int i = 0; i < firstStrokes.size(); i++)
+      firstImage->addStroke(firstStrokes[i]);
+    for (int i = 0; i < lastStrokes.size(); i++)
+      lastImage->addStroke(lastStrokes[i]);
 
-    //TFrameId firstFrameId = m_firstFrameId;
-    //TFrameId lastFrameId = getFrameId();
-
-    DEBUG_LOG("multiTapeFreehand(stroke, firstFrameId, lastFrameId)\n");
     bool backward = false;
-    if (firstFrameId > lastFrameId){
+    if (firstFrameId > lastFrameId) {
       std::swap(firstFrameId, lastFrameId);
       backward = true;
     }
-
     assert(firstFrameId <= lastFrameId);
-    
     std::vector<TFrameId> allFids;
     m_level->getFids(allFids);
 
     std::vector<TFrameId>::iterator i0 = allFids.begin();
     while (i0 != allFids.end() && *i0 < firstFrameId) i0++;
+    if (i0 == allFids.end()) return;
     std::vector<TFrameId>::iterator i1 = i0;
     while (i1 != allFids.end() && *i1 <= lastFrameId) i1++;
-    
+    assert(i0 < i1);
     std::vector<TFrameId> fids(i0, i1);
-    assert(io < i1);
-    
     int m = fids.size();
     assert(m > 0);
 
-    if (fids.empty()) return;
-
     enum TInbetween::TweenAlgorithm algorithm = TInbetween::LinearInterpolation;
-    switch (m_multi.getIndex()) {
-    case 2: algorithm = TInbetween::EaseInInterpolation; break;
-    case 3: algorithm = TInbetween::EaseOutInterpolation; break;
-    case 4: algorithm = TInbetween::EaseInOutInterpolation; break;
+    if (m_multi.getIndex() == 2) {  // EASE_IN_INTERPOLATION)
+      algorithm = TInbetween::EaseInInterpolation;
+    } else if (m_multi.getIndex() == 3) {  // EASE_OUT_INTERPOLATION)
+      algorithm = TInbetween::EaseOutInterpolation;
+    } else if (m_multi.getIndex() == 4) {  // EASE_IN_OUT_INTERPOLATION)
+      algorithm = TInbetween::EaseInOutInterpolation;
     }
 
     TUndoManager::manager()->beginBlock();
-    for (int i = 0; i < (int)fids.size(); ++i) {
-      double t = fids.size() > 1 ? (double)i / (double)(fids.size() - 1) : 0.5;
-      t = TInbetween::interpolation(t, algorithm);
-
-      TFrameId fid = fids[i];
-      app->getCurrentFrame()->setFid(fid);
-      TVectorImageP vi = m_level->getFrame(fid, true);
+    for (int i = 0; i < m; ++i) {
+      TFrameId fid     = fids[i];
+      TVectorImageP vi = (TVectorImageP)m_level->getFrame(fid, true);
       if (!vi) continue;
+      double t = m > 1 ? (double)i / (double)(m - 1) : 0.5;
+      t        = TInbetween::interpolation(t, algorithm);
+      t = backward ? 1 - t : t;
+      app->getCurrentFrame()->setFid(fid);
 
-      tapeFreehand(vi, stroke, true);  // Apply tape to each frame
+      if ( t == 0)
+        for (size_t s = 0; s < firstImage->getStrokeCount(); s++)
+          tapeFreehand(vi, firstImage->getStroke(s), true);
+      else if (t == 1)
+        for (size_t s = 0; s < lastImage->getStrokeCount(); s++)
+          tapeFreehand(vi, lastImage->getStroke(s), true);
+      else {
+        TVectorImageP ti = TInbetween(firstImage, lastImage).tween(t);
+        for (size_t s = 0; s < ti->getStrokeCount(); s++)
+          tapeFreehand(vi, ti->getStroke(s), true);
+      }
     }
     TUndoManager::manager()->endBlock();
 
@@ -1409,44 +1010,73 @@ public:
 
   //----------------------------------------------------------------------
 
-  void multiTapeFreehand(TStroke* stroke, int firstFrameIdx, int lastFrameIdx) {
-    TTool::Application* app = TTool::getApplication();
-    DEBUG_LOG("multiTapeFreehand(stroke, firstFrameIdx, lastFrameIdx)\n");
-    TFrameId firstFrameId = m_firstFrameId;
-    TFrameId lastFrameId = getFrameId();
+  void multiTapeFreehand(int firstFrameIdx, int lastFrameIdx,
+                         const std::vector<TStroke *> firstStrokes,
+                         const std::vector<TStroke *> lastStrokes) {
+    TVectorImageP firstImage = new TVectorImage();
+    TVectorImageP lastImage  = new TVectorImage();
+    for (int i = 0; i < firstStrokes.size(); i++)
+      firstImage->addStroke(firstStrokes[i]);
+    for (int i = 0; i < lastStrokes.size(); i++)
+      lastImage->addStroke(lastStrokes[i]);
+      
+    bool backward = false;
+    if (firstFrameIdx > lastFrameIdx) {
+      std::swap(firstFrameIdx, lastFrameIdx);
+      backward = true;
+    }
+    assert(firstFrameIdx <= lastFrameIdx);
 
-    if (firstFrameId > lastFrameId)
-      std::swap(firstFrameId, lastFrameId);
+    TTool::Application *app = TTool::getApplication();
+    TFrameId lastFrameId;
+    int col = app->getCurrentColumn()->getColumnIndex();
+    int row;
 
-    std::vector<TFrameId> allFids;
-    m_level->getFids(allFids);
+    std::vector<std::pair<int, TXshCell>> cellList;
 
-    std::vector<TFrameId>::iterator i0 = allFids.begin();
-    while (i0 != allFids.end() && *i0 < firstFrameId) i0++;
-    std::vector<TFrameId>::iterator i1 = i0;
-    while (i1 != allFids.end() && *i1 <= lastFrameId) i1++;
-    std::vector<TFrameId> fids(i0, i1);
+    for (row = firstFrameIdx; row <= lastFrameIdx; row++) {
+      TXshCell cell = app->getCurrentXsheet()->getXsheet()->getCell(row, col);
+      if (cell.isEmpty()) continue;
+      TFrameId fid = cell.getFrameId();
+      if (lastFrameId == fid) continue;  // Skip held cells
+      cellList.push_back(std::pair<int, TXshCell>(row, cell));
+      lastFrameId = fid;
+    }
 
-    if (fids.empty()) return;
+    int m = cellList.size();
 
     enum TInbetween::TweenAlgorithm algorithm = TInbetween::LinearInterpolation;
-    switch (m_multi.getIndex()) {
-    case 2: algorithm = TInbetween::EaseInInterpolation; break;
-    case 3: algorithm = TInbetween::EaseOutInterpolation; break;
-    case 4: algorithm = TInbetween::EaseInOutInterpolation; break;
+    if (m_multi.getIndex() == 2) {  // EASE_IN_INTERPOLATION)
+      algorithm = TInbetween::EaseInInterpolation;
+    } else if (m_multi.getIndex() == 3) {  // EASE_OUT_INTERPOLATION)
+      algorithm = TInbetween::EaseOutInterpolation;
+    } else if (m_multi.getIndex() == 4) {  // EASE_IN_OUT_INTERPOLATION)
+      algorithm = TInbetween::EaseInOutInterpolation;
     }
 
     TUndoManager::manager()->beginBlock();
-    for (int i = 0; i < (int)fids.size(); ++i) {
-      double t = fids.size() > 1 ? (double)i / (double)(fids.size() - 1) : 0.5;
-      t = TInbetween::interpolation(t, algorithm);
-
-      TFrameId fid = fids[i];
-      app->getCurrentFrame()->setFid(fid);
-      TVectorImageP vi = m_level->getFrame(fid, true);
+    for (int i = 0; i < m; ++i) {
+      row              = cellList[i].first;
+      TXshCell cell    = cellList[i].second;
+      TFrameId fid     = cell.getFrameId();
+      TVectorImageP vi = (TVectorImageP)cell.getImage(true);
       if (!vi) continue;
+      double t = m > 1 ? (double)i / (double)(m - 1) : 0.5;
+      t        = TInbetween::interpolation(t, algorithm);
+      t = backward ? 1 - t : t;
+      app->getCurrentFrame()->setFrame(row);
 
-      tapeFreehand(vi, stroke, true);  // Apply tape to each frame
+      if ( t == 0)
+        for (size_t s = 0; s < firstImage->getStrokeCount(); s++)
+          tapeFreehand(vi, firstImage->getStroke(s), true);
+      else if (t == 1)
+        for (size_t s = 0; s < lastImage->getStrokeCount(); s++)
+          tapeFreehand(vi, lastImage->getStroke(s), true);
+      else {
+        TVectorImageP ti = TInbetween(firstImage, lastImage).tween(t);
+        for (size_t s = 0; s < ti->getStrokeCount(); s++)
+          tapeFreehand(vi, ti->getStroke(s), true);
+      }
     }
     TUndoManager::manager()->endBlock();
 
@@ -1487,13 +1117,13 @@ public:
     }
 
     TUndoManager::manager()->beginBlock();
-    //for (int i = 0; i <= m; ++i) {
     for (int i = 0; i < m; ++i) {
       TFrameId fid     = fids[i];
       TVectorImageP vi = (TVectorImageP)m_level->getFrame(fid, true);
       if (!vi) continue;
       double t = m > 1 ? (double)i / (double)(m - 1) : 0.5;
       t        = TInbetween::interpolation(t, algorithm);
+      t = backward ? 1 - t : t;
       app->getCurrentFrame()->setFid(fid);
 
       tapeRect(vi, interpolateRect(m_firstRect, m_selectionRect, t), true);
@@ -1561,6 +1191,7 @@ public:
       if (!vi) continue;
       double t = m > 1 ? (double)i / (double)(m - 1) : 0.5;
       t        = TInbetween::interpolation(t, algorithm);
+      t = backward ? 1 - t : t;
       app->getCurrentFrame()->setFrame(row);
 
       tapeRect(vi, interpolateRect(m_firstRect, m_selectionRect, t), true);
@@ -1584,14 +1215,14 @@ public:
 
   int doTape(const TVectorImageP &vi,
              std::vector<TFilledRegionInf> *fillInformation, bool joinStrokes) {
-    DEBUG_LOG("doTape()\n");
     int type;
     if (!joinStrokes)
       type = l2l;
     else {
-      type = (m_w1 == 0.0 || m_w1 == 1.0)
-                 ? ((m_w2 == 0.0 || m_w2 == 1.0) ? p2p : p2l)
-                 : ((m_w2 == 0.0 || m_w2 == 1.0) ? l2p : l2l);
+      auto isEndpoint = [](double w) { return areAlmostEqual(w, 0.0, 1e-3) || areAlmostEqual(w, 1.0, 1e-3); };
+      type = (isEndpoint(m_w1))
+          ? (isEndpoint(m_w2) ? p2p : p2l)
+          : (isEndpoint(m_w2) ? l2p : l2l);
       if (type == l2p) {
         std::swap(m_strokeIndex1, m_strokeIndex2);
         std::swap(m_w1, m_w2);
@@ -1617,7 +1248,6 @@ public:
   }
 
   void tapeStrokes(TVectorImageP vi, int strokeIndex1, int strokeIndex2) {
-    DEBUG_LOG("tapeStrokes()\n");
     m_strokeIndex1 = strokeIndex1;
     m_strokeIndex2 = strokeIndex2;
 
@@ -1646,13 +1276,13 @@ public:
 
     TVectorImageP vi(getImage(true));
 
-    DEBUG_LOG("leftButtonUp(), vi exists:" << vi << ", m_type.getValue():" << m_type.getValueAsString() << ", app->getCurrentObject()->objectName():" << app->getCurrentObject()->objectName().toStdString() << "\n");
-
     if (vi && m_type.getValue() == RECT) {
       bool isEditingLevel = app->getCurrentFrame()->isEditingLevel();
 
       if (m_multi.getIndex()) {
-        if (!m_firstFrameSelected) {
+        if (!m_firstFrameSelected || 
+         ((isEditingLevel && m_firstFrameId == getFrameId()) ||
+         (!isEditingLevel && m_firstFrameIdx == getFrame()))) {
           m_currCell     = std::pair<int, int>(getColumnIndex(), getFrame());
           m_firstRect    = m_selectionRect;
           m_firstFrameId = m_veryFirstFrameId = getFrameId();
@@ -1716,101 +1346,81 @@ public:
     }
 
     if (vi && m_type.getValue() == FREEHAND) {
-      DEBUG_LOG("leftButtonUp() FREEHAND\n");
       bool isEditingLevel = app->getCurrentFrame()->isEditingLevel();
       bool isEditingScene = app->getCurrentFrame()->isEditingScene();
-      DEBUG_LOG("app->getCurrentFrame()->isEditingLevel():" << isEditingLevel << ", app->getCurrentFrame()->isEditingScene():" << app->getCurrentFrame()->isEditingScene());
       closeFreehand(pos);  // complete the freehand stroke
 
       if (m_multi.getIndex()) {
-        DEBUG_LOG("leftButtonUp() FREEHAND, Multi, first click\n");
         // first click: store info
-        if (!m_firstFrameSelected) {
-          DEBUG_LOG("leftButtonUp() FREEHAND, Multi, first frame select\n");
+        if (!m_firstFrameSelected || 
+         ((isEditingLevel && m_firstFrameId == getFrameId()) ||
+         (!isEditingLevel && m_firstFrameIdx == getFrame()))) {  
           m_currCell = std::pair<int, int>(getColumnIndex(), getFrame());
-          m_firstFreehandLasso = m_stroke;
           m_firstFrameId = m_veryFirstFrameId = getFrameId();
           m_firstFrameIdx                     = getFrame();
-          m_firstPolyline                     = m_polyline;
+          double error = (30.0 / 11) * sqrt(getPixelSize() * getPixelSize());
+          m_firstStrokes.clear();
+          for(int i = 0; i < m_track.getBrushCount(); i++) {
+            m_firstStrokes.push_back(m_track.makeStroke(error, i));
+          }
           m_level = app->getCurrentLevel()->getLevel()
             ? app->getCurrentLevel()->getSimpleLevel()
             : 0;
           m_firstFrameSelected = true;
         } else {
-          DEBUG_LOG("leftButtonUp() FREEHAND, Multi, additional frames select\n");
+          std::vector<TStroke *> lastStrokes;
+          double error = (30.0 / 11) * sqrt(getPixelSize() * getPixelSize());
+          for(int i = 0; i < m_track.getBrushCount(); i ++) {
+            lastStrokes.push_back(m_track.makeStroke(error, i));
+          }
           if (app->getCurrentFrame()->isEditingScene()){
-            multiTapeFreehand(m_stroke, m_firstFrameIdx, getFrame()); // int values, level strip
+            multiTapeFreehand(m_firstFrameIdx, getFrame(), m_firstStrokes, lastStrokes);
           } else{
-            multiTapeFreehand(m_stroke, m_firstFrameId, getFrameId()); // TFrame values, xsheet/timeline
+            multiTapeFreehand(m_firstFrameId, getFrameId(), m_firstStrokes, lastStrokes);
           }
 
-          //invalidate(m_selectionRect.enlarge(2)); // is this to clear the selection border on screen? if so, need bbox as rect for lasso probably.
           invalidate(m_stroke->getBBox().enlarge(2));
 
           if (e.isShiftPressed()) {
             m_currCell = std::pair<int, int>(getColumnIndex(), getFrame());
-            m_firstFreehandLasso = m_stroke; //m_firstRect = m_selectionRect;
             m_firstFrameId = m_veryFirstFrameId = getFrameId();
             m_firstFrameIdx                     = getFrame();
-            m_firstPolyline                     = m_polyline;
+            double error = (30.0 / 11) * sqrt(getPixelSize() * getPixelSize());
+            m_firstStrokes.clear();
+            for(int i = 0; i < m_track.getBrushCount(); i++) {
+              m_firstStrokes.push_back(m_track.makeStroke(error, i));
+            }
           } else {
-            //if (app->getCurrentFrame()->isEditingScene()) { // xsheet/timeline
             if (!isEditingLevel) { // xsheet/timeline
-              DEBUG_LOG("<<< leave me active on the xsheet/timeline >>>\n");             
               app->getCurrentColumn()->setColumnIndex(m_currCell.first);
               app->getCurrentFrame()->setFrame(m_currCell.second);
             } else{ // level strip
-              DEBUG_LOG("<<< leave me active on the Level Strip >>>\n");
               app->getCurrentFrame()->setFid(m_veryFirstFrameId);
             }
             m_firstFrameSelected = false;
           }
-
-          //m_selectionRect = TRectD();
-          //m_startRect = TPointD();
-          //m_polyline.reset();
           m_stroke = new TStroke();
           m_track.reset();
-          //m_firstFreehandLasso = m_stroke;
-          m_polyline.reset();
         }
         return;
       }
-      DEBUG_LOG("leftButtonUp() FREEHAND, m_track.hasSymmetryBrushes():" << m_track.hasSymmetryBrushes() << ", brush count:" << m_track.getBrushCount() << "\n");
 
-      if (m_polyline.hasSymmetryBrushes()) {
-        DEBUG_LOG("leftButtonUp() FREEHAND, has symmetry brushes, begin undo block\n");
+      if (m_track.hasSymmetryBrushes()) {
         TUndoManager::manager()->beginBlock();
       }
-      //TRectD strokeBBox;
-      //if (m_stroke) {
-      //  strokeBBox = m_stroke->getBBox();
-      //  DEBUG_LOG("leftButtonUp() FREEHAND, m_stroke, x0,y0: " << strokeBBox.x0 << "," << strokeBBox.y0 << " x1,y1: " << strokeBBox.x1 << "," << strokeBBox.y1 << "\n");
-      //}
 
       tapeFreehand(vi, m_stroke, m_track.hasSymmetryBrushes());
 
       if (m_track.hasSymmetryBrushes()) {
-        DEBUG_LOG("leftButtonUp() FREEHAND, has symmetry brushes, iterate over each\n");
-        for (int i = 1; i < m_track.getBrushCount(); i++) {
-          DEBUG_LOG("leftButtonUp() FREEHAND, has symmetry brushes, int i:" << i << "\n");
-          double error = (30.0 / 11) * sqrt(getPixelSize() * getPixelSize());
-          TStroke* symmStroke = m_track.makeStroke(error, i); // make freehand stroke
-          //TRectD strokeBBox;
-          //strokeBBox = symmStroke->getBBox();
-          //DEBUG_LOG("leftButtonUp() FREEHAND, symmStroke, x0,y0: " << strokeBBox.x0 << "," << strokeBBox.y0 << " x1,y1: " << strokeBBox.x1 << "," << strokeBBox.y1 << "\n");
-          tapeFreehand(vi, symmStroke, true);
+        double pixelSize = getPixelSize();
+        double error     = (30.0 / 11) * pixelSize;
+        std::vector<TStroke *> symmStrokes = m_track.makeSymmetryStrokes(error);
+        for (int i = 0; i < symmStrokes.size(); i++) {
+          tapeFreehand(vi, symmStrokes[i], true);
         }
 
         TUndoManager::manager()->endBlock();
       }
-
-      //m_selectionRect = TRectD();
-      //m_startRect = TPointD();
-      // 
-      //m_polyline.reset();
-      //notifyImageChanged();
-      //invalidate();
 
       m_track.reset();
       notifyImageChanged();
@@ -1872,18 +1482,13 @@ public:
     //      getApplication()->editImage();
     //    m_selectionRect = TRectD();
     m_startRect     = TPointD();
-    std::cout << "VectorTapeTool onEnter()\n";
-    //setGapCheck();
   }
 
   void onActivate() override {
 
     if (!m_firstTime) {
-      std::cout << "VectorTapeTool onActivate(), not my first time.\n";
-      setGapCheck();
       return;
     }
-    std::cout << "VectorTapeTool onActivate(), first time.\n";
 
     std::wstring s = ::to_wstring(TapeMode.getValue());
     if (s != L"") m_mode.setValue(s);
@@ -1897,17 +1502,31 @@ public:
     m_firstTime     = false;
     m_selectionRect = TRectD();
     m_startRect     = TPointD();
-    m_dehookFactor.setValue(TDoublePairProperty::Value(TapeDehookFactorMin, TapeDehookFactorMax));
-    m_dehookAngleThreshold.setValue(TapeDehookAngleThreshold);
     m_lineExtensionAngle.setValue(LineExtensionAngle);
-    //std::cout << "VectorTapeTool onActivate() setValue on TapeStartAt to:" << TapeStartAt << "\n";
-    //m_startAt.setValue(TapeStartAt);
-    //std::cout << "VectorTapeTool onActivate() setValue on TapeIncBy to:" << TapeIncBy << "\n";
-    //m_incBy.setValue(TapeIncBy);
-    
-    std::cout << "VectorTapeTool onActivate() call setGapCheck().\n";
-    setGapCheck();
-    std::cout << "VectorTapeTool onActivate() completed.\n";
+  }
+
+  void resetMulti() {
+    TTool::Application *app = TTool::getApplication();
+    if (!app) return;
+
+    m_firstFrameSelected = false;
+    m_track.reset();
+    m_firstRect.empty();
+    m_firstFrameId = m_veryFirstFrameId = getCurrentFid();
+    m_firstFrameIdx                     = getFrame();
+    m_firstPolyline.reset();
+    m_level = app->getCurrentLevel()->getLevel()
+                        ? app->getCurrentLevel()->getSimpleLevel()
+                        : 0;
+  }
+
+  void onImageChanged() {
+    TTool::Application *app = TTool::getApplication();
+    if (!app) return;
+    TXshSimpleLevel *xshl = 0;
+    if (app->getCurrentLevel()->getLevel())
+      xshl = app->getCurrentLevel()->getLevel()->getSimpleLevel();
+    if (!xshl || m_level.getPointer() != xshl) resetMulti();
   }
 
   int getCursorId() const override {

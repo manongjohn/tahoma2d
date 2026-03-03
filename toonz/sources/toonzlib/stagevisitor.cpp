@@ -62,17 +62,6 @@
 
 #include "toonz/stagevisitor.h"
 #include "../common/tvectorimage/tvectorimageP.h"
-
-//#include <tools/tool.h>
-//#include <tools/toolhandle.h>
-//#include <toonz/tapplication.h>
-
-//#include "../toonz/tapp.h"
-//#include "tools/toolhandle.h"
-
-bool debug_mode = false;  // Set to false to disable debug output
-#define DEBUG_LOG(x) if (debug_mode) std::cout << x // << std::endl
-
 double currentCloseFactorMin = -1.0; // Use this to track the current close distance minimum value, to know when it changes.
 double currentCloseFactor = -1.0; // Use this to track the current close distance value, to know when it changes.
 
@@ -763,7 +752,6 @@ static void buildAutocloseImage(
     const std::vector<std::pair<int, double>> &startPoints,
     const std::vector<std::pair<int, double>> &endPoints,
     const bool isLineExtensionAutoClose = false) {
-  DEBUG_LOG("buildAutocloseImage\n");
   for (UINT i = 0; i < startPoints.size(); i++) {
     TThickPoint p1 = vi->getStroke(startPoints[i].first)
                          ->getThickPoint(startPoints[i].second);
@@ -791,12 +779,9 @@ static void buildAutocloseImage(
 static void buildLineExtensionAutocloseImage(
   TVectorImage* vaux, TVectorImage* vi,
   const std::vector<std::pair<std::pair<double, double>, std::pair<double, double>>> lineExtensions) {
-  DEBUG_LOG("buildLineExtensionAutocloseImage\n");
   double thick = 0.0;
 
   for (UINT i = 0; i < lineExtensions.size(); i++) {
-    DEBUG_LOG("lineExtension: " << i << ", from x:" << lineExtensions.at(i).first.first << ", y : " << lineExtensions.at(i).first.second << ", to x:" << lineExtensions.at(i).second.first << ", y : " << lineExtensions.at(i).second.second << "\n");
-    
     TThickPoint p1 = TThickPoint(lineExtensions.at(i).first.first, lineExtensions.at(i).first.second,thick);
     TThickPoint p2 = TThickPoint(lineExtensions.at(i).second.first, lineExtensions.at(i).second.second, thick);
 
@@ -843,19 +828,10 @@ static void drawAutocloses(TVectorImage *vi, TVectorRenderData &rd) {
 /*! Draw lines for the line extension auto close method.
 */
 static void drawLineExtensionAutocloses(TVectorImage* vi, TVectorRenderData& rd) {
-  if (currentCloseFactorMin == AutocloseFactorMin && currentCloseFactor == AutocloseFactor) {
-    DEBUG_LOG("NO CHANGE in drawLineExtensionAutocloses() autoCloseFactorMin and autoCloseFactor:" << AutocloseFactorMin << " is the same as:" << currentCloseFactorMin << " and " << AutocloseFactor << " is the same as:" << currentCloseFactor << "\n");
-    debug_mode = false;
-  }
-  else {
-    debug_mode = true;
-  }
   static TPalette* plt = 0;
   const int ROUNDINGFACTOR = 4;
   currentCloseFactorMin = AutocloseFactorMin;
   currentCloseFactor = AutocloseFactor;
-  DEBUG_LOG("\n\n===================== stagevisitor::drawLineExtensionAutocloses - begin ==================================================================\n\n");
-  DEBUG_LOG("drawLineExtensionAutocloses, autoCloseFactor:" << AutocloseFactor << "\n");
   int colorstyle = 0, colorstyleGapClose = 0;
   if (!plt) {
     plt = new TPalette();
@@ -867,7 +843,7 @@ static void drawLineExtensionAutocloses(TVectorImage* vi, TVectorRenderData& rd)
   }
   std::vector<std::pair<int, double>> startPoints, endPoints;
   std::vector<std::pair<std::pair<double, double>, std::pair<double, double>>> lineExtensions;
-  getLineExtensionClosingPoints(vi->getBBox(), vi, startPoints, endPoints, lineExtensions, debug_mode, true);
+  getLineExtensionClosingPoints(vi->getBBox(), vi, startPoints, endPoints, lineExtensions);
   UINT strokeCount = vi->getStrokeCount();
   TVectorImage* vaux = new TVectorImage();
 
@@ -875,16 +851,10 @@ static void drawLineExtensionAutocloses(TVectorImage* vi, TVectorRenderData& rd)
 
   buildAutocloseImage(vaux, vi, startPoints, endPoints, true);
   
-  DEBUG_LOG("drawLineExtensionAutocloses, lineExtensions.size():" << lineExtensions.size() << "\n");
   buildLineExtensionAutocloseImage(vaux, vi, lineExtensions);
 
 if (false){
 assert(startPoints.size() == endPoints.size());
-
-for (UINT i = 0; i < startPoints.size(); i++) {
-  DEBUG_LOG("startPoints[" << i << "] stroke:" << vi->getStroke(startPoints[i].first)->getId() << " , W:" << startPoints[i].second << "\n");
-  DEBUG_LOG("  endPoints[" << i << "] stroke:" << vi->getStroke(endPoints[i].first)->getId() << " , W:" << endPoints[i].second << "\n");
-}
 
 if (!startPoints.empty()) {
 
@@ -899,17 +869,8 @@ if (!startPoints.empty()) {
   int inScopeCount = 0, outOfScopeCount = 0, reverseCount = 0;
 
   for (std::size_t i = 0; i < startPoints.size(); ++i) {
-
-    DEBUG_LOG("Candidate gap close line from stroke:" << vi->getStroke(startPoints[i].first)->getId() << ", W:" << startPoints[i].second);
-    DEBUG_LOG(" to stroke:" << vi->getStroke(endPoints[i].first)->getId() << ", W:" << endPoints[i].second << "\n");
-
     TStroke* startStroke = vi->getStroke(startPoints[i].first);
     TStroke* endStroke = vi->getStroke(endPoints[i].first);
-    DEBUG_LOG("  endpoints of from stroke:" << startStroke->getId() << ", W0:" << startStroke->getPoint(0.0).x << ":" << startStroke->getPoint(0.0).y << ", W1:" << startStroke->getPoint(1.0).x << ":" << startStroke->getPoint(1.0).y << "\n");
-    DEBUG_LOG("    endpoints of to stroke:" << endStroke->getId() << ", W0:" << endStroke->getPoint(0.0).x << ":" << endStroke->getPoint(0.0).y << ", W1:" << endStroke->getPoint(1.0).x << ":" << endStroke->getPoint(1.0).y << "\n");
-    DEBUG_LOG("    region count:" << tempImage.getRegionCount() << "\n");
-
-    DEBUG_LOG(" Add to vaux for display\n");
     inScopeCount++;
 
     // add this close gap stroke to vi
@@ -927,18 +888,6 @@ if (!startPoints.empty()) {
     vaux->addStroke(gapCloseStroke);
 
   }
-
-  // stroke ID so it can be deleted on undo
-  // stroke clone so it can be added on redo
-  // efficiency: populate the vector of clones during undo?
-  // in destructor, delete the vector of IDs, and vector of clones, if they exist
-  // eventually handle use of the tool:
-  //     in symmetry mode
-  //     across a frame range
-  //undo = lineExtensionAutoCloseUndo;
-  //TUndoManager::manager()->add(undo);
-  //TUndoManager::manager()->endBlock();
-  DEBUG_LOG("Total potential Gap Close Lines:" << startPoints.size() << ", in scope:" << inScopeCount << ", out of scope:" << outOfScopeCount << ", reversed so ignored:" << reverseCount << "\n");
 }
 }
   
@@ -950,7 +899,6 @@ if (!startPoints.empty()) {
   // restore original value
   rd.m_tcheckEnabled = tCheckEnabledOriginal;
   delete vaux;
-  DEBUG_LOG("===================== stagevisitor::drawLineExtensionAutocloses - end ==================================================================\n");
 }
 
 //-----------------------------------------------------------------------------
@@ -1169,15 +1117,7 @@ void RasterPainter::onVectorImage(TVectorImage *vi,
   else
     tglDraw(rd, vi, &guidedStroke);
 
-  if (tc & ToonzCheck::eAutoclose) {
-
-    if (ToonzCheck::instance()->isCheckEnabled(ToonzCheck::eLineExtensionGapClose)) {
-      drawLineExtensionAutocloses(vi, rd);
-    }
-    else {
-      drawAutocloses(vi, rd);
-    }
-  }
+  if (tc & ToonzCheck::eAutoclose) drawLineExtensionAutocloses(vi, rd);;
 
   glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
   vPalette->setFrame(oldFrame);

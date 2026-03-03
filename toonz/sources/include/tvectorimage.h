@@ -436,9 +436,13 @@ DVAPI void getLineExtensionClosingPoints(
     const TRectD &rect, const TVectorImageP &vi,
     std::vector<std::pair<int, double>> &startPoints,
     std::vector<std::pair<int, double>> &endPoints,
-    std::vector<std::pair<std::pair<double, double>, std::pair<double, double>>>& lineExtensions,
-    bool debugMessages, bool returnLineExtensions = false);
+    std::vector<std::pair<std::pair<double, double>, std::pair<double, double>>>& lineExtensions);
 
+DVAPI void getLineExtensionClosingPoints(
+    TStroke* stroke, const TVectorImageP &vi,
+    std::vector<std::pair<int, double>> &startPoints,
+    std::vector<std::pair<int, double>> &endPoints,
+    std::vector<std::pair<std::pair<double, double>, std::pair<double, double>>>& lineExtensions);
 //-----------------------------------------------------------------------------
 
 #ifdef _WIN32
