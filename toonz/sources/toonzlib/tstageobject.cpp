@@ -26,6 +26,7 @@
 #include "tconvert.h"
 #include "tundo.h"
 #include "tconst.h"
+#include "tutil.h"
 
 // Qt includes
 #include <QMetaObject>
@@ -310,32 +311,47 @@ TPointD updateDagPosition(const TPointD &pos, const VersionNumber &tnzVersion) {
 bool touchEaseAndCompare(const TDoubleKeyframe &kf,
                          TStageObject::Keyframe &stageKf,
                          TDoubleKeyframe::Type &type) {
-  bool initialization = (type == TDoubleKeyframe::None);
 
-  if (initialization) type = kf.m_type;
-
-  if (kf.m_type != type || (kf.m_type != TDoubleKeyframe::SpeedInOut &&
-                            kf.m_type != TDoubleKeyframe::EaseInOut &&
-                            (kf.m_prevType != TDoubleKeyframe::None &&
-                             kf.m_prevType != TDoubleKeyframe::SpeedInOut &&
-                             kf.m_prevType != TDoubleKeyframe::EaseInOut))) {
-    stageKf.m_easeIn  = -1.0;
+  if (type == TDoubleKeyframe::None) {
+    if (kf.m_type == TDoubleKeyframe::SpeedInOut ||
+        kf.m_type == TDoubleKeyframe::EaseInOut)
+      type = kf.m_type;
+  } else if ((kf.m_type == TDoubleKeyframe::SpeedInOut ||
+              kf.m_type == TDoubleKeyframe::EaseInOut) &&
+             kf.m_type != type) {
     stageKf.m_easeOut = -1.0;
-
     return false;
   }
 
-  double easeIn = -kf.m_speedIn.x;
-  if (initialization)
-    stageKf.m_easeIn = easeIn;
-  else if (stageKf.m_easeIn != easeIn)
-    stageKf.m_easeIn = -1.0;
+  if (kf.m_prevType == TDoubleKeyframe::SpeedInOut ||
+      kf.m_prevType == TDoubleKeyframe::EaseInOut) {
+    double easeIn = -kf.m_speedIn.x;
+    if (stageKf.m_easeIn == -1)
+      stageKf.m_easeIn = easeIn;
+    else {
+      double easeInR      = tround(easeIn * 10) / 10.0;
+      double stageEaseInR = tround(stageKf.m_easeIn * 10) / 10.0;
+      if (stageEaseInR != easeInR) {
+        stageKf.m_easeIn = -1.0;
+        return false;
+      }
+    }
+  }
 
-  double easeOut = kf.m_speedOut.x;
-  if (initialization)
-    stageKf.m_easeOut = easeOut;
-  else if (stageKf.m_easeOut != easeOut)
-    stageKf.m_easeOut = -1.0;
+  if (kf.m_type == TDoubleKeyframe::SpeedInOut ||
+      kf.m_type == TDoubleKeyframe::EaseInOut) {
+    double easeOut = kf.m_speedOut.x;
+    if (stageKf.m_easeOut == -1)
+      stageKf.m_easeOut = easeOut;
+    else {
+      double easeOutInR    = tround(easeOut * 10) / 10.0;
+      double stageEaseOutR = tround(stageKf.m_easeOut * 10) / 10.0;
+      if (stageEaseOutR != easeOutInR) {
+        stageKf.m_easeOut = -1.0;
+        return false;
+      }
+    }
+  }
 
   return true;
 }
@@ -1597,7 +1613,7 @@ void TStageObject::updateKeyframes(LazyData &ld) const {
 
     std::map<QString, SkVD::Keyframe>::const_iterator vdft, vdfEnd(vdfs.end());
     for (vdft = vdfs.begin(); easeOk && vdft != vdfEnd; ++vdft) {
-      for (int p = 0; p < SkVD::PARAMS_COUNT; ++p) {
+      for (int p = 0; easeOk && p < SkVD::PARAMS_COUNT; ++p) {
         const TDoubleKeyframe &kf = vdft->second.m_keyframes[p];
         if (!kf.m_isKeyframe) continue;
 
