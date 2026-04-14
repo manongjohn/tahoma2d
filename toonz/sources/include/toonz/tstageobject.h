@@ -340,17 +340,15 @@ object.
   //! global scale channel.
   bool is52FullKeyframe(int frame) const;
 
+  bool hasDrawingNumberKey(int frame) const;
+  bool isChannelInterpolated(TStageObject::Channel channel, int frame);
+
   /*!
 Retrieves from the list of the keyframes a keyframe object
 (TStageObject::Keyframe) associated
 with the frame.
 */
   Keyframe getKeyframe(int frame) const;
-
-  bool setKeyframe(const TDoubleParamP &param, const TDoubleKeyframe &kf, int frame, 
-    const double &easeIn, const double &easeOut);
-
-  void setkey(const TDoubleParamP &param, int frame);
 
   void setKeyframeWithoutUndo(int frame, const Keyframe &);
   void setKeyframeWithoutUndo(int frame);
@@ -526,13 +524,6 @@ the table, camera is in the table for cameraZ = -1000.
   double paramsTime(
       double t) const;  //!< Traduces the xsheet-time into the one suitable
   //!< for param values extraction (dealing with repeat/cycling)
-  struct KeyFrameMarker {
-    int start;
-    int end;
-    KeyFrameMarker(int aStart, int aEnd) : start(aStart), end(aEnd) {}
-  };
-
-  KeyFrameMarker* tryDequeueKeyFrameChangeRangeQueue(); 
 
 private:
   // Lazily updated data
@@ -545,11 +536,6 @@ private:
   };
 
 private:
-  
-  // Key frame range queue is a queue only for updates involving drawing numbers. It is not used for any other types of
-  // of keyframes . 
-  QQueue<KeyFrameMarker> keyFrameChangeRangeQueue;
-  
   tcg::invalidable<LazyData> m_lazyData;
 
   TStageObjectId m_id;

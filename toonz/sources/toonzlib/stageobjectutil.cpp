@@ -101,6 +101,9 @@ void TStageObjectValues::applyValues(bool undoEnabled) const {
       KeyframeSetter setter(param, -1,
                             undoEnabled);  // Deve essere registrato l'undo
       setter.createKeyframe(m_frame);
+      if ((TStageObject::Channel)it->m_actionId ==
+          TStageObject::T_DrawingNumber)
+        setter.setValue(it->getValue());
     }
     int indexKeyframe = param->getClosestKeyframe(m_frame);
     KeyframeSetter setter(param, indexKeyframe,
@@ -197,7 +200,7 @@ QString TStageObjectValues::getStringForHistory() {
       channelStr = QObject::tr("Edit Shear Y");
       break;
     case TStageObject::T_DrawingNumber:
-      channelStr = QObject::tr("Edit Drawing Number");
+      channelStr = QObject::tr("Edit Drawing #");
       break;
     default:
       channelStr = QObject::tr("Move");

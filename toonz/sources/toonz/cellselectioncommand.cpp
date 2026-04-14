@@ -232,8 +232,10 @@ void DrawingNumberUpdateUndo::redo() const {
   TCG_ASSERT(m_r1 >= m_r0 && m_c1 >= m_c0, return);
 
   m_undoCells.clear();
-  m_ok = TApp::instance()->getCurrentXsheet()->getXsheet()->updateNonZeroDrawingNumberCellsBox(
-      m_r0, m_c0, m_r1, m_c1, m_undoCells);
+  m_ok = TApp::instance()
+             ->getCurrentXsheet()
+             ->getXsheet()
+             ->updateNonZeroDrawingNumberCellsBox(m_r0, m_c0, m_c1);
 
   TApp::instance()->getCurrentXsheet()->notifyXsheetChanged();
   TApp::instance()->getCurrentScene()->setDirtyFlag(true);
@@ -269,9 +271,7 @@ void DrawingNumberUpdateUndo::undo() const {
 
 }  // namespace
 
-void TCellSelection::updateNonZeroDrawingNumberCellsBox() {
-}
-  //*********************************************************************************
+//*********************************************************************************
 //    Increment Cells  command
 //*********************************************************************************
 

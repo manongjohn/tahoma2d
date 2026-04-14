@@ -208,7 +208,15 @@ public:
 class ArrowToolOptionsBox final : public ToolOptionsBox {
   Q_OBJECT
 
-  enum AXIS { Position = 0, Rotation, Scale, Shear, CenterPosition, AllAxis };
+  enum AXIS {
+    Position = 0,
+    Rotation,
+    Scale,
+    Shear,
+    DrawingNumber,
+    CenterPosition,
+    AllAxis
+  };
 
   TPropertyGroup *m_pg;
   bool m_splined;

@@ -31,6 +31,7 @@
 
 class TDoubleParam;
 class TFrameHandle;
+class TColumnHandle;
 
 namespace DVGui {
 class MeasuredDoubleLineEdit;
@@ -69,6 +70,7 @@ class FunctionToolbar final : public DVGui::ToolBar, public TParamObserver {
   TDoubleParam *m_curve;
   TFrameHandle *m_frameHandle;
   TXsheetHandle *m_xsheetHandle;
+  TColumnHandle *m_columnHandle;
 
   FunctionSelection *m_selection;
 
@@ -85,6 +87,7 @@ public:
   void setSelection(FunctionSelection *);
   void setFrameHandle(TFrameHandle *frameHandle);
   void setXsheetHandle(TXsheetHandle *xsheetHandle);
+  void setColumnHandle(TColumnHandle *columnHandle);
 
   void onChange(const TParamChange &) override;
 

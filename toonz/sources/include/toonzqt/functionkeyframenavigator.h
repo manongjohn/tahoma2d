@@ -9,12 +9,14 @@
 #include <QToolBar>
 class FunctionPanel;
 class TFrameHandle;
+class TColumnHandle;
 class FrameNavigator;
 
 class DVAPI FunctionKeyframeNavigator final : public KeyframeNavigator {
   Q_OBJECT
   TDoubleParamP m_curve;
   TXsheetHandle *m_xsheetHandle;
+  TColumnHandle *m_columnHandle;
 
 public:
   FunctionKeyframeNavigator(QWidget *parent);
@@ -23,6 +25,10 @@ public:
 
   void setXsheetHandle(TXsheetHandle *xsheetHandle) {
     m_xsheetHandle = xsheetHandle;
+  }
+
+  void setColumnHandle(TColumnHandle *columnHandle) {
+    m_columnHandle = columnHandle;
   }
 
 protected:

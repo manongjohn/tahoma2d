@@ -37,6 +37,7 @@ class EditTool final : public QObject, public TTool {
     Center,
     ZTranslation,
     Shear,
+    DrawingNumber,
   };
 
   // DragInfo m_dragInfo;

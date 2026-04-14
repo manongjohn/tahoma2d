@@ -2905,6 +2905,8 @@ void MainWindow::defineActions() {
                ToolCommandType, "edit_shear");
   createAction(MI_EditCenter, QT_TR_NOOP("Animate Tool - Center"), "", "",
                ToolCommandType, "edit_center");
+  createAction(MI_EditDrawingNumber, QT_TR_NOOP("Animate Tool - Drawing #"), "", "",
+               ToolCommandType, "edit_drawingnumber");
   createAction(MI_EditAll, QT_TR_NOOP("Animate Tool - All"), "", "",
                ToolCommandType, "edit_all");
 

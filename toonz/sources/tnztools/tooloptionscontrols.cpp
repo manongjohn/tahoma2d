@@ -1262,8 +1262,31 @@ void PegbarChannelField::onChange(TMeasuredValue *fld, bool addToUndo) {
       fld->setValue(TMeasuredValue::MainUnit, 0.0001);
     }
   }
+
+  // Do now allow drawing number to be < 0
+  if (m_actionId == TStageObject::T_DrawingNumber &&
+      fld->getValue(TMeasuredValue::MainUnit) < 0) {
+    updateStatus();
+    return;
+  }
+
   bool modifyConnectedActionId = false;
-  if (addToUndo) TUndoManager::manager()->beginBlock();
+
+  TXsheet *xsh         = m_xshHandle->getXsheet();
+  TStageObjectId objId = m_objHandle->getObjectId();
+  int frame            = m_frameHandle->getFrameIndex();
+
+  bool setDrawingKey   = false;
+  if (m_actionId == TStageObject::T_DrawingNumber) {
+    TStageObject *stgObj = xsh->getStageObject(objId);
+    TStageObject::KeyframeMap keyframes;
+    stgObj->getKeyframes(keyframes);
+    if (!keyframes.size() || frame < keyframes.begin()->first ||
+        frame > keyframes.rbegin()->first)
+      setDrawingKey = true;
+  }
+
+  if (addToUndo || setDrawingKey) TUndoManager::manager()->beginBlock();
   // m_firstMouseDrag is set to true only if addToUndo is false
   // and only for the first drag
   // This should always fire if addToUndo is true
@@ -1288,7 +1311,6 @@ void PegbarChannelField::onChange(TMeasuredValue *fld, bool addToUndo) {
       m_before.add(TStageObject::T_Y);
       m_before.add(TStageObject::T_Z);
       m_before.add(TStageObject::T_SO);
-      m_before.add(TStageObject::T_DrawingNumber);
       m_before.add(TStageObject::T_ScaleX);
       m_before.add(TStageObject::T_ScaleY);
       m_before.add(TStageObject::T_Scale);
@@ -1312,6 +1334,19 @@ void PegbarChannelField::onChange(TMeasuredValue *fld, bool addToUndo) {
     after.setValues(v, newV);
   } else
     after.setValue(v);
+  if (setDrawingKey) {
+    int col       = objId.getIndex();
+    TXshCell cell = xsh->getCell(frame, col, true, true);
+    if (!cell.isEmpty() && !cell.getFrameId().isStopFrame() &&
+        !cell.getFrameId().isNoFrame()) {
+      int frameIdNum = cell.getFrameId().getNumber();
+      m_before.setValue(frameIdNum);
+      after.setValue(frameIdNum);
+    }
+    xsh->addUndoDrawingNumberChange(frame, objId);
+    after.applyValues();
+    after.setValue(v);
+  }
   after.applyValues();
 
   TTool::Viewer *viewer = m_tool->getViewer();
@@ -1323,9 +1358,9 @@ void PegbarChannelField::onChange(TMeasuredValue *fld, bool addToUndo) {
     undo->setXsheetHandle(m_xshHandle);
     undo->setObjectHandle(m_objHandle);
     TUndoManager::manager()->add(undo);
-    TUndoManager::manager()->endBlock();
     m_firstMouseDrag = false;
   }
+  if (addToUndo || setDrawingKey) TUndoManager::manager()->endBlock();
   if (!addToUndo && !m_firstMouseDrag) m_firstMouseDrag = true;
   m_objHandle->notifyObjectIdChanged(false);
 
@@ -1406,7 +1441,20 @@ void PegbarChannelField::updateStatus() {
   if (m_actionId == TStageObject::T_Z)
     setMeasure(objId.isCamera() ? "zdepth.cam" : "zdepth");
 
-  double v = xsh->getStageObject(objId)->getParam(m_actionId, frame);
+  TStageObject *stgObj = xsh->getStageObject(objId);
+  double v             = stgObj->getParam(m_actionId, frame);
+
+  if (m_actionId == TStageObject::T_DrawingNumber) {
+    TStageObject::KeyframeMap keyframes;
+    stgObj->getKeyframes(keyframes);
+    if (!keyframes.size() || frame < keyframes.begin()->first ||
+        frame > keyframes.rbegin()->first) {
+      int col       = m_tool->getColumnIndex();
+      TXshCell cell = xsh->getCell(frame, col);
+      if (!cell.isEmpty() && !cell.getFrameId().isStopFrame())
+        v = cell.getFrameId().getNumber();
+    }
+  }
 
   if (getValue() == v) return;
   setValue(v);

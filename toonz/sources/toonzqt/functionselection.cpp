@@ -3,11 +3,13 @@
 #include "toonzqt/functionselection.h"
 
 #include "toonzqt/dvdialog.h"
+#include "toonzqt/functionsheet.h"
 
 // TnzLib includes
 #include "toonz/doubleparamcmd.h"
 #include "toonz/tframehandle.h"
 #include "toonz/txsheetexpr.h"
+#include "toonz/txsheet.h"
 
 // TnzBase includes
 #include "tdoubleparam.h"
@@ -259,7 +261,8 @@ FunctionSelection::FunctionSelection()
     , m_selectedKeyframes()
     , m_selectedSegment(-1)
     , m_frameHandle(0)
-    , m_columnToCurveMapper(0) {}
+    , m_columnToCurveMapper(0)
+    , m_sheet(0) {}
 
 FunctionSelection::~FunctionSelection() {
   for (int i = 0; i < m_selectedKeyframes.size(); i++)
@@ -499,13 +502,17 @@ void FunctionSelection::doPaste() {
   int columnCount = data->getColumnCount();
   double frame    = 0;
   int col         = 0;
+  bool hasDrawingKeys = false;
   std::vector<TDoubleParam *> params;
   if (!m_selectedCells.isEmpty()) {
     col = m_selectedCells.left();
     // numeric columns
     for (int c = 0; c < columnCount; c++) {
       TDoubleParam *curve = getCurveFromColumn(col + c);
-      if (curve) params.push_back(curve);
+      if (curve) {
+        params.push_back(curve);
+        if (curve->getName() == "W_DrawingNumber") hasDrawingKeys = true;
+      }
     }
     columnCount = (int)params.size();
     if (columnCount <= 0) return;
@@ -522,6 +529,7 @@ void FunctionSelection::doPaste() {
     int kIndex = *(m_selectedKeyframes[0].second.begin());
     frame      = curve->keyframeIndexToFrame(kIndex);
     params.push_back(curve);
+    if (curve->getName() == "W_DrawingNumber") hasDrawingKeys = true;
   }
 
   /*--- カーブの貼り付け時に循環参照をチェックして、駄目ならアラートを返す ---*/
@@ -534,9 +542,19 @@ void FunctionSelection::doPaste() {
     }
   }
 
+  if (hasDrawingKeys) {
+    TUndoManager::manager()->beginBlock();
+    foreach (auto param, params) {
+      int c = m_sheet->getColumnIndexByCurve(param);
+      m_xsheetHandle->getXsheet()->addUndoDrawingNumberChange(
+          frame, m_sheet->getStageObject(c)->getId());
+    }
+  }
   KeyframesPasteUndo *undo = new KeyframesPasteUndo(params, data, frame);
   undo->setXsheetHandle(m_xsheetHandle);
   TUndoManager::manager()->add(undo);
+  if (hasDrawingKeys) TUndoManager::manager()->endBlock();
+
   for (int c = 0; c < columnCount; c++) data->setData(c, params[c], frame);
   if (m_xsheetHandle) m_xsheetHandle->notifyXsheetChanged();
 }
@@ -547,6 +565,7 @@ void FunctionSelection::doCut() {
 
   bool cellsSelection = !m_selectedCells.isEmpty();
   int bottomRow       = m_selectedCells.bottom();
+  int topRow          = bottomRow - m_selectedCells.height() + 1;
 
   KeyframesMoveUndo *moveUndo = new KeyframesMoveUndo();
   moveUndo->setXsheetHandle(m_xsheetHandle);
@@ -557,6 +576,13 @@ void FunctionSelection::doCut() {
     if (cellsSelection) delta = -m_selectedCells.height();
     int n = curve ? curve->getKeyframeCount() : 0;
     int j = 0;
+    if (curve->getName() == "W_DrawingNumber" &&
+        topRow < curve->getKeyframe(0).m_frame) {
+      int c = m_sheet->getColumnIndexByCurve(curve);
+      m_xsheetHandle->getXsheet()->addUndoDrawingNumberChange(
+          topRow, m_sheet->getStageObject(c)->getId());
+    }
+
     for (int i = 0; i < n; i++) {
       if (kk.contains(i)) {
         if (i + 1 < n && kk.contains(i + 1) && !cellsSelection)
@@ -608,6 +634,7 @@ void FunctionSelection::insertCells() {
   QRect selectedCells     = getSelectedCells();
   int frameDelta          = selectedCells.height();
   int row                 = selectedCells.top();
+  bool undoBlockOpen      = false;
   KeyframesMoveUndo *undo = new KeyframesMoveUndo();
   undo->setXsheetHandle(m_xsheetHandle);
   for (int c = selectedCells.left(); c <= selectedCells.right(); c++) {
@@ -616,12 +643,22 @@ void FunctionSelection::insertCells() {
       // Move keyframes in reverse, so their ordering remains consistent at each
       // step
       int k = param->getKeyframeCount() - 1;
+      if (param->getName() == "W_DrawingNumber") {
+        if (!undoBlockOpen) {
+          undoBlockOpen = true;
+          TUndoManager::manager()->beginBlock();
+        }
+        int newLastFrame = param->keyframeIndexToFrame(k) + frameDelta;
+        m_xsheetHandle->getXsheet()->addUndoDrawingNumberChange(
+            newLastFrame, m_sheet->getStageObject(c)->getId());
+      }
       for (; k >= 0 && param->keyframeIndexToFrame(k) >= row; --k)
         undo->addMovement(param, k, frameDelta);
     }
   }
   undo->redo();
   TUndoManager::manager()->add(undo);
+  if (undoBlockOpen) TUndoManager::manager()->endBlock();
   if (m_xsheetHandle) m_xsheetHandle->notifyXsheetChanged();
 }
 

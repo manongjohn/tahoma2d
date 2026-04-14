@@ -1790,7 +1790,6 @@ void XsheetViewer::updateDrawingNumberObservers() {
     xsheetHandle->getXsheet()->addDrawingNumberObserversAll();
     xsheetHandle->getXsheet()->updateNonZeroDrawingNumberCellsBox(
         app->getCurrentFrame()->getFrame(), 0,
-        app->getCurrentFrame()->getFrame(),
         xsheetHandle->getXsheet()->getColumnCount() - 1);
   }
 }

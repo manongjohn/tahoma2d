@@ -15,6 +15,8 @@
 #include "toonz/txsheethandle.h"
 #include "toonz/txsheet.h"
 
+#include "tundo.h"
+
 // TnzBase includes
 #include "tunit.h"
 
@@ -54,9 +56,11 @@ const int cColHeadersEndY = 87;  //!< End of column headers y pos
 class MoveChannelsDragTool final : public Spreadsheet::DragTool {
   FunctionSheet *m_sheet;
   std::vector<KeyframeSetter *> m_setters;
+  std::vector<std::set<double>> m_startFrames;
   int m_oldRow;
   QRect m_selectedCells;
   int m_firstKeyframeRow;
+  QMap<int, std::vector<TXshCell>> m_undoDrawings;
 
 public:
   MoveChannelsDragTool(FunctionSheet *sheet)
@@ -89,12 +93,16 @@ public:
 
     TXsheetHandle *xsheetHandle = m_sheet->getXsheetHandle();
 
+    TUndoManager::manager()->beginBlock();
+
     /*---
-シンプルに左のバーをクリックした場合はcolは1つだけ。
-すでに複数Columnが選択されている上でその選択範囲内のセルの左バーをクリックした場合は
-横（Column）幅は選択範囲に順ずるようになる。高さ(row)はクリックしたセグメントと同じになる。
----*/
-    /*--- セグメントごとドラッグに備えてKeyFrameを格納する ---*/
+    If the left bar is simply clicked, only a single column is selected.
+    If multiple columns are already selected, and the left bar of a cell
+    *within* that selection range is clicked: The horizontal (column) width will
+    match that of the current selection range. The vertical (row) height will
+    match that of the specific segment clicked.
+    ---*/
+    /*--- Store KeyFrames in preparation for segment-based dragging ---*/
     for (int col = m_selectedCells.left(); col <= m_selectedCells.right();
          ++col) {
       TDoubleParam *curve = m_sheet->getCurve(col);
@@ -109,24 +117,86 @@ public:
         }
       }
       m_setters.push_back(setter);
+
+      int xcol = m_sheet->getStageObject(col)->getId().getIndex();
+      std::set<double> frames;
+      if (curve->getName() == "W_DrawingNumber" &&
+          m_undoDrawings.find(xcol) == m_undoDrawings.end()) {
+        setter->getCurve()->getKeyframes(frames);
+
+        int r0, r1;
+        TXsheet *xsh        = xsheetHandle->getXsheet();
+        TStageObject *stObj = m_sheet->getStageObject(col);
+        xsh->getCellRange(xcol, r0, r1);
+        int n = r1 + 1;
+        std::vector<TXshCell> cells(n);
+        xsh->getCells(0, xcol, n, &cells[0], false, false);
+        for (int i = 0; i < n; i++) {
+          if (cells[i].isEmpty()) continue;
+          if (stObj->hasDrawingNumberKey(i) ||
+              stObj->isChannelInterpolated(TStageObject::T_DrawingNumber, i))
+            cells[i] = TXshCell();
+        }
+        m_undoDrawings.insert(xcol, cells);
+      }
+      m_startFrames.push_back(frames);
     }
     m_oldRow = row;
   }
 
   void drag(int row, int col, QMouseEvent *e) override {
-    int d    = row - m_oldRow;
-    m_oldRow = row;
+    int d = row - m_oldRow;
     if (d + m_firstKeyframeRow < 0) d = -m_firstKeyframeRow;
     m_firstKeyframeRow += d;
-    for (int i = 0; i < (int)m_setters.size(); i++)
+    for (int i = 0; i < (int)m_setters.size(); i++) {
       m_setters[i]->moveKeyframes(d, 0.0);
+
+      int c     = m_sheet->getColumnIndexByCurve(m_setters[i]->getCurve());
+      int colId = m_sheet->getStageObject(c)->getId().getIndex();
+      if (d && m_undoDrawings.find(colId) != m_undoDrawings.end()) {
+        TXsheet *xsh = m_sheet->getXsheetHandle()->getXsheet();
+        int kCount   = m_setters[i]->getCurve()->getKeyframeCount();
+        std::set<double>::iterator sit(m_startFrames[i].begin());
+        for (int j = 0; j < kCount; j++, sit++) {
+          if (!m_setters[i]->isSelected(j)) continue;
+          int r = m_setters[i]->getCurve()->getKeyframe(j).m_frame;
+          if (d > 0 && (r - d) < *sit) {
+            xsh->restoreDrawings(colId, (r - d), (r - 1), xsh, m_undoDrawings);
+          } else if (d < 0 && (r - d) > *sit) {
+            xsh->restoreDrawings(colId, (r + 1), (r - d), xsh, m_undoDrawings);
+          }
+        }
+      }
+    }
     m_selectedCells.translate(0, d);
     m_sheet->selectCells(m_selectedCells);
+
+    m_oldRow = std::max(row, 0);
   }
 
   void release(int row, int col, QMouseEvent *e) override {
-    for (int i = 0; i < (int)m_setters.size(); i++) delete m_setters[i];
+    TXsheet *xsh = m_sheet->getXsheetHandle()->getXsheet();
+    for (int i = 0; i < (int)m_setters.size(); i++) {
+      KeyframeSetter *setter = m_setters[i];
+      TDoubleParam *curve    = setter->getCurve();
+
+      if (curve->getName() == "W_DrawingNumber") {
+        int c    = m_sheet->getColumnIndexByCurve(curve);
+        int xcol = m_sheet->getStageObject(c)->getId().getIndex();
+
+        int kCount = curve->getKeyframeCount();
+        for (int j = 0; j < kCount; j++) {
+          int frame = curve->getKeyframe(j).m_frame;
+          xsh->addUndoDrawingNumberChange(frame, xcol, m_startFrames[i],
+                                          m_undoDrawings[xcol]);
+        }
+      }
+
+      delete m_setters[i];
+    }
+    TUndoManager::manager()->endBlock();
     m_setters.clear();
+    m_startFrames.clear();
     m_sheet->getViewer()->getXsheetHandle()->notifyXsheetChanged();
   }
 };
@@ -778,6 +848,8 @@ void FunctionSheetCellViewer::drawCells(QPainter &painter, int r0, int c0,
 
     // draw each cell
     for (int row = r0; row <= r1; row++) {
+      bool drawXsheetFrameId = false;
+
       int ya = m_sheet->rowToY(row);
       int yb = m_sheet->rowToY(row + 1) - 1;
 
@@ -867,9 +939,20 @@ void FunctionSheetCellViewer::drawCells(QPainter &painter, int r0, int c0,
           painter.setPen(Qt::NoPen);
           painter.fillRect(cellRect, cellColor);
         }
+        if (curve->getName() == "W_DrawingNumber") {
+          TXsheet *xsh  = m_sheet->getViewer()->getXsheetHandle()->getXsheet();
+          int col       = m_sheet->getColumnIndexByCurve(curve);
+          int xcol      = m_sheet->getStageObject(col)->getId().getIndex();
+          TXshCell cell = xsh->getCell(row, xcol, true, true);
+          if (!cell.isEmpty() && !cell.getFrameId().isStopFrame() &&
+              !cell.getFrameId().isNoFrame()) {
+            drawXsheetFrameId = true;
+            value             = cell.getFrameId().getNumber();
+          }
+        }
       }
 
-      if (drawValue != None) {
+      if (drawValue != None || drawXsheetFrameId) {
         // draw cell value
         if (drawValue == Key || drawValue == Inbetween)
           painter.setPen(getViewer()->getTextColor());
@@ -993,11 +1076,18 @@ void FunctionSheetCellViewer::onCellEditorEditingFinished() {
       (m_lineEdit->isReturnPressed() || m_lineEdit->getMouseDragEditing())) {
     double value        = text.toDouble();
     TDoubleParam *curve = m_sheet->getCurve(m_editCol);
-    if (curve) {
+    if (curve && (curve->getName() != "W_DrawingNumber" || value >= 0)) {
+      if (curve->getName() == "W_DrawingNumber") {
+        TUndoManager::manager()->beginBlock();
+        m_sheet->getXsheetHandle()->getXsheet()->addUndoDrawingNumberChange(
+            m_editRow, m_sheet->getStageObject(m_editCol)->getId());
+      }
       TMeasure *measure = curve->getMeasure();
       const TUnit *unit = measure ? measure->getCurrentUnit() : 0;
       if (unit) value = unit->convertFrom(value);
       KeyframeSetter::setValue(curve, m_editRow, value);
+      if (curve->getName() == "W_DrawingNumber")
+        TUndoManager::manager()->endBlock();
     }
   }
   m_lineEdit->hide();
@@ -1188,7 +1278,26 @@ void FunctionSheetCellViewer::openContextMenu(QMouseEvent *e) {
     KeyframeSetter::removeKeyframeAt(curve, row);
     m_sheet->getViewer()->getXsheetHandle()->notifyXsheetChanged();
   } else if (action == &insertKeyframeAction) {
-    KeyframeSetter(curve).createKeyframe(row);
+    bool hasDrawingKeys = curve->getName() == "W_DrawingNumber";
+    int frameId        = -1;
+    if (hasDrawingKeys) {
+      TUndoManager::manager()->beginBlock();
+      int col = m_sheet->getColumnIndexByCurve(curve);
+      int xcol = m_sheet->getStageObject(col)->getId().getIndex();
+      TXsheet *xsh = m_sheet->getViewer()->getXsheetHandle()->getXsheet();
+      xsh->addUndoDrawingNumberChange(row,
+                                      m_sheet->getStageObject(col)->getId());
+      TXshCell cell = xsh->getCell(row, xcol);
+      frameId       = cell.getFrameId().getNumber();
+    }
+    KeyframeSetter setter(curve);
+    int kindex = setter.createKeyframe(row);
+    if (hasDrawingKeys) {
+      if (frameId >= 0)
+        setter.setValue(frameId);
+      setter.addUndo();
+      TUndoManager::manager()->endBlock();
+    }
     m_sheet->getViewer()->getXsheetHandle()->notifyXsheetChanged();
   } else if (interpActions.contains(action)) {
     selection->setSegmentType((TDoubleKeyframe::Type)action->data().toInt());

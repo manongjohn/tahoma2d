@@ -305,7 +305,7 @@ public:
       return TStageObject::T_ShearX;
     else if (s == "sheary" || s == "shy" || s == "shearv" || s == "shv")
       return TStageObject::T_ShearY;
-    else if (s == "W_Drawing_Number" || s == "drawingnumber")
+    else if (s == "drawingnumber")
       return TStageObject::T_DrawingNumber; 
     else
       return TStageObject::T_ChannelCount;

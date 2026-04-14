@@ -110,6 +110,9 @@ FunctionViewer::FunctionViewer(QWidget *parent, Qt::WindowFlags flags)
 
   m_numericalColumns->setViewer(this);
 
+  m_selection->setFunctionSheet(m_numericalColumns);
+  m_functionGraph->setFunctionSheet(m_numericalColumns);
+
   m_toolbar->setSelection(m_selection);
   m_toolbar->setFocusPolicy(Qt::NoFocus);
 
@@ -238,6 +241,7 @@ FunctionViewer::~FunctionViewer() {
   delete m_selection;
   m_toolbar->setFrameHandle(0);
   m_toolbar->setXsheetHandle(0);
+  m_toolbar->setColumnHandle(0);
 }
 
 //-----------------------------------------------------------------------------
@@ -472,6 +476,8 @@ void FunctionViewer::setColumnHandle(TColumnHandle *columnHandle) {
   if (columnHandle == m_columnHandle) return;
 
   m_columnHandle = columnHandle;
+
+  m_toolbar->setColumnHandle(m_columnHandle);
 
   if (isVisible()) m_treeView->updateAll();
 }

@@ -663,6 +663,8 @@ double TDoubleParam::getValue(double frame, bool leftmost) const {
     if (convertUnit) value = a->convertFrom(m_imp->m_measure, value);
   }
 
+  if (getName() == "W_DrawingNumber" && value < 0) value = 0;
+
   // if (cropped)
   //  value = tcrop(value, m_imp->m_minValue, m_imp->m_maxValue);
   return value;
@@ -738,6 +740,9 @@ void TDoubleParam::setKeyframe(int index, const TDoubleKeyframe &k) {
   TActualDoubleKeyframe &dst        = keyframes[index];
   TActualDoubleKeyframe oldKeyframe = dst;
 
+  int minFrame = std::min(oldKeyframe.m_frame, k.m_frame);
+  int maxFrame = std::max(oldKeyframe.m_frame, k.m_frame);
+
   (TDoubleKeyframe &)dst = k;
   dst.updateUnit(m_imp->m_measure);
 
@@ -747,7 +752,7 @@ void TDoubleParam::setKeyframe(int index, const TDoubleKeyframe &k) {
   if (dst.m_type == TDoubleKeyframe::File)
     dst.m_fileData.setParams(dst.m_fileParams);
 
-  m_imp->notify(TParamChange(this, k.m_frame, k.m_frame, true, false, false));
+  m_imp->notify(TParamChange(this, minFrame, maxFrame, true, false, false));
 
   assert(0 == index || keyframes[index - 1].m_frame < keyframes[index].m_frame);
   assert(getKeyframeCount() - 1 == index ||
@@ -767,8 +772,8 @@ void TDoubleParam::setKeyframes(const std::map<int, TDoubleKeyframe> &ks) {
   DoubleKeyframeVector &keyframes = m_imp->m_keyframes;
 
   std::map<int, TDoubleKeyframe>::const_iterator it;
-  int minFrame      = 0; 
-  int maxFrame      = INT_MAX; 
+  int minFrame      = INT_MAX; 
+  int maxFrame      = -1; 
   auto updateMinMax = [&](int frame) {
     minFrame = std::min(minFrame, frame);
     maxFrame = std::max(maxFrame, frame);
@@ -780,6 +785,8 @@ void TDoubleParam::setKeyframes(const std::map<int, TDoubleKeyframe> &ks) {
     TActualDoubleKeyframe oldKeyframe = keyframes[index];
     TActualDoubleKeyframe &dst        = keyframes[index];
 
+    updateMinMax(oldKeyframe.m_frame);
+
     (TDoubleKeyframe &)dst = it->second;
     dst.updateUnit(m_imp->m_measure);
 
@@ -788,6 +795,7 @@ void TDoubleParam::setKeyframes(const std::map<int, TDoubleKeyframe> &ks) {
       dst.m_expression.setText(dst.m_expressionText);
     if (dst.m_type == TDoubleKeyframe::File)
       dst.m_fileData.setParams(dst.m_fileParams);
+    updateMinMax(dst.m_frame);
   }
   if (!keyframes.empty()) {
     keyframes[0].m_prevType = TDoubleKeyframe::None;
@@ -1070,8 +1078,8 @@ is >> m_imp->m_defaultValue;
 
   m_imp->m_keyframes.clear();
   int oldType = -1;
-  int minFrame = -1;
-  int maxFrame = INT_MAX; 
+  int minFrame = INT_MAX;
+  int maxFrame = -1; 
 
   auto updateMinMax = [&](int frame) {
     minFrame = std::min(minFrame, frame);

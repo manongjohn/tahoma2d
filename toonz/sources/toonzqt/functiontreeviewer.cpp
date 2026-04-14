@@ -593,7 +593,7 @@ QVariant FunctionTreeModel::Channel::data(int role) const {
       color = QColor("darkorange");
     else if (name == "Shear V")
       color = QColor("darkorange");
-    else if (name == "Drawing Number")
+    else if (name == "Drawing #")
       color = QColor("lightgreen"); 
     else if (name == "posPath")
       color = QColor("darksalmon");
@@ -705,7 +705,7 @@ QString FunctionTreeModel::Channel::getExprRefName() const {
       tmpName = "shx";
     else if (tmpName == "Shear V")
       tmpName = "shy";
-    else if (tmpName == "W_Drawing_Number")
+    else if (tmpName == "Drawing #")
       tmpName = "drawingnumber";
     else if (tmpName == "posPath")
       tmpName = "path";
@@ -919,6 +919,7 @@ void FunctionTreeModel::refreshStageObjects(TXsheet *xsh) {
         dynamic_cast<StageObjectChannelGroup *>(newItems[i]);
 
     TStageObject *stageObject = pegbarItem->getStageObject();
+    TStageObjectId stageObjId = stageObject->getId();
 
     // Add the standard stage object channels
     int j, jCount = TStageObject::T_ChannelCount;
@@ -926,6 +927,9 @@ void FunctionTreeModel::refreshStageObjects(TXsheet *xsh) {
     for (j = 0; j < jCount; ++j) {
       TDoubleParam *param =
           stageObject->getParam((TStageObject::Channel)channelIds[j]);
+      if (channelIds[j] == TStageObject::T_DrawingNumber &&
+          !stageObjId.isColumn())
+        continue;
       Channel *channel = new Channel(this, param);
 
       pegbarItem->appendChild(channel);

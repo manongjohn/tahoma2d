@@ -8,12 +8,15 @@
 #include "toonzqt/imageutils.h"
 #include "functionpaneltools.h"
 #include "toonzqt/gutil.h"
+#include "toonzqt/functionsheet.h"
 
 // TnzLib includes
 #include "toonz/tframehandle.h"
 #include "toonz/doubleparamcmd.h"
 #include "toonz/toonzfolders.h"
 #include "toonz/preferences.h"
+#include "toonz/txsheet.h"
+
 // TnzBase includes
 #include "tdoubleparam.h"
 #include "tdoublekeyframe.h"
@@ -1704,7 +1707,26 @@ void FunctionPanel::openContextMenu(QMouseEvent *e) {
   } else if (action == &deleteKeyframeAction) {
     KeyframeSetter::removeKeyframeAt(curve, kf.m_frame, m_xsheetHandle);
   } else if (action == &insertKeyframeAction) {
-    KeyframeSetter(curve, m_xsheetHandle).createKeyframe(tround(frame));
+
+    bool hasDrawingKeys = curve->getName() == "W_DrawingNumber";
+    int frameId         = -1;
+    if (hasDrawingKeys) {
+      TUndoManager::manager()->beginBlock();
+      int col      = m_sheet->getColumnIndexByCurve(curve);
+      int xcol     = m_sheet->getStageObject(col)->getId().getIndex();
+      TXsheet *xsh = m_xsheetHandle->getXsheet();
+      xsh->addUndoDrawingNumberChange(tround(frame),
+                                      m_sheet->getStageObject(col)->getId());
+      TXshCell cell = xsh->getCell(tround(frame), xcol);
+      frameId       = cell.getFrameId().getNumber();
+    }
+    KeyframeSetter setter(curve, m_xsheetHandle);
+    setter.createKeyframe(tround(frame));
+    if (hasDrawingKeys) {
+      if (frameId >= 0) setter.setValue(frameId);
+      setter.addUndo();
+      TUndoManager::manager()->endBlock();
+    }
   } else if (action == &activateCycleAction) {
     KeyframeSetter::enableCycle(curve, true);
   } else if (action == &deactivateCycleAction) {
@@ -1817,7 +1839,7 @@ QColor FunctionPanel::getChannelColor(QString name, bool active) {
     color = QColor("darkorange");
   else if (name == "Shear V")
     color = QColor("darkorange");
-  else if (name == "Drawing Number")
+  else if (name == "Drawing #")
     color = QColor("lightgreen"); 
   else if (name == "posPath")
     color = QColor("darksalmon");

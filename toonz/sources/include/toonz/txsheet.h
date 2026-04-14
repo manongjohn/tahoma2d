@@ -17,6 +17,7 @@
 #include "tparamchange.h"
 
 #include "cellposition.h"
+#include "tstageobject.h"
 
 // STD includes
 #include <set>
@@ -282,21 +283,23 @@ public:
   */
   int getMaxFrame(int col) const;
 
-  void getUpdateRange(int col, int frame, QPair<int, int> *output, int channel);
+  void getUpdateRanges(int col, int frame, int endFrame,
+                       std::vector<QPair<int, int>> *output, int channel);
 
-  void updateNonZeroDrawingNumberCellsParam(int colNumber, const TParamChange &c);
+  void updateNonZeroDrawingNumberCellsParam(TXshColumn *column,
+                                            const TParamChange &c);
 
-  void updateNonZeroDrawingNumberCellsAfterMoving(int col, int frameAfter,
-                                                  int dt);
+  bool updateNonZeroDrawingNumberCellsBox(int r, int c0, int c1);
 
-  bool updateNonZeroDrawingNumberCellsBox(
-      int r0, int c0, int r1, int c1,
-      std::vector<std::pair<TRect, TXshCell>> &m_undoCells);
-  void updateNonZeroDrawingNumberCellsBox(
-      int r0, int c0, int r1, int c1);
+  void updateNonZeroDrawingNumberCells(int col, int frame = 0, int endFrame = -1);
 
-  void updateNonZeroDrawingNumberCells(int col, int frame = 0,
-                                       int frameEnd = INT_MAX, int keyframeStart = -1, int keyFrameEnd = -1);
+  bool addUndoDrawingNumberChange(int row, TStageObjectId objId);
+  bool addUndoDrawingNumberChange(int row, int col, std::set<double> frames,
+                                  std::vector<TXshCell> cells);
+
+  void restoreDrawings(int col, int from, int to, TXsheet *xsh,
+                       QMap<int, std::vector<TXshCell>> drawings);
+
   /*! Returns true if xsheet column identified by \b \e col is empty, it calls
           \b TXshColumn::isEmpty(), otherwise returns false.
   */
@@ -503,8 +506,9 @@ frame duplication.
   void insertColumn(int index,
                     TXshColumn::ColumnType type = TXshColumn::eLevelType);
   void addDrawingNumberObserversAll();
-  void addDrawingNumberObserver(int col, TXshColumn *column);
-  void removeDrawingNumberObserver(int col, TXshColumn *column);
+  void addDrawingNumberObserver(TXshColumn *column);
+  void removeDrawingNumberObserversAll();
+  void removeDrawingNumberObserver(TXshColumn *column);
   /*! Insert \b \e column in column \b \e index. Insert column in the column
      set, in the
           pegbarTree \b TStageObjectTree contained in TXsheetImp and if column

@@ -80,7 +80,6 @@ public:
   // commands
   void reverseCells();
   void swingCells();
-  void updateNonZeroDrawingNumberCellsBox();
   void incrementCells();
   void randomCells();
   void stepCells(int count);
