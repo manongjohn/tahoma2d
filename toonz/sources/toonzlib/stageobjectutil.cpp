@@ -349,7 +349,10 @@ void UndoStageObjectMove::undo() const {
 
   // Delay recalculating last scene frame, which might be due to a key, since
   // the actual removal of the key happens immediately after this.
-  QTimer::singleShot(50, [=]() { m_xsheetHandle->notifyXsheetChanged(); });
+  QTimer::singleShot(50, [=]() {
+    m_xsheetHandle->notifyXsheetChanged();
+    m_objectHandle->notifyObjectIdChanged(true);
+  });
 }
 
 //-----------------------------------------------------------------------------
