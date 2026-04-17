@@ -13,6 +13,7 @@
 #include "toonz/tstageobjectspline.h"
 #include "toonz/toonzscene.h"
 #include "toonz/txshcolumn.h"
+#include "toonz/txshpegbarcolumn.h"
 #include "toonz/stage.h"
 #include "toonz/tcamera.h"
 
@@ -956,7 +957,11 @@ void EditTool::onEditAllLeftButtonDown(TPointD &pos, const TMouseEvent &e) {
           id2 = xsh->getStageObjectParent(id2);
           if (!id2.isColumn() && !id2.isPegbar()) break;
         }
-        if (id2.isPegbar()) id = id2;
+        if (id2.isPegbar()) {
+          id                       = id2;
+          TXshColumn *pegbarColumn = xsh->getColumnForPegbarObjectId(id2);
+          if (pegbarColumn) columnIndex = pegbarColumn->getIndex();
+        }
       }
       if (id.isColumn()) {
         if (columnIndex >= 0 && columnIndex != currentColumnIndex) {
@@ -980,8 +985,13 @@ void EditTool::onEditAllLeftButtonDown(TPointD &pos, const TMouseEvent &e) {
           }
         }
       } else {
-        TTool::getApplication()->getCurrentObject()->setObjectId(id);
-        updateMatrix();
+        TXshColumn *column = xsh->getColumn(columnIndex);
+        if (!column || !column->isLocked()) {
+          TTool::getApplication()->getCurrentObject()->setObjectId(id);
+          TTool::getApplication()->getCurrentColumn()->setColumnIndex(
+              columnIndex);
+          updateMatrix();
+        }
       }
     }
     pos = getMatrix().inv() * pos;
@@ -1703,6 +1713,12 @@ QString EditTool::updateEnabled(int rowIndex, int columnIndex) {
     return (
         enable(false),
         QObject::tr("It is not possible to animate unlinked motion paths."));
+  }
+
+  if (objId.isPegbar()) {
+    TXshColumn *pegbarColumn = xsh->getColumnForPegbarObjectId(objId);
+    if (pegbarColumn)
+      objId = TStageObjectId::ColumnId(pegbarColumn->getIndex());
   }
 
   if (!objId.isColumn()) return (enable(true), QString());

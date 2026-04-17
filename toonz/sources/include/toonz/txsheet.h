@@ -622,6 +622,7 @@ in TXsheetImp.
   void shiftMarkers(int row, int col, int rowCount);
 
   bool isPegbarColumn(int col);
+  TXshColumn *getColumnForPegbarObjectId(TStageObjectId pegbarObjId) const;
 
 protected:
   bool checkCircularReferences(TXsheet *childCandidate);
