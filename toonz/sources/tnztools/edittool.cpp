@@ -861,18 +861,22 @@ void EditTool::leftButtonDown(const TPointD &ppos, const TMouseEvent &e) {
   /*-- Soundカラムの場合は何もしない --*/
   if (!doesApply()) return;
 
-  if (m_activeAxis.getValue() == L"Position")
+  if (m_activeAxis.getValue() == L"Position") {
     if (e.isCtrlPressed())
       m_what = ZTranslation;
     else
       m_what = Translation;
-  else if (m_activeAxis.getValue() == L"Scale")
+  } else if (m_activeAxis.getValue() == L"Scale") {
     if (e.isCtrlPressed())
       m_what = ScaleXY;
     else
       m_what = Scale;
-  else if (m_activeAxis.getValue() == L"All")
-    onEditAllLeftButtonDown(pos, e);
+  } else if (m_activeAxis.getValue() == L"All") {
+    int selectedDevice = pick(e.m_pos);
+    m_what             = selectedDevice >= 0 ? selectedDevice : Translation;
+  }
+
+  onLeftButtonPick(pos, e);
 
   int scaleConstraint = 0;
   if (m_scaleConstraint.getValue() == L"A/R")
@@ -939,63 +943,59 @@ void EditTool::leftButtonDown(const TPointD &ppos, const TMouseEvent &e) {
 
 //-----------------------------------------------------------------------------
 
-void EditTool::onEditAllLeftButtonDown(TPointD &pos, const TMouseEvent &e) {
-  int selectedDevice = pick(e.m_pos);
-  m_what             = selectedDevice >= 0 ? selectedDevice : Translation;
+void EditTool::onLeftButtonPick(TPointD &pos, const TMouseEvent &e) {
+  if (m_autoSelect.getValue() == L"None") return;
 
-  if (selectedDevice < 0 && m_autoSelect.getValue() != L"None") {
-    pos = getMatrix() * pos;
-    int columnIndex = getViewer()->posToColumnIndex(e.m_pos, 5.0, false);
-    if (columnIndex >= 0) {
-      int currentColumnIndex = getColumnIndex();
-      TXsheet *xsh           = getXsheet();
-      TStageObjectId id      = xsh->getColumnObjectId(columnIndex);
+  pos             = getMatrix() * pos;
+  int columnIndex = getViewer()->posToColumnIndex(e.m_pos, 5.0, false);
+  if (columnIndex >= 0) {
+    int currentColumnIndex = getColumnIndex();
+    TXsheet *xsh           = getXsheet();
+    TStageObjectId id      = xsh->getColumnObjectId(columnIndex);
 
-      if (m_autoSelect.getValue() == L"Pegbar") {
-        TStageObjectId id2 = id;
-        while (!id2.isPegbar()) {
-          id2 = xsh->getStageObjectParent(id2);
-          if (!id2.isColumn() && !id2.isPegbar()) break;
-        }
-        if (id2.isPegbar()) {
-          id                       = id2;
-          TXshColumn *pegbarColumn = xsh->getColumnForPegbarObjectId(id2);
-          if (pegbarColumn) columnIndex = pegbarColumn->getIndex();
-        }
+    if (m_autoSelect.getValue() == L"Pegbar") {
+      TStageObjectId id2 = id;
+      while (!id2.isPegbar()) {
+        id2 = xsh->getStageObjectParent(id2);
+        if (!id2.isColumn() && !id2.isPegbar()) break;
       }
-      if (id.isColumn()) {
-        if (columnIndex >= 0 && columnIndex != currentColumnIndex) {
-          if (e.isShiftPressed()) {
-            TXsheetHandle *xshHandle =
-                TTool::getApplication()->getCurrentXsheet();
-            TXsheet *xsh = xshHandle->getXsheet();
-            TStageObjectId curColId =
-                xsh->getColumnObjectId(currentColumnIndex);
-            TStageObjectId colId = xsh->getColumnObjectId(columnIndex);
-            TStageObjectCmd::setParent(curColId, colId, "", xshHandle);
-            m_what = None;
-            xshHandle->notifyXsheetChanged();
-          } else {
-            TXshColumn *column = xsh->getColumn(columnIndex);
-            if (!column || !column->isLocked()) {
-              TTool::getApplication()->getCurrentColumn()->setColumnIndex(
-                  columnIndex);
-              updateMatrix();
-            }
-          }
-        }
-      } else {
-        TXshColumn *column = xsh->getColumn(columnIndex);
-        if (!column || !column->isLocked()) {
-          TTool::getApplication()->getCurrentObject()->setObjectId(id);
-          TTool::getApplication()->getCurrentColumn()->setColumnIndex(
-              columnIndex);
-          updateMatrix();
-        }
+      if (id2.isPegbar()) {
+        id                       = id2;
+        TXshColumn *pegbarColumn = xsh->getColumnForPegbarObjectId(id2);
+        if (pegbarColumn) columnIndex = pegbarColumn->getIndex();
       }
     }
-    pos = getMatrix().inv() * pos;
+    if (id.isColumn()) {
+      if (columnIndex >= 0 && columnIndex != currentColumnIndex) {
+        if (e.isShiftPressed()) {
+          TXsheetHandle *xshHandle =
+              TTool::getApplication()->getCurrentXsheet();
+          TXsheet *xsh            = xshHandle->getXsheet();
+          TStageObjectId curColId = xsh->getColumnObjectId(currentColumnIndex);
+          TStageObjectId colId    = xsh->getColumnObjectId(columnIndex);
+          TStageObjectCmd::setParent(curColId, colId, "", xshHandle);
+          m_what = None;
+          xshHandle->notifyXsheetChanged();
+        } else {
+          TXshColumn *column = xsh->getColumn(columnIndex);
+          if (!column || !column->isLocked()) {
+            TTool::getApplication()->getCurrentColumn()->setColumnIndex(
+                columnIndex);
+            updateMatrix();
+          }
+        }
+      }
+    } else {
+      TXshColumn *column = xsh->getColumn(columnIndex);
+      if (!column || !column->isLocked()) {
+        TTool::getApplication()->getCurrentObject()->setObjectId(id);
+        TTool::getApplication()->getCurrentColumn()->setColumnIndex(
+            columnIndex);
+        updateMatrix();
+      }
+    }
   }
+  pos = getMatrix().inv() * pos;
 }
 
 //-----------------------------------------------------------------------------

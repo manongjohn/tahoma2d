@@ -674,6 +674,8 @@ ArrowToolOptionsBox::ArrowToolOptionsBox(
     m_pickWidget->setLayout(pickLay);
     mainLay->addWidget(m_pickWidget, 0);
 
+    addSeparator();
+
     mainLay->addWidget(m_interpolationCombo, 0);
     mainLay->addWidget(m_setKeyButton, 0);
 
@@ -1406,8 +1408,6 @@ void ArrowToolOptionsBox::onCurrentAxisChanged(int axisId) {
   // Show the specified axis options, hide all the others
   for (int a = 0; a != AllAxis; ++a)
     m_axisOptionWidgets[a]->setVisible(a == axisId || axisId == AllAxis);
-
-  m_pickWidget->setVisible(axisId == AllAxis);
 }
 
 //-----------------------------------------------------------------------------
