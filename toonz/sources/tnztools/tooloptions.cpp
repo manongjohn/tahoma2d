@@ -43,6 +43,7 @@
 #include "toonz/tstageobjecttree.h"
 #include "toonz/mypaintbrushstyle.h"
 #include "toonz/tonionskinmaskhandle.h"
+#include "toonz/tstageobjectcmd.h"
 
 // TnzCore includes
 #include "tproperty.h"
@@ -643,6 +644,11 @@ ArrowToolOptionsBox::ArrowToolOptionsBox(
   m_interpolationCombo->addItem(tr("Expression "), 7);
   m_interpolationCombo->addItem(tr("File"), 8);
 
+  m_resetCenterButton = new QPushButton(this);
+  m_resetCenterButton->setIcon(createQIcon("center_reset"));
+  m_resetCenterButton->setIconSize(QSize(20, 20));
+  m_resetCenterButton->setToolTip(tr("Reset Center"));
+
   int interpolationType = Preferences::instance()->getKeyframeType();
   for (int i = 0; i < m_interpolationCombo->count(); ++i)
     if (m_interpolationCombo->itemData(i) == interpolationType) {
@@ -673,8 +679,6 @@ ArrowToolOptionsBox::ArrowToolOptionsBox(
     }
     m_pickWidget->setLayout(pickLay);
     mainLay->addWidget(m_pickWidget, 0);
-
-    addSeparator();
 
     mainLay->addWidget(m_interpolationCombo, 0);
     mainLay->addWidget(m_setKeyButton, 0);
@@ -856,6 +860,9 @@ ArrowToolOptionsBox::ArrowToolOptionsBox(
         centerPosLay->addWidget(m_lockNSCenterCheckbox, 0);
 
         centerPosLay->addSpacing(ITEM_SPACING);
+        centerPosLay->addWidget(m_resetCenterButton, 0);
+
+        centerPosLay->addSpacing(ITEM_SPACING);
         centerPosLay->addWidget(new DVGui::Separator("", this, false));
 
         centerPosLay->addStretch(1);
@@ -913,6 +920,8 @@ ArrowToolOptionsBox::ArrowToolOptionsBox(
 
   connect(m_interpolationCombo, SIGNAL(activated(int)), this,
           SLOT(onInterpolationComboActivated(int)));
+
+  connect(m_resetCenterButton, SIGNAL(clicked()), SLOT(onResetCenter()));
 
   connect(editTool, SIGNAL(clickFlipHorizontal()), SLOT(onFlipHorizontal()));
   connect(editTool, SIGNAL(clickFlipVertical()), SLOT(onFlipVertical()));
@@ -1529,6 +1538,13 @@ void ArrowToolOptionsBox::onSetKey() {
   TUndoManager::manager()->endBlock();
 
   m_xshHandle->notifyXsheetChanged();
+}
+
+//-----------------------------------------------------------------------------
+
+void ArrowToolOptionsBox::onResetCenter() {
+  TStageObjectId id = m_objHandle->getObjectId();
+  TStageObjectCmd::resetCenterAndOffset(id, m_xshHandle);
 }
 
 //------------------------------------------------------------------------------

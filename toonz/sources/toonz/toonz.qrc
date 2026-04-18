@@ -57,7 +57,9 @@
 
     <file>icons/dark/actions/16/config.svg</file>
 
-    <!-- File / Common -->
+		<file>icons/dark/actions/16/center_reset.svg</file>
+
+		<!-- File / Common -->
 		<file>icons/dark/actions/16/menu.svg</file>
 		<file>icons/dark/actions/16/export.svg</file>
 		<file>icons/dark/actions/16/import.svg</file>
