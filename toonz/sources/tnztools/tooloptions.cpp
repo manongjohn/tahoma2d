@@ -3067,27 +3067,19 @@ TapeToolOptionsBox::TapeToolOptionsBox(QWidget *parent, TTool *tool,
   if (m_autocloseField)
     m_autocloseLabel = m_labels.value(m_autocloseField->propertyName());
   m_multiFrameMode   = dynamic_cast<ToolOptionCombo *>(m_controls.value("Frame Range:"));
+  m_lineExtAngleField = dynamic_cast<ToolOptionSlider*>(m_controls.value("LineExtAngle"));
+  if (m_lineExtAngleField) m_lineExtAngleLabel = m_labels.value(m_lineExtAngleField->propertyName());
 
   bool isNormalType = m_typeMode->getProperty()->getValue() == L"Normal";
   m_toolMode->setEnabled(isNormalType);
   m_autocloseField->setEnabled(!isNormalType);
   m_autocloseLabel->setEnabled(!isNormalType);
   m_multiFrameMode->setEnabled(!isNormalType);
-
-  bool isFreehandType = m_typeMode->getProperty()->getValue() == L"Freehand";
-  m_lineExtAngleField = dynamic_cast<ToolOptionSlider*>(m_controls.value("LineExtAngle"));
-  if (m_lineExtAngleField) {
-    m_lineExtAngleLabel = m_labels.value(m_lineExtAngleField->propertyName());
-  }
-  m_lineExtAngleField->setEnabled(isFreehandType);
-  m_lineExtAngleLabel->setEnabled(isFreehandType);
-
-  bool isLineToLineMode =
-      m_toolMode->getProperty()->getValue() == L"Line to Line";
-  m_joinStrokesMode->setEnabled(!isLineToLineMode || isFreehandType);
+  m_lineExtAngleField->setEnabled(!isNormalType);
+  m_lineExtAngleLabel->setEnabled(!isNormalType);
 
   bool isJoinStrokes = m_joinStrokesMode->isChecked();
-  m_smoothMode->setEnabled(!isLineToLineMode && isJoinStrokes);
+  m_smoothMode->setEnabled(isJoinStrokes);
 
   bool ret = connect(m_typeMode, SIGNAL(currentIndexChanged(int)), this,
                      SLOT(onToolTypeChanged(int)));
@@ -3115,29 +3107,22 @@ void TapeToolOptionsBox::onToolTypeChanged(int index) {
   m_autocloseField->setEnabled(!isNormalType);
   m_autocloseLabel->setEnabled(!isNormalType);
   m_multiFrameMode->setEnabled(!isNormalType);
-
-  bool isFreehandType               = range[index] == L"Freehand";
-  m_lineExtAngleField->setEnabled(isFreehandType);
-  m_lineExtAngleLabel->setEnabled(isFreehandType);
+  m_lineExtAngleField->setEnabled(!isNormalType);
+  m_lineExtAngleLabel->setEnabled(!isNormalType);
 }
 
 //-----------------------------------------------------------------------------
 
 void TapeToolOptionsBox::onToolModeChanged(int index) {
-  const TEnumProperty::Range &range = m_toolMode->getProperty()->getRange();
-  bool isLineToLineMode             = range[index] == L"Line to Line";
-  m_joinStrokesMode->setEnabled(!isLineToLineMode);
   bool isJoinStrokes = m_joinStrokesMode->isChecked();
-  m_smoothMode->setEnabled(!isLineToLineMode && isJoinStrokes);
+  m_smoothMode->setEnabled(isJoinStrokes);
 }
 
 //-----------------------------------------------------------------------------
 
 void TapeToolOptionsBox::onJoinStrokesModeChanged() {
-  bool isLineToLineMode =
-      m_toolMode->getProperty()->getValue() == L"Line to Line";
   bool isJoinStrokes = m_joinStrokesMode->isChecked();
-  m_smoothMode->setEnabled(!isLineToLineMode && isJoinStrokes);
+  m_smoothMode->setEnabled(isJoinStrokes);
 }
 
 //=============================================================================
