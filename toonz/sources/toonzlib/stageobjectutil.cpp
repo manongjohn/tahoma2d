@@ -271,11 +271,14 @@ int UndoSetKeyFrame::getSize() const {
 
 UndoRemoveKeyFrame::UndoRemoveKeyFrame(TStageObjectId objectId, int frame,
                                        TStageObject::Keyframe key,
+                                       TPointD center, TPointD offset,
                                        TXsheetHandle *xsheetHandle)
     : m_objId(objectId)
     , m_frame(frame)
     , m_xsheetHandle(xsheetHandle)
-    , m_key(key) {}
+    , m_key(key)
+    , m_center(center)
+    , m_offset(offset) {}
 
 //-----------------------------------------------------------------------------
 
@@ -287,6 +290,7 @@ void UndoRemoveKeyFrame::undo() const {
   if (TStageObject *obj = xsh->getStageObject(m_objId)) {
     obj->setKeyframeWithoutUndo(m_frame);
     obj->setKeyframeWithoutUndo(m_frame, m_key);
+    if (m_center != TPointD()) obj->setCenterAndOffset(m_center, m_offset);
   }
 
   m_xsheetHandle->notifyXsheetChanged();
@@ -300,8 +304,11 @@ void UndoRemoveKeyFrame::redo() const {
 
   assert(xsh->getStageObject(m_objId));
 
-  if (TStageObject *obj = xsh->getStageObject(m_objId))
+  if (TStageObject *obj = xsh->getStageObject(m_objId)) {
     obj->removeKeyframeWithoutUndo(m_frame);
+    // Move frame center back to origin
+    if (m_center != TPointD()) obj->setCenter(m_frame, m_center, true);
+  }
 
   m_xsheetHandle->notifyXsheetChanged();
   m_objectHandle->notifyObjectIdChanged(false);
