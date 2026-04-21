@@ -288,9 +288,12 @@ class DVAPI UndoChannelDelete final : public TUndo {
   TObjectHandle
       *m_objectHandle;  // OK: viene usato per notificare i cambiamenti!
 
+  TPointD m_center, m_offset;
+
 public:
   UndoChannelDelete(TStageObject::Channel actionId,
-                    const TStageObjectValues &before);
+                    const TStageObjectValues &before, TPointD center,
+                    TPointD offset);
 
   void setXsheetHandle(TXsheetHandle *xsheetHandle) {
     m_xsheetHandle = xsheetHandle;

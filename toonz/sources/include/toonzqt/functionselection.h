@@ -74,7 +74,7 @@ public:
     m_xsheetHandle = xsheetHandle;
   }
   void setFunctionSheet(FunctionSheet *sheet) { m_sheet = sheet; }
- 
+
   // function graph
   void selectCurve(TDoubleParam *curve);
   void deselectAllKeyframes();

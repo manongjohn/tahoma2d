@@ -26,6 +26,7 @@
 class TDoubleParam;
 class TDoubleKeyframe;
 class TFrameHandle;
+class TObjectHandle;
 class FunctionSelection;
 class FunctionSheet;
 
@@ -96,6 +97,7 @@ private:
   FunctionSelection *m_selection;
   TFrameHandle *m_frameHandle;
   TXsheetHandle *m_xsheetHandle;
+  TObjectHandle *m_objectHandle;
   FunctionTreeModel *m_functionTreeModel;
   FunctionSheet *m_sheet;
 
@@ -140,6 +142,10 @@ public:
     m_xsheetHandle = xsheetHandle;
   }
   TXsheetHandle *getXsheetHandle() const { return m_xsheetHandle; }
+  void setObjectHandle(TObjectHandle* objectHandle) {
+    m_objectHandle = objectHandle;
+  }
+  TObjectHandle *getObjectHandle() const { return m_objectHandle; }
 
   void setFunctionSheet(FunctionSheet *sheet) { m_sheet = sheet; }
   FunctionSheet *getFunctionSheet() const { return m_sheet; }

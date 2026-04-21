@@ -242,6 +242,13 @@ void FunctionToolbar::setColumnHandle(TColumnHandle *columnHandle) {
 
 //-------------------------------------------------------------------
 
+void FunctionToolbar::setObjectHandle(TObjectHandle* objectHandle) {
+  m_objectHandle = objectHandle;
+  if (m_keyframeNavigator) m_keyframeNavigator->setObjectHandle(objectHandle);
+}
+
+//-------------------------------------------------------------------
+
 void FunctionToolbar::setSelection(FunctionSelection *selection) {
   if (m_selection != selection) {
     if (m_selection)
