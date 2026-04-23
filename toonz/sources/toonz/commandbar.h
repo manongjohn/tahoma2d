@@ -29,6 +29,7 @@ protected:
   bool m_isCollapsible;
   CommandBarType m_barType;
   QString m_barId;
+  bool m_isDefault;
 
 public:
   CommandBar(QWidget *parent = 0, Qt::WindowFlags flags = Qt::WindowFlags(),
@@ -36,6 +37,9 @@ public:
              CommandBarType barType = CommandBarType::Command);
 
   QString getBarId() { return m_barId; }
+
+  bool isDefault() { return m_isDefault; }
+  void setDefault(bool isDefault) { m_isDefault = isDefault; } 
 
   // SaveLoadQSettings
   virtual void save(QSettings &settings,
@@ -54,6 +58,7 @@ protected:
 
 protected slots:
   void doCustomizeCommandBar();
+  void doResetCommandBar();
   void onCloseButtonPressed();
 };
 

@@ -29,6 +29,7 @@ protected:
 
 protected slots:
   void doCustomizeCommandBar();
+  void doResetCommandBar();
 };
 
 #endif  // MAINTOOLBAR_H

@@ -2,13 +2,15 @@
 
 #include "commandbar.h"
 #include "commandbarpopup.h"
+#include "tsystem.h"
+
+#include "toonz/toonzfolders.h"
 
 #include <QMenu>
 #include <QContextMenuEvent>
 
 MainToolbar::MainToolbar(QWidget *parent)
-    : CommandBar(parent, Qt::WindowFlags(), false, CommandBarType::Main) {
-}
+    : CommandBar(parent, Qt::WindowFlags(), false, CommandBarType::Main) {}
 
 MainToolbar::~MainToolbar() {}
 
@@ -17,6 +19,13 @@ void MainToolbar::contextMenuEvent(QContextMenuEvent *event) {
   QAction *customizeCommandBar = menu->addAction(tr("Customize Main Toolbar"));
   connect(customizeCommandBar, SIGNAL(triggered()),
           SLOT(doCustomizeCommandBar()));
+
+  menu->addSeparator();
+
+  QAction *resetCommandBar = menu->addAction(tr("Reset Main Toolbar"));
+  connect(resetCommandBar, SIGNAL(triggered()), SLOT(doResetCommandBar()));
+  resetCommandBar->setEnabled(!isDefault());
+
   menu->exec(event->globalPos());
 }
 
@@ -27,4 +36,16 @@ void MainToolbar::doCustomizeCommandBar() {
     fillToolbar(this, CommandBarType::Main);
   }
   delete cbPopup;
+}
+
+//-----------------------------------------------------------------------------
+
+void MainToolbar::doResetCommandBar() {
+  TFilePath personalPath =
+      ToonzFolder::getMyModuleDir() + TFilePath("maintoolbar.xml");
+
+  if (TSystem::doesExistFileOrLevel(personalPath))
+    TSystem::deleteFile(personalPath);
+
+  fillToolbar(this, CommandBarType::Main);
 }
