@@ -294,6 +294,8 @@ CommandBarTree::CommandBarTree(TFilePath& path, TFilePath& defaultPath,
   else {
     if (path.getName() == "quicktoolbar") {
       fp = ToonzFolder::getTemplateModuleDir() + TFilePath("quicktoolbar.xml");
+    } else if (path.getName() == "maintoolbar") {
+      fp = ToonzFolder::getTemplateModuleDir() + TFilePath("maintoolbar.xml");
     } else {
       fp = ToonzFolder::getTemplateModuleDir() + TFilePath("commandbar.xml");
     }
@@ -484,15 +486,20 @@ void CommandListTree::onItemClicked(const QModelIndex& index) {
 // CommandBarPopup
 //-----------------------------------------------------------------------------
 
-CommandBarPopup::CommandBarPopup(QString barId, bool isQuickToolbar)
+CommandBarPopup::CommandBarPopup(QString barId, CommandBarType barType)
     : Dialog(TApp::instance()->getMainWindow(), true, false,
              "CustomizeCommandBar") {
   QLabel* commandBarLabel;
-  if (isQuickToolbar) {
+  if (barType == CommandBarType::Quick) {
     m_defaultPath = m_path =
         ToonzFolder::getMyModuleDir() + TFilePath("quicktoolbar.xml");
     commandBarLabel = new QLabel(tr("Quick Toolbar"));
     setWindowTitle(tr("Customize Quick Toolbar"));
+  } else if (barType == CommandBarType::Main) {
+    m_defaultPath = m_path =
+        ToonzFolder::getMyModuleDir() + TFilePath("maintoolbar.xml");
+    commandBarLabel = new QLabel(tr("Main Toolbar"));
+    setWindowTitle(tr("Customize Main Toolbar"));
   } else {
     m_defaultPath = m_path =
         ToonzFolder::getMyModuleDir() + TFilePath("commandbar.xml");
@@ -575,7 +582,8 @@ CommandBarPopup::CommandBarPopup(QString barId, bool isQuickToolbar)
     buttonGridLay->setHorizontalSpacing(8);
     buttonGridLay->setVerticalSpacing(0);
     {
-      if (!isQuickToolbar) buttonGridLay->addWidget(m_saveAsDefaultCB, 0, 0);
+      if (barType == CommandBarType::Command)
+        buttonGridLay->addWidget(m_saveAsDefaultCB, 0, 0);
 
       QHBoxLayout* buttonsLay = new QHBoxLayout();
       buttonsLay->setContentsMargins(0, 0, 0, 0);

@@ -14,6 +14,7 @@
 #include "viewerpane.h"
 #include "tooloptionsshortcutinvoker.h"
 #include "custompanelmanager.h"
+#include "maintoolbar.h"
 #include "statusbar.h"
 #include "aboutpopup.h"
 
@@ -79,6 +80,7 @@ TEnv::IntVar BCheckToggleAction("BCheckToggleAction", 0);
 TEnv::IntVar GCheckToggleAction("GCheckToggleAction", 0);
 TEnv::IntVar ACheckToggleAction("ACheckToggleAction", 0);
 TEnv::IntVar LinkToggleAction("LinkToggleAction", 0);
+TEnv::IntVar ShowMainToolbarAction("ShowMainToolbarAction", 1);
 TEnv::IntVar ShowStatusBarAction("ShowStatusBarAction", 1);
 // TEnv::IntVar DockingCheckToggleAction("DockingCheckToggleAction", 1);
 TEnv::IntVar ShiftTraceToggleAction("ShiftTraceToggleAction", 0);
@@ -428,6 +430,13 @@ MainWindow::MainWindow(const QString &argumentLayoutFileName, QWidget *parent,
 
   addToolBar(m_topBar);
   addToolBarBreak(Qt::TopToolBarArea);
+
+  m_mainToolbar = new MainToolbar(this);
+  m_mainToolbar->setVisible(ShowMainToolbarAction == 1 ? true : false);
+
+  addToolBar(m_mainToolbar);
+  addToolBarBreak(Qt::TopToolBarArea);
+
 
   m_stackedWidget = new QStackedWidget(this);
 
@@ -2513,7 +2522,7 @@ void MainWindow::defineActions() {
                           QT_TR_NOOP("Toggle Main Window's Full Screen Mode"),
                           "Ctrl+`", "toggle_fullscreen");
   createMenuWindowsAction(MI_StartupPopup, QT_TR_NOOP("&Startup Popup..."),
-                          "Alt+S" /*, "opentoonz"*/);
+                          "Alt+S", "tahoma2d");
   createMenuWindowsAction(MI_OpenGuidedDrawingControls,
                           QT_TR_NOOP("Guided Tweening Controls"), "",
                           "guided_drawing");
@@ -3331,6 +3340,9 @@ void MainWindow::defineActions() {
   createViewerAction(MI_ZoomOutAndFitPanel,
                      QT_TR_NOOP("Zoom Out And Fit Floating Panel"),
                      "Ctrl+Alt+-");
+  menuAct = createToggle(MI_ShowMainToolbar, QT_TR_NOOP("&Show Main Toolbar"), "",
+                         ShowMainToolbarAction ? 1 : 0, MenuViewCommandType);
+  connect(menuAct, SIGNAL(triggered(bool)), this, SLOT(toggleMainToolbar(bool)));
   menuAct = createToggle(MI_ShowStatusBar, QT_TR_NOOP("&Show Status Bar"), "",
                          ShowStatusBarAction ? 1 : 0, MenuViewCommandType);
   connect(menuAct, SIGNAL(triggered(bool)), this, SLOT(toggleStatusBar(bool)));
@@ -3580,6 +3592,18 @@ void MainWindow::clearCacheFolder() {
 
 //-----------------------------------------------------------------------------
 
+void MainWindow::toggleMainToolbar(bool on) {
+  if (!on) {
+    m_mainToolbar->hide();
+    ShowMainToolbarAction = 0;
+  } else {
+    m_mainToolbar->show();
+    ShowMainToolbarAction = 1;
+  }
+}
+
+//-----------------------------------------------------------------------------
+
 void MainWindow::toggleStatusBar(bool on) {
   if (!on) {
     m_statusBar->hide();
@@ -3633,6 +3657,14 @@ void MainWindow::makeTransparencyDialog() {
 
   m_transparencyTogglerWindow->setLayout(togglerLayout);
 }
+
+//-----------------------------------------------------------------------------
+
+class ToggleMainToolbar final : public MenuItemHandler {
+public:
+  ToggleMainToolbar() : MenuItemHandler("MI_ShowMainToolbar") {}
+  void execute() override {}
+} ToggleMainToolbar;
 
 //-----------------------------------------------------------------------------
 

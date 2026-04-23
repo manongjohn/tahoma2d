@@ -245,6 +245,7 @@
 #define MI_BlueChannelGreyscale "MI_BlueChannelGreyscale"
 
 // #define MI_DockingCheck "MI_DockingCheck"
+#define MI_ShowMainToolbar "MI_ShowMainToolbar"
 #define MI_ShowStatusBar "MI_ShowStatusBar"
 #define MI_ToggleTransparent "MI_ToggleTransparent"
 

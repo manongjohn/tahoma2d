@@ -145,6 +145,7 @@ set(MOC_HEADERS
     tipspopup.h
     gphotoeventlogpopup.h
     preproductionboard.h
+    maintoolbar.h
 )
 
 set(HEADERS
@@ -396,6 +397,7 @@ set(SOURCES
     tipspopup.cpp
     gphotoeventlogpopup.cpp
     preproductionboard.cpp
+    maintoolbar.cpp
 )
 
 if(WITH_TRANSLATION)
