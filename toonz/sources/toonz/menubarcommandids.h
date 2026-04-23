@@ -366,6 +366,7 @@
 #define MI_EditRotation "MI_EditRotation"
 #define MI_EditScale "MI_EditScale"
 #define MI_EditShear "MI_EditShear"
+#define MI_EditDrawingNumber "MI_EditDrawingNumber"
 #define MI_EditCenter "MI_EditCenter"
 #define MI_EditAll "MI_EditAll"
 

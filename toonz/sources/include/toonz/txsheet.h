@@ -14,8 +14,10 @@
 #include "toonz/txshcolumn.h"
 #include "toonz/txshlevel.h"
 #include "toonz/txsheetcolumnchange.h"
+#include "tparamchange.h"
 
 #include "cellposition.h"
+#include "tstageobject.h"
 
 // STD includes
 #include <set>
@@ -280,6 +282,24 @@ public:
           \sa getFrameCount()
   */
   int getMaxFrame(int col) const;
+
+  void getUpdateRanges(int col, int frame, int endFrame,
+                       std::vector<QPair<int, int>> *output, int channel);
+
+  void updateNonZeroDrawingNumberCellsParam(TXshColumn *column,
+                                            const TParamChange &c);
+
+  bool updateNonZeroDrawingNumberCellsBox(int r, int c0, int c1);
+
+  void updateNonZeroDrawingNumberCells(int col, int frame = 0, int endFrame = -1);
+
+  bool addUndoDrawingNumberChange(int row, TStageObjectId objId);
+  bool addUndoDrawingNumberChange(int row, int col, std::set<double> frames,
+                                  std::vector<TXshCell> cells);
+
+  void restoreDrawings(int col, int from, int to, TXsheet *xsh,
+                       QMap<int, std::vector<TXshCell>> drawings);
+
   /*! Returns true if xsheet column identified by \b \e col is empty, it calls
           \b TXshColumn::isEmpty(), otherwise returns false.
   */
@@ -485,6 +505,10 @@ frame duplication.
    */
   void insertColumn(int index,
                     TXshColumn::ColumnType type = TXshColumn::eLevelType);
+  void addDrawingNumberObserversAll();
+  void addDrawingNumberObserver(TXshColumn *column);
+  void removeDrawingNumberObserversAll();
+  void removeDrawingNumberObserver(TXshColumn *column);
   /*! Insert \b \e column in column \b \e index. Insert column in the column
      set, in the
           pegbarTree \b TStageObjectTree contained in TXsheetImp and if column

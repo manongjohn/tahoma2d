@@ -201,6 +201,77 @@ void TCellSelection::swingCells() {
 }
 
 //*********************************************************************************
+//    Drawing Number Undo 
+//*********************************************************************************
+
+namespace {
+
+class DrawingNumberUpdateUndo final : public TUndo {
+  int m_r0, m_c0, m_r1, m_c1;
+  mutable std::vector<std::pair<TRect, TXshCell>> m_undoCells;
+
+public:
+  mutable bool m_ok;
+
+public:
+  DrawingNumberUpdateUndo(int r0, int c0, int r1, int c1)
+      : m_r0(r0), m_c0(c0), m_r1(r1), m_c1(c1), m_ok(true) {}
+
+  void redo() const override;
+  void undo() const override;
+
+  int getSize() const override { return sizeof(*this); }
+
+  QString getHistoryString() override { return QObject::tr("Autoexpose"); }
+  int getHistoryType() override { return HistoryType::Xsheet; }
+};
+
+//-----------------------------------------------------------------------------
+
+void DrawingNumberUpdateUndo::redo() const {
+  TCG_ASSERT(m_r1 >= m_r0 && m_c1 >= m_c0, return);
+
+  m_undoCells.clear();
+  m_ok = TApp::instance()
+             ->getCurrentXsheet()
+             ->getXsheet()
+             ->updateNonZeroDrawingNumberCellsBox(m_r0, m_c0, m_c1);
+
+  TApp::instance()->getCurrentXsheet()->notifyXsheetChanged();
+  TApp::instance()->getCurrentScene()->setDirtyFlag(true);
+}
+
+//-----------------------------------------------------------------------------
+
+void DrawingNumberUpdateUndo::undo() const {
+  TCG_ASSERT(m_r1 >= m_r0 && m_c1 >= m_c0 && m_ok, return);
+
+  TXsheet *xsh = TApp::instance()->getCurrentXsheet()->getXsheet();
+
+  for (int i = m_undoCells.size() - 1; i >= 0; --i) {
+    const TRect &r = m_undoCells[i].first;
+    int size       = r.x1 - r.x0 + 1;
+
+    if (m_undoCells[i].second.getFrameId().isNoFrame())
+      xsh->removeCells(r.x0, r.y0, size);
+    else {
+      xsh->insertCells(r.x0, r.y0, size);
+      for (int j = 0; j < size; ++j) {
+        if (j > 0 && Preferences::instance()->isImplicitHoldEnabled())
+          xsh->setCell(r.x0 + j, r.y0, TXshCell(0, TFrameId::EMPTY_FRAME));
+        else
+          xsh->setCell(r.x0 + j, r.y0, m_undoCells[i].second);
+      }
+    }
+  }
+
+  TApp::instance()->getCurrentXsheet()->notifyXsheetChanged();
+  TApp::instance()->getCurrentScene()->setDirtyFlag(true);
+}
+
+}  // namespace
+
+//*********************************************************************************
 //    Increment Cells  command
 //*********************************************************************************
 

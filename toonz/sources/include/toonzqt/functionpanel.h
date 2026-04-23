@@ -27,6 +27,7 @@ class TDoubleParam;
 class TDoubleKeyframe;
 class TFrameHandle;
 class FunctionSelection;
+class FunctionSheet;
 
 //-----------------------------------------------------------------------------
 
@@ -96,6 +97,7 @@ private:
   TFrameHandle *m_frameHandle;
   TXsheetHandle *m_xsheetHandle;
   FunctionTreeModel *m_functionTreeModel;
+  FunctionSheet *m_sheet;
 
   int m_currentFrameStatus;
 
@@ -138,6 +140,9 @@ public:
     m_xsheetHandle = xsheetHandle;
   }
   TXsheetHandle *getXsheetHandle() const { return m_xsheetHandle; }
+
+  void setFunctionSheet(FunctionSheet *sheet) { m_sheet = sheet; }
+  FunctionSheet *getFunctionSheet() const { return m_sheet; }
 
   QTransform getViewTransform() const { return m_viewTransform; }
   void setViewTransform(const QTransform &viewTransform) {

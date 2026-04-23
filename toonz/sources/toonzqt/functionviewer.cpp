@@ -110,6 +110,9 @@ FunctionViewer::FunctionViewer(QWidget *parent, Qt::WindowFlags flags)
 
   m_numericalColumns->setViewer(this);
 
+  m_selection->setFunctionSheet(m_numericalColumns);
+  m_functionGraph->setFunctionSheet(m_numericalColumns);
+
   m_toolbar->setSelection(m_selection);
   m_toolbar->setFocusPolicy(Qt::NoFocus);
 
@@ -238,6 +241,7 @@ FunctionViewer::~FunctionViewer() {
   delete m_selection;
   m_toolbar->setFrameHandle(0);
   m_toolbar->setXsheetHandle(0);
+  m_toolbar->setColumnHandle(0);
 }
 
 //-----------------------------------------------------------------------------
@@ -473,6 +477,8 @@ void FunctionViewer::setColumnHandle(TColumnHandle *columnHandle) {
 
   m_columnHandle = columnHandle;
 
+  m_toolbar->setColumnHandle(m_columnHandle);
+
   if (isVisible()) m_treeView->updateAll();
 }
 
@@ -518,10 +524,13 @@ void FunctionViewer::toggleMode() {
 //-----------------------------------------------------------------------------
 
 void FunctionViewer::onCurveChanged(bool isDragging) {
-  if (m_objectHandle) m_objectHandle->notifyObjectIdChanged(isDragging);
+  int last  = -1;  // selectedFrames.back(); 
+  int first = -1;   // selectedFrames.front(); 
 
   // emit signal if the current channel belongs to Fx in order to update the
   // preview fx
+  if (m_objectHandle) m_objectHandle->notifyObjectIdChanged(isDragging);
+
   if (m_fxHandle) {
     FunctionTreeModel *ftModel =
         dynamic_cast<FunctionTreeModel *>(m_treeView->model());

@@ -16,6 +16,7 @@
 #include "toonz/levelset.h"
 #include "toonz/tcamera.h"
 #include "toonz/txshcell.h"
+#include "toonz/txsheet.h"
 
 // TnzBase includes
 #include "tenv.h"

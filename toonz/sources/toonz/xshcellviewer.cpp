@@ -394,7 +394,10 @@ bool isGlobalKeyFrameWithSameTypeDiffFromLinear(TStageObject *stageObject,
       type !=
           stageObject->getParam(TStageObject::T_ShearY)
               ->getKeyframeAt(frame)
-              .m_type)
+              .m_type ||
+      type != stageObject->getParam(TStageObject::T_DrawingNumber)
+                  ->getKeyframeAt(frame)
+                  .m_type)
     return false;
   return true;
 }
@@ -455,6 +458,10 @@ bool isGlobalKeyFrameWithSamePrevTypeDiffFromLinear(TStageObject *stageObject,
               .m_prevType ||
       type !=
           stageObject->getParam(TStageObject::T_ShearY)
+              ->getKeyframeAt(frame)
+              .m_prevType ||
+      type !=
+          stageObject->getParam(TStageObject::T_DrawingNumber)
               ->getKeyframeAt(frame)
               .m_prevType)
     return false;
@@ -3568,6 +3575,8 @@ void CellArea::drawKeyframeLine(QPainter &p, int col,
     end.setY(end.y() + adjust);
   }
 
+  // draw drawing keyframe informaiton
+  
   p.setPen(m_viewer->getKeyframeLineColor());
   p.drawLine(QLine(begin, end));
 }
@@ -3654,7 +3663,6 @@ bool CellArea::getEaseHandles(int r0, int r1, double e0, double e1, int &rh0,
 }
 
 //-----------------------------------------------------------------------------
-
 void CellArea::paintEvent(QPaintEvent *event) {
   QRect toBeUpdated = event->rect();
 
@@ -3702,6 +3710,14 @@ public:
     m_area->update();
     TApp::instance()->getCurrentScene()->setDirtyFlag(true);
     TApp::instance()->getCurrentObject()->notifyObjectIdChanged(false);
+
+    TApp *app    = TApp::instance();
+    TXsheet *xsh = app->getCurrentXsheet()->getXsheet();
+    TStageObjectId id = m_pegbar->getId();
+    if (id.isColumn()) {
+      xsh->updateNonZeroDrawingNumberCells(id.getIndex(), INT_MAX); 
+    }
+    
   }
   void redo() const override { undo(); }
   int getSize() const override { return sizeof *this; }
@@ -5236,6 +5252,11 @@ void CellArea::onStepChanged(QAction *act) {
   if (keyFrameIndex >= 0) {
     setParamStep(keyFrameIndex, step,
                  stageObject->getParam(TStageObject::T_ShearY));
+  }
+  keyFrameIndex = param->getClosestKeyframe(frame);
+  if (keyFrameIndex >= 0) {
+    setParamStep(keyFrameIndex, step,
+                 stageObject->getParam(TStageObject::T_DrawingNumber));
   }
 
   TUndoManager::manager()->endBlock();
