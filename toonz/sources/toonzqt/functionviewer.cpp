@@ -649,13 +649,8 @@ void FunctionViewer::doSwitchCurrentObject(TStageObject *obj) {
     m_columnHandle->setColumnIndex(id.getIndex());
   else if (id.isPegbar()) {
     TXsheet *xsh = m_xshHandle->getXsheet();
-    for (int i = 0; i < xsh->getColumnCount(); i++) {
-      if (!xsh->getColumn(i) || !xsh->getColumn(i)->getPegbarColumn() ||
-          xsh->getColumn(i)->getPegbarColumn()->getPegbarObjectId() != id)
-        continue;
-      m_columnHandle->setColumnIndex(i);
-      break;
-    }
+    TXshColumn *pegbarColumn = xsh->getColumnForPegbarObjectId(id);
+    if (pegbarColumn) m_columnHandle->setColumnIndex(pegbarColumn->getIndex());
   } else
     m_objectHandle->setObjectId(id);
 }

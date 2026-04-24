@@ -34,6 +34,7 @@
 #include "toonz/tframehandle.h"
 #include "toonz/tcolumnhandle.h"
 #include "toonz/tstageobjectcmd.h"
+#include "toonz/txshpegbarcolumn.h"
 
 // TnzCore includes
 #include "tsystem.h"
@@ -1716,14 +1717,17 @@ void TCellSelection::setKeyframes() {
 
   int row = m_range.m_r0, col = m_range.m_c0;
 
-  if (xsh->getColumn(col) && xsh->getColumn(col)->getFolderColumn()) return;
+  TXshColumn *column = xsh->getColumn(col);
+  if (column && (column->isLocked() || column->getFolderColumn() ||
+                 column->getSoundColumn() || column->getSoundTextColumn()))
+    return;
 
-  const TXshCell &cell = xsh->getCell(row, col);
-  if (cell.getSoundLevel() || cell.getSoundTextLevel()) return;
-
-  const TStageObjectId &id =
+  TStageObjectId id =
       col >= 0 ? TStageObjectId::ColumnId(col)
                : TStageObjectId::CameraId(xsh->getCameraColumnIndex());
+
+  if (column && column->getPegbarColumn())
+    id = column->getPegbarColumn()->getPegbarObjectId();
 
   TStageObject *obj = xsh->getStageObject(id);
   if (!obj) return;

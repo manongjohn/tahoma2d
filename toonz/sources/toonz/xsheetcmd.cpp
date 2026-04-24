@@ -506,17 +506,16 @@ void GlobalKeyframeUndo::doInsertGlobalKeyframes(
     TStageObjectId objectId;
 
     TXshColumn *column = xsh->getColumn(c);
-    if (column && (column->getSoundColumn() || column->getFolderColumn())) continue;
+    if (!column || column->isLocked() || column->getSoundColumn() ||
+        column->getFolderColumn())
+      continue;
 
     if (c == -1)
       objectId = TStageObjectId::CameraId(xsh->getCameraColumnIndex());
-    else
+    else {
       objectId = xsh->getColumnObjectId(c);
-
-    TXshColumn *xshColumn = xsh->getColumn(c);
-    if (!xshColumn || xshColumn->isLocked() ||
-        (xshColumn->isCellEmpty(frame) && !objectId.isCamera()))
-      continue;
+      if (!objectId.isPegbar() && column->isCellEmpty(frame)) continue;
+    }
 
     TStageObject *obj = xsh->getStageObject(objectId);
     obj->setKeyframeWithoutUndo(frame);
@@ -533,14 +532,14 @@ void GlobalKeyframeUndo::doRemoveGlobalKeyframes(
     TStageObjectId objectId;
 
     TXshColumn *column = xsh->getColumn(c);
-    if (column && (column->getSoundColumn() || column->getFolderColumn())) continue;
+    if (column && (column->isLocked() || column->getSoundColumn() ||
+                   column->getFolderColumn()))
+      continue;
 
     if (c == -1)
       objectId = TStageObjectId::CameraId(xsh->getCameraColumnIndex());
     else
       objectId = xsh->getColumnObjectId(c);
-
-    if (xsh->getColumn(c) && xsh->getColumn(c)->isLocked()) continue;
 
     TStageObject *obj = xsh->getStageObject(objectId);
     obj->removeKeyframeWithoutUndo(frame);

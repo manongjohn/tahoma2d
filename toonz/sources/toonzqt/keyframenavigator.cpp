@@ -243,6 +243,10 @@ void ViewerKeyframeNavigator::toggle() {
   if (!pegbar) return;
   int frame = getCurrentFrame();
 
+  TXshColumn *pegbarColumn =
+      m_xsheetHandle->getXsheet()->getColumnForPegbarObjectId(pegbar->getId());
+  if (pegbarColumn && pegbarColumn->isLocked()) return;
+
   if (pegbar->isFullKeyframe(frame)) {
     TStageObject::Keyframe key = pegbar->getKeyframe(frame);
     pegbar->removeKeyframeWithoutUndo(frame);

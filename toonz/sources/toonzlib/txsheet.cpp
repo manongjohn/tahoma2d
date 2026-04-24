@@ -2591,6 +2591,21 @@ bool TXsheet::isPegbarColumn(int col) {
 
 //---------------------------------------------------------
 
+TXshColumn *TXsheet::getColumnForPegbarObjectId(TStageObjectId pegbarObjId) const {
+  for (int i = 0; i < getColumnCount(); i++) {
+    TXshColumn *column = getColumn(i);
+    if (!column || !column->getPegbarColumn() ||
+        column->getPegbarColumn()->getPegbarObjectId() !=
+            pegbarObjId)
+      continue;
+    return column;
+  }
+
+  return nullptr;
+}
+
+//---------------------------------------------------------
+
 void TXsheet::openCloseFolder(int folderCol, bool openFolder) {
   if (folderCol < 0) return;
 
