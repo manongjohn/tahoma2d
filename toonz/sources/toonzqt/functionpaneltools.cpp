@@ -203,16 +203,16 @@ void MovePointDragTool::click(QMouseEvent *e) {
 
     FunctionSheet *sheet = m_panel->getFunctionSheet();
     int col              = sheet->getColumnIndexByCurve(curve);
-    int xcol = sheet->getStageObject(col)->getId().getIndex();
+    TStageObject *stObj  = sheet->getStageObject(col);
+    int xcol             = stObj ? stObj->getId().getIndex() : -1;
 
     std::set<double> frames;
-    if (curve->getName() == "W_DrawingNumber" &&
+    if (curve->getName() == "W_DrawingNumber" && xcol >= 0 &&
         m_undoDrawings.find(xcol) == m_undoDrawings.end()) {
       setter->getCurve()->getKeyframes(frames);
 
       int r0, r1;
       TXsheet *xsh        = m_panel->getXsheetHandle()->getXsheet();
-      TStageObject *stObj = sheet->getStageObject(col);
       xsh->getCellRange(xcol, r0, r1);
       int n = r1 + 1;
       std::vector<TXshCell> cells(n);
@@ -303,9 +303,11 @@ void MovePointDragTool::drag(QMouseEvent *e) {
 
     setter->moveKeyframes(dFrame, dValue);
 
-    int c     = sheet->getColumnIndexByCurve(setter->getCurve());
-    int colId = sheet->getStageObject(c)->getId().getIndex();
-    if (dFrame && m_undoDrawings.find(colId) != m_undoDrawings.end()) {
+    int c               = sheet->getColumnIndexByCurve(setter->getCurve());
+    TStageObject *stObj = sheet->getStageObject(c);
+    int colId           = stObj ? stObj->getId().getIndex() : -1;
+    if (dFrame && colId >= 0 &&
+        m_undoDrawings.find(colId) != m_undoDrawings.end()) {
       int kCount   = setter->getCurve()->getKeyframeCount();
       std::set<double>::iterator sit(m_startFrames[i].begin());
       for (int j = 0; j < kCount; j++, sit++) {

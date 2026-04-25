@@ -118,15 +118,15 @@ public:
       }
       m_setters.push_back(setter);
 
-      int xcol = m_sheet->getStageObject(col)->getId().getIndex();
+      TStageObject *stObj = m_sheet->getStageObject(col);
+      int xcol            = stObj ? stObj->getId().getIndex() : -1;
       std::set<double> frames;
-      if (curve->getName() == "W_DrawingNumber" &&
+      if (curve->getName() == "W_DrawingNumber" && xcol >= 0 &&
           m_undoDrawings.find(xcol) == m_undoDrawings.end()) {
         setter->getCurve()->getKeyframes(frames);
 
         int r0, r1;
         TXsheet *xsh        = xsheetHandle->getXsheet();
-        TStageObject *stObj = m_sheet->getStageObject(col);
         xsh->getCellRange(xcol, r0, r1);
         int n = r1 + 1;
         std::vector<TXshCell> cells(n);
@@ -151,9 +151,11 @@ public:
     for (int i = 0; i < (int)m_setters.size(); i++) {
       m_setters[i]->moveKeyframes(d, 0.0);
 
-      int c     = m_sheet->getColumnIndexByCurve(m_setters[i]->getCurve());
-      int colId = m_sheet->getStageObject(c)->getId().getIndex();
-      if (d && m_undoDrawings.find(colId) != m_undoDrawings.end()) {
+      int c = m_sheet->getColumnIndexByCurve(m_setters[i]->getCurve());
+      TStageObject *stObj = m_sheet->getStageObject(c);
+      int colId           = stObj ? stObj->getId().getIndex() : -1;
+      if (d && colId >= 0 &&
+          m_undoDrawings.find(colId) != m_undoDrawings.end()) {
         TXsheet *xsh = m_sheet->getXsheetHandle()->getXsheet();
         int kCount   = m_setters[i]->getCurve()->getKeyframeCount();
         std::set<double>::iterator sit(m_startFrames[i].begin());
