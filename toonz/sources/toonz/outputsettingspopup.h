@@ -95,6 +95,8 @@ class OutputSettingsPopup : public QFrame, public SaveLoadQSettings {
   QPushButton *m_showCameraSettingsButton, *m_showColorSettingsButton,
       *m_showAdvancedSettingsButton, *m_showMoreSettingsButton;
 
+  DVGui::CheckBox *m_syncWithPlayRange;
+
   bool m_isPreviewSettings;
   bool m_hideAlreadyCalled = false;
 
@@ -166,6 +168,8 @@ protected slots:
   void onBoardSettingsBtnClicked();
 
   void onCategoryActivated(QListWidgetItem *);
+
+  void onSyncWithPlayRangeChanged(int);
 };
 
 class PreviewSettingsPopup final : public OutputSettingsPopup {

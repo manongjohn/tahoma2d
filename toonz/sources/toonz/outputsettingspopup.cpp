@@ -53,6 +53,9 @@
 #include <QPropertyAnimation>
 #include <QSpacerItem>
 #include <QEvent>
+
+TEnv::IntVar SyncOutputWithPlayRange("SyncOutputWithPlayRange", 0);
+
 //-----------------------------------------------------------------------------
 namespace {
 
@@ -325,6 +328,14 @@ void OutputSettingsPopup::onCategoryActivated(QListWidgetItem *item) {
 
 //-----------------------------------------------------------------------------
 
+void OutputSettingsPopup::onSyncWithPlayRangeChanged(int state) {
+  bool enabled = (state == Qt::Checked);
+  getProperties()->setSyncWithPlayRangeEnabled(enabled);
+  SyncOutputWithPlayRange = enabled;
+}
+
+//-----------------------------------------------------------------------------
+
 QFrame *OutputSettingsPopup::createPanel(bool isPreview) {
   QFrame *panel = new QFrame(this);
 
@@ -512,6 +523,11 @@ QFrame *OutputSettingsPopup::createGeneralSettingsBox(bool isPreview) {
     m_fileFormat->addItems(formats);
     m_fileFormat->setFocusPolicy(Qt::StrongFocus);
     m_fileFormat->installEventFilter(this);
+
+    m_syncWithPlayRange = new DVGui::CheckBox("Sync with Play Range", this);
+
+    m_syncWithPlayRange->setChecked(SyncOutputWithPlayRange);
+    getProperties()->setSyncWithPlayRangeEnabled(SyncOutputWithPlayRange);
   }
 
   //-----
@@ -539,9 +555,11 @@ QFrame *OutputSettingsPopup::createGeneralSettingsBox(bool isPreview) {
       frameStepLay->addWidget(new QLabel(tr("Step:"), this), 0, 6,
         Qt::AlignRight | Qt::AlignVCenter);
       frameStepLay->addWidget(m_stepFld, 0, 7);
-
+      frameStepLay->addItem(
+          new QSpacerItem(10, 1, QSizePolicy::Fixed, QSizePolicy::Fixed), 0, 8);
+      frameStepLay->addWidget(m_syncWithPlayRange, 0, 9);
     }
-    frameStepLay->setColumnStretch(8, 1);
+    frameStepLay->setColumnStretch(10, 1);
 
     lay->addLayout(frameStepLay);
 
@@ -589,6 +607,9 @@ QFrame *OutputSettingsPopup::createGeneralSettingsBox(bool isPreview) {
   ret = ret && connect(m_fileFormatButton, SIGNAL(pressed()), this,
     SLOT(openSettingsPopup()));
 
+  if (!isPreview)
+    ret = ret && connect(m_syncWithPlayRange, SIGNAL(stateChanged(int)), this,
+                         SLOT(onSyncWithPlayRangeChanged(int))); 
   assert(ret);
   return generalSettingsBox;
 }
