@@ -46,7 +46,8 @@ TOutputProperties::TOutputProperties()
     , m_boardSettings(new BoardSettings())
     , m_formatTemplateFId()
     , m_syncColorSettings(true)
-    , m_syncWithPlayRange(false) {
+    , m_syncWithPlayRange(false)
+    , m_appendVersionFormat(AppendVersionFormat::None) {
   m_renderSettings = new TRenderSettings();
   m_nonlinearBpp   = m_renderSettings->m_bpp;
 }
@@ -72,7 +73,8 @@ TOutputProperties::TOutputProperties(const TOutputProperties &src)
     , m_boardSettings(new BoardSettings(*src.m_boardSettings))
     , m_formatTemplateFId(src.m_formatTemplateFId)
     , m_syncColorSettings(src.m_syncColorSettings)
-    , m_nonlinearBpp(src.m_nonlinearBpp) {
+    , m_nonlinearBpp(src.m_nonlinearBpp)
+    , m_appendVersionFormat(src.m_appendVersionFormat) {
   std::map<std::string, TPropertyGroup *>::iterator ft,
       fEnd = m_formatProperties.end();
   for (ft = m_formatProperties.begin(); ft != fEnd; ++ft) {
@@ -122,6 +124,8 @@ TOutputProperties &TOutputProperties::operator=(const TOutputProperties &src) {
   m_boardSettings = new BoardSettings(*src.m_boardSettings);
 
   m_formatTemplateFId = src.m_formatTemplateFId;
+
+  m_appendVersionFormat = src.m_appendVersionFormat;
 
   return *this;
 }

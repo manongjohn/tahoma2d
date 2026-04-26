@@ -15,6 +15,7 @@ class ToonzScene;
 class QComboBox;
 class QScrollArea;
 class QListWidgetItem;
+class QButtonGroup;
 
 namespace DVGui {
 class FileField;
@@ -97,6 +98,8 @@ class OutputSettingsPopup : public QFrame, public SaveLoadQSettings {
 
   DVGui::CheckBox *m_syncWithPlayRange;
 
+  QButtonGroup *m_appendVersionFormatBG;
+
   bool m_isPreviewSettings;
   bool m_hideAlreadyCalled = false;
 
@@ -170,6 +173,7 @@ protected slots:
   void onCategoryActivated(QListWidgetItem *);
 
   void onSyncWithPlayRangeChanged(int);
+  void onAppendVersionFormatChanged(int);
 };
 
 class PreviewSettingsPopup final : public OutputSettingsPopup {

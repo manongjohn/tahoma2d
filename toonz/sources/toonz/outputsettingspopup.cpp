@@ -53,8 +53,11 @@
 #include <QPropertyAnimation>
 #include <QSpacerItem>
 #include <QEvent>
+#include <QRadioButton>
+#include <QButtonGroup>
 
 TEnv::IntVar SyncOutputWithPlayRange("SyncOutputWithPlayRange", 0);
+TEnv::IntVar AppendVersionFormat("AppendVersionFormat", 0);
 
 //-----------------------------------------------------------------------------
 namespace {
@@ -336,6 +339,14 @@ void OutputSettingsPopup::onSyncWithPlayRangeChanged(int state) {
 
 //-----------------------------------------------------------------------------
 
+void OutputSettingsPopup::onAppendVersionFormatChanged(int formatVersion) {
+  getProperties()->setAppendVersionFormat(
+      (TOutputProperties::AppendVersionFormat)formatVersion);
+  AppendVersionFormat = formatVersion;
+}
+
+//-----------------------------------------------------------------------------
+
 QFrame *OutputSettingsPopup::createPanel(bool isPreview) {
   QFrame *panel = new QFrame(this);
 
@@ -505,6 +516,8 @@ QFrame *OutputSettingsPopup::createGeneralSettingsBox(bool isPreview) {
   // Step
   m_stepFld = new DVGui::IntLineEdit(this);
 
+  QRadioButton *vfNone = nullptr, *vfSequence = nullptr, *vfTimestamp = nullptr;
+
   if (!isPreview) {
     // Save In
     m_saveInFileFld = new DVGui::FileField(0, QString(""));
@@ -528,6 +541,27 @@ QFrame *OutputSettingsPopup::createGeneralSettingsBox(bool isPreview) {
 
     m_syncWithPlayRange->setChecked(SyncOutputWithPlayRange);
     getProperties()->setSyncWithPlayRangeEnabled(SyncOutputWithPlayRange);
+
+    vfNone      = new QRadioButton(tr("None"), this);
+    vfSequence  = new QRadioButton(tr("Sequence"), this);
+    vfTimestamp = new QRadioButton(tr("Timestamp"), this);
+
+    switch (AppendVersionFormat) {
+    case 0:
+      vfNone->setChecked(true);
+      break;
+    case 1:
+      vfSequence->setChecked(true);
+      break;
+    case 2:
+      vfTimestamp->setChecked(true);
+      break;
+    }
+
+    m_appendVersionFormatBG = new QButtonGroup;
+    m_appendVersionFormatBG->addButton(vfNone, 0);
+    m_appendVersionFormatBG->addButton(vfSequence, 1);
+    m_appendVersionFormatBG->addButton(vfTimestamp, 2);
   }
 
   //-----
@@ -584,6 +618,21 @@ QFrame *OutputSettingsPopup::createGeneralSettingsBox(bool isPreview) {
 
     lay->addLayout(fileGridLay);
 
+    // Version output
+    QGridLayout* versionLay = new QGridLayout();
+    versionLay->setContentsMargins(0, 0, 0, 0);
+    versionLay->setHorizontalSpacing(5);
+    versionLay->setVerticalSpacing(10);
+    {
+        versionLay->addWidget(new QLabel(tr("Append to Name:"), this), 0, 0,
+            Qt::AlignRight | Qt::AlignVCenter);
+        versionLay->addWidget(vfNone, 0, 1);
+        versionLay->addWidget(vfSequence, 0, 2);
+        versionLay->addWidget(vfTimestamp, 0, 3);
+    }
+    versionLay->setColumnStretch(4, 1);
+
+    lay->addLayout(versionLay);
   }
   generalSettingsBox->setLayout(lay);
 
@@ -607,9 +656,13 @@ QFrame *OutputSettingsPopup::createGeneralSettingsBox(bool isPreview) {
   ret = ret && connect(m_fileFormatButton, SIGNAL(pressed()), this,
     SLOT(openSettingsPopup()));
 
-  if (!isPreview)
+  if (!isPreview) {
     ret = ret && connect(m_syncWithPlayRange, SIGNAL(stateChanged(int)), this,
-                         SLOT(onSyncWithPlayRangeChanged(int))); 
+                         SLOT(onSyncWithPlayRangeChanged(int)));
+
+    ret = ret && connect(m_appendVersionFormatBG, SIGNAL(idClicked(int)), this,
+                         SLOT(onAppendVersionFormatChanged(int)));
+  }
   assert(ret);
   return generalSettingsBox;
 }
@@ -1203,6 +1256,8 @@ void OutputSettingsPopup::updateField() {
     m_renderToFolders->setChecked(prop->isRenderToFolders());
     m_renderKeysOnly->setEnabled(prop->getMultimediaRendering());
     m_renderToFolders->setEnabled(prop->getMultimediaRendering());
+
+    prop->setAppendVersionFormat((TOutputProperties::AppendVersionFormat)(int)AppendVersionFormat);
   }
 
   // Refresh format if allow-multithread was toggled

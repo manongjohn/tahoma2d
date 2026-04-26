@@ -71,6 +71,8 @@ Can set in output to all levels, only selected levels or only animated levels.
 
   enum MaxTileSizeValues { LargeVal = 50, MediumVal = 10, SmallVal = 2 };
 
+  enum AppendVersionFormat { None = 0, Sequence, Timestamp };
+
 private:
   TFilePath m_path;
 
@@ -107,6 +109,8 @@ private:
   int m_nonlinearBpp;
 
   bool m_syncWithPlayRange;
+
+  AppendVersionFormat m_appendVersionFormat;
 
 public:
   /*!
@@ -254,6 +258,11 @@ machine's CPU).
 
   bool isSyncWithPlayRangeEnabled() { return m_syncWithPlayRange; }
   void setSyncWithPlayRangeEnabled(bool sync) { m_syncWithPlayRange = sync; }
+
+  AppendVersionFormat getAppendVersionFormat() { return m_appendVersionFormat; }
+  void setAppendVersionFormat(AppendVersionFormat format) {
+    m_appendVersionFormat = format;
+  }
 };
 
 //--------------------------------------------
