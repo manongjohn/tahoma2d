@@ -223,7 +223,7 @@ OutputSettingsPopup::OutputSettingsPopup(QWidget *parent, bool isPreview)
   addPresetButton->setObjectName("PushButton_NoPadding");
   removePresetButton->setObjectName("PushButton_NoPadding");
   QString tooltip =
-      tr("Save current output settings.\nThe parameters to be saved are:\n- "
+      tr("Save current render settings.\nThe parameters to be saved are:\n- "
          "Camera settings\n- Project folder to be saved in\n- File format\n- "
          "File options\n- Resample Balance\n- Channel width\n- Linear Color "
          "Space\n- Color Space Gamma");
@@ -371,7 +371,7 @@ QFrame *OutputSettingsPopup::createPanel(bool isPreview) {
 
   if (isPreview)
     m_syncColorSettingsButton =
-        new DVGui::CheckBox(tr("Sync with Output Settings"));
+        new DVGui::CheckBox(tr("Sync with Render Settings"));
 
   if (!isPreview) {
     m_showCameraSettingsButton = new QPushButton("", this);
@@ -836,7 +836,7 @@ QFrame *OutputSettingsPopup::createColorSettingsBox(bool isPreview) {
          "when the \"Linear Color Space\" option is enabled.");
   if (m_isPreviewSettings)
     colorSpaceGammaTooltip +=
-        tr("\nInput less than 1.0 to sync the value with the output settings.");
+        tr("\nInput less than 1.0 to sync the value with the render settings.");
   m_colorSpaceGammaFld->setToolTip(colorSpaceGammaTooltip);
 
   if (!isPreview) {
@@ -1979,7 +1979,7 @@ void OutputSettingsPopup::onAddPresetButtonPressed() {
   //*-- プリセット名を取得 --*/
   bool ok;
   QString qs = DVGui::getText(
-      tr("Add preset"), tr("Enter the name for the output settings preset."),
+      tr("Add preset"), tr("Enter the name for the render settings preset."),
       "", &ok);
   if (!ok || qs.isEmpty()) return;
 
@@ -1991,7 +1991,7 @@ void OutputSettingsPopup::onAddPresetButtonPressed() {
   /*-- すでに存在する場合、上書きを確認 --*/
   if (TFileStatus(fp).doesExist()) {
     int ret = QMessageBox::question(
-        this, tr("Add output settings preset"),
+        this, tr("Add render settings preset"),
         QString(tr("The file %1 does already exist.\nDo you want to overwrite it?"))
             .arg(qs),
         QMessageBox::Save | QMessageBox::Cancel, QMessageBox::Save);
