@@ -1705,7 +1705,7 @@ void FunctionPanel::openContextMenu(QMouseEvent *e) {
     kf.m_speedOut = -kf.m_speedIn;
     curve->setKeyframe(kf);
   } else if (action == &deleteKeyframeAction) {
-    KeyframeSetter::removeKeyframeAt(curve, kf.m_frame, m_xsheetHandle);
+    KeyframeSetter::removeKeyframeAt(curve, kf.m_frame, m_objectHandle, m_xsheetHandle);
   } else if (action == &insertKeyframeAction) {
 
     bool hasDrawingKeys = curve->getName() == "W_DrawingNumber";

@@ -17,6 +17,7 @@ class DVAPI FunctionKeyframeNavigator final : public KeyframeNavigator {
   TDoubleParamP m_curve;
   TXsheetHandle *m_xsheetHandle;
   TColumnHandle *m_columnHandle;
+  TObjectHandle *m_objectHandle;
 
 public:
   FunctionKeyframeNavigator(QWidget *parent);
@@ -29,6 +30,10 @@ public:
 
   void setColumnHandle(TColumnHandle *columnHandle) {
     m_columnHandle = columnHandle;
+  }
+
+  void setObjectHandle(TObjectHandle *objectHandle) {
+    m_objectHandle = objectHandle;
   }
 
 protected:

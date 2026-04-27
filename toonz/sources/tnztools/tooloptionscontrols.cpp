@@ -1419,10 +1419,16 @@ void PegbarChannelField::onDelete(bool addToUndo) {
   TStageObject *stageObj = m_xshHandle->getXsheet()->getStageObject(objId);
   int frame              = m_frameHandle->getFrameIndex();
 
+  TPointD center, offset;
+  stageObj->getCenterAndOffset(center, offset);
+
   stageObj->getParam(m_actionId)->deleteKeyframe(frame);
+  if (center != TPointD() && !stageObj->isKeyframe(frame))
+    stageObj->setCenter(frame, center, true);
 
   if (addToUndo) {
-    UndoChannelDelete *undo = new UndoChannelDelete(m_actionId, m_before);
+    UndoChannelDelete *undo =
+        new UndoChannelDelete(m_actionId, m_before, center, offset);
     undo->setXsheetHandle(m_xshHandle);
     undo->setObjectHandle(m_objHandle);
     undo->setFrameHandle(m_frameHandle);

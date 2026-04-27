@@ -51,7 +51,7 @@ void FunctionKeyframeNavigator::toggle() {
   int frame    = getCurrentFrame();
   double value = m_curve->getValue(frame);
   if (m_curve->isKeyframe(frame))
-    KeyframeSetter::removeKeyframeAt(m_curve.getPointer(), frame,
+    KeyframeSetter::removeKeyframeAt(m_curve.getPointer(), frame, m_objectHandle,
                                      m_xsheetHandle);
   else {
     bool isDrawingNumber = m_curve->getName() == "W_DrawingNumber";
