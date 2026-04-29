@@ -709,6 +709,9 @@ class TapeToolOptionsBox final : public ToolOptionsBox {
   ToolOptionCombo *m_toolMode, *m_typeMode, *m_multiFrameMode;
   QLabel *m_autocloseLabel;
   ToolOptionPairSlider *m_autocloseField;
+  QLabel* m_lineExtAngleLabel;
+  ToolOptionSlider* m_lineExtAngleField;
+
 
 public:
   TapeToolOptionsBox(QWidget *parent, TTool *tool, TPaletteHandle *pltHandle,
