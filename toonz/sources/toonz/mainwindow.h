@@ -18,6 +18,7 @@ class QSlider;
 class TPanel;
 class UpdateChecker;
 class TopBar;
+class MainToolbar;
 class StatusBar;
 class AboutPopup;
 //-----------------------------------------------------------------------------
@@ -60,6 +61,7 @@ class MainWindow final : public QMainWindow {
   UpdateChecker *m_updateChecker;
 
   TopBar *m_topBar;
+  MainToolbar *m_mainToolbar;
   StatusBar *m_statusBar;
   AboutPopup *m_aboutPopup;
   QDialog *m_transparencyTogglerWindow;
@@ -244,6 +246,7 @@ protected slots:
   void onUpdateCheckerDone(bool);
   void onActiveViewerChanged();
 
+  void toggleMainToolbar(bool);
   void toggleStatusBar(bool);
   void toggleTransparency(bool);
   void makeTransparencyDialog();

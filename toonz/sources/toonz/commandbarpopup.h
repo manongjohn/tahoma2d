@@ -11,6 +11,8 @@
 #include "toonzqt/dvdialog.h"
 #include "tfilepath.h"
 
+#include "commandbar.h"
+
 class QXmlStreamReader;
 class QXmlStreamWriter;
 
@@ -101,7 +103,8 @@ class CommandBarPopup final : public DVGui::Dialog {
   TFilePath m_path, m_defaultPath;
 
 public:
-  CommandBarPopup(QString barId, bool isQuickToolbar = false);
+  CommandBarPopup(QString barId,
+                  CommandBarType barType = CommandBarType::Command);
 protected slots:
   void onOkPressed();
   void onSearchTextChanged(const QString& text);
