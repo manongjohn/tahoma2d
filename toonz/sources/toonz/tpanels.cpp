@@ -1982,7 +1982,7 @@ public:
   TPanel *createPanel(QWidget *parent) override {
     TPanel *panel = new OutputSettingsPanel(parent);
     panel->setObjectName(getPanelType());
-    panel->setWindowTitle(QObject::tr("Output Settings"));
+    panel->setWindowTitle(QObject::tr("Render Settings"));
     panel->setMinimumWidth(378);
     panel->getTitleBar()->showTitleBar(TApp::instance()->getShowTitleBars());
     connect(TApp::instance(), SIGNAL(showTitleBars(bool)), panel->getTitleBar(),
@@ -1996,7 +1996,7 @@ public:
 //=============================================================================
 OpenFloatingPanel openOutputSettingsPanelCommand(
     MI_OutputSettings, "OutputSettingsPanel",
-    QObject::tr("Output Settings"));
+    QObject::tr("Render Settings"));
 
 //=========================================================
 // PreviewSettingsPanel

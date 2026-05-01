@@ -2351,10 +2351,10 @@ void MainWindow::defineActions() {
   // Menu - Render
 
   createMenuRenderAction(
-      MI_OutputSettings, QT_TR_NOOP("&Output Settings..."), "Ctrl+O",
+      MI_OutputSettings, QT_TR_NOOP("&Render Settings..."), "Ctrl+O",
       "output_settings",
-      tr("Control the output settings for the current scene.") + separator +
-          tr("You can render from the output settings window also."));
+      tr("Control the render settings for the current scene.") + separator +
+          tr("You can render from the render settings window also."));
   createMenuRenderAction(
       MI_PreviewSettings, QT_TR_NOOP("&Preview Settings..."), "",
       "preview_settings",
@@ -2362,13 +2362,13 @@ void MainWindow::defineActions() {
   createMenuRenderAction(MI_Render, QT_TR_NOOP("&Render"), "Ctrl+Shift+R",
                          "render",
                          tr("Renders according to the settings and "
-                            "location set in Output Settings."));
+                            "location set in Render Settings."));
   createMenuRenderAction(
       MI_FastRender, QT_TR_NOOP("&Fast Render to MP4"), "Alt+R",
       "fast_render_mp4",
       tr("Exports an MP4 file to the location specified in the preferences.") +
           separator +
-          tr("This is quicker than going into the Output Settings "
+          tr("This is quicker than going into the Render Settings "
              "and setting up an MP4 render."));
   createMenuRenderAction(
       MI_Preview, QT_TR_NOOP("&Preview"), "Ctrl+R", "preview",
@@ -2386,7 +2386,7 @@ void MainWindow::defineActions() {
   createMenuRenderAction(
       MI_SaveAndRender, QT_TR_NOOP("&Save and Render"), "", "render",
       tr("Saves the current scene and renders according to the settings and "
-         "location set in Output Settings."));
+         "location set in Render Settings."));
 
   // Menu - View
 
