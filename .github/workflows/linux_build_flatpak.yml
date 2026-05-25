@@ -1,0 +1,86 @@
+name: Tahoma2D Linux Flatpak Build
+
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  Linux:
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        compiler: [ gcc ]
+        include:
+          - compiler: gcc
+            cc: gcc
+            cxx: g++
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          repository: tahoma2d/flathub
+          ref: org.tahoma2d.Tahoma2D
+          submodules: recursive
+      - name: Install Dependencies
+        run: |
+          echo ">>> Installing flatpak and flatpak-builder"
+          sudo apt install flatpak flatpak-builder
+          echo ">>> Installing org.kde.Sdk/x86_64/5.15-25.08"
+          flatpak remote-add --if-not-exists --user flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+          flatpak install --assumeyes flathub org.kde.Sdk/x86_64/5.15-25.08
+      - name: Build Tahoma2D Flatpak
+        run: |
+          echo ">>> Building org.tahoma2d.Tahoma2D.yaml"    
+          flatpak-builder --force-clean --user --install-deps-from=flathub --assumeyes --repo=repo --install builddir org.tahoma2d.Tahoma2D.yaml
+          echo ">>> Building Tahoma2D.flatpak"    
+          flatpak build-bundle repo Tahoma2D.flatpak org.tahoma2d.Tahoma2D --runtime-repo=https://flathub.org/repo/flathub.flatpakrepo
+      - uses: actions/upload-artifact@v7
+        with:
+          name: Tahoma2D.flatpak
+          path: Tahoma2D.flatpak
+      - name: Get Nightly Release Date
+        if: ${{ github.repository_owner == 'tahoma2d' && github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+        run: |
+          echo "NIGHTLYDATE=$(date '+%Y-%m-%d')" >> $GITHUB_ENV
+          echo "NIGHTLYDATETIME=$(date '+%Y-%m-%d %H:%M:%S %Z')" >> $GITHUB_ENV
+      - name: Update Latest Nightly Release
+        if: ${{ github.repository_owner == 'tahoma2d' && github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+        uses: ncipollo/release-action@v1
+        with:
+          allowUpdates: true
+          artifactErrorsFailBuild: false
+          artifacts: Tahoma2D.flatpak
+          artifactContentType: "raw"
+          body: ${{ github.event.head_commit.message }}
+          name: Latest Nightly ${{ env.NIGHTLYDATE }}
+          prerelease: true
+          replacesArtifacts: true
+          tag: nightly
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create/Update Nightlies Tag
+        if: ${{ github.repository_owner == 'tahoma2d' && github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+        run: |
+          git remote add nightly_repo https://tahoma2d:${{ secrets.TAHOMA2D_TOKEN }}@github.com/tahoma2d/tahoma2d_nightlies.git
+          git config lfs.https://tahoma2d:${{ secrets.TAHOMA2D_TOKEN }}@github.com/tahoma2d/tahoma2d_nightlies.git.lfs.locksverify false
+          git fetch --unshallow
+          git tag -f nightly
+          git push -f origin nightly
+          git tag -f nightly-${{ github.sha }}
+          git config --unset-all http.https://github.com/.extraheader
+          git push -f nightly_repo nightly-${{ github.sha }}
+          git remote rm nightly_repo
+      - name: Create Nightlies Release
+        if: ${{ github.repository_owner == 'tahoma2d' && github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+        uses: ncipollo/release-action@v1
+        with:
+          allowUpdates: true
+          artifactErrorsFailBuild: false
+          artifacts: Tahoma2D.flatpak
+          artifactContentType: "raw"
+          body: ${{ github.event.head_commit.message }}
+          name: ${{ env.NIGHTLYDATETIME }}
+          omitBodyDuringUpdate: true
+          omitNameDuringUpdate: true
+          owner: tahoma2d
+          prerelease: true
+          replacesArtifacts: true
+          repo: tahoma2d_nightlies
+          tag: nightly-${{ github.sha }}
+          token: ${{ secrets.TAHOMA2D_TOKEN }}
