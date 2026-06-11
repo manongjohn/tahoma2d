@@ -120,6 +120,84 @@ bool isAKeyFrame(PAVISTREAM videoStream, int index) {
   return index == getPrevKeyFrame(videoStream, index);
 }
 
+//-----------------------------------------------------------
+
+BOOL safe_ICInfo(DWORD fccType, DWORD fccHandler, ICINFO *lpicinfo) {
+#ifdef _MSC_VER
+  __try {
+    return ICInfo(fccType, fccHandler, lpicinfo);
+  } __except (EXCEPTION_EXECUTE_HANDLER) {
+  }
+  return FALSE;
+#else
+  return ICInfo(fccType, fccHandler, lpicinfo);
+#endif
+}
+
+//-----------------------------------------------------------
+
+LRESULT safe_ICClose(HIC hic) {
+#ifdef _MSC_VER
+  __try {
+    if (hic) {
+      return ICClose(hic);
+    }
+  } __except (EXCEPTION_EXECUTE_HANDLER) {
+  }
+#else
+  if (hic) {
+    return ICClose(hic);
+  }
+#endif
+  return ICERR_OK;
+}
+
+//-----------------------------------------------------------
+
+HIC safe_ICOpen(DWORD fccType, DWORD fccHandler, UINT wMode) {
+#ifdef _MSC_VER
+  __try {
+    return ICOpen(fccType, fccHandler, wMode);
+  } __except (EXCEPTION_EXECUTE_HANDLER) {
+  }
+#else
+  try {
+    return ICOpen(fccType, fccHandler, wMode);
+  } catch (...) {
+  }
+#endif
+  return 0;
+}
+
+//-----------------------------------------------------------
+
+LRESULT safe_ICGetInfo(HIC hic, ICINFO *picinfo, DWORD cb) {
+#ifdef _MSC_VER
+  __try {
+    return ICGetInfo(hic, picinfo, cb);
+  } __except (EXCEPTION_EXECUTE_HANDLER) {
+  }
+  return 0;  // return copied size in bytes (0 means an error)
+#else
+  return ICGetInfo(hic, picinfo, cb);
+#endif
+}
+
+//-----------------------------------------------------------
+
+LRESULT safe_ICCompressQuery(HIC hic, BITMAPINFO *lpbiInput,
+                             BITMAPINFO *lpbiOutput) {
+#ifdef _MSC_VER
+  __try {
+    return ICCompressQuery(hic, lpbiInput, lpbiOutput);
+  } __except (EXCEPTION_EXECUTE_HANDLER) {
+  }
+  return ICERR_INTERNAL;
+#else
+  return ICCompressQuery(hic, lpbiInput, lpbiOutput);
+#endif
+}  // namespace
+
 };  // end of namespace
 
 //===========================================================
@@ -221,7 +299,7 @@ TLevelWriterAvi::~TLevelWriterAvi() {
 
   if (m_hic) {
     ICCompressEnd(m_hic);
-    ICClose(m_hic);
+    safe_ICClose(m_hic);
   }
 
   if (m_bitmapinfo) free(m_bitmapinfo);
@@ -271,7 +349,7 @@ void TLevelWriterAvi::searchForCodec() {
 
     for (int bpp = 32; (bpp >= 24) && !found; bpp -= 8) {
       inFmt.bmiHeader.biBitCount = bpp;
-      for (int i = 0; ICInfo(fccType, i, &icinfo); i++) {
+      for (int i = 0; safe_ICInfo(fccType, i, &icinfo); i++) {
         // Skip blacklisted DLLs
         char driver[2048];
         WideChar2Char(icinfo.szDriver, driver, sizeof(driver));
@@ -280,7 +358,7 @@ void TLevelWriterAvi::searchForCodec() {
           continue;
         }
 
-        hic = ICOpen(icinfo.fccType, icinfo.fccHandler, ICMODE_COMPRESS);
+        hic = safe_ICOpen(icinfo.fccType, icinfo.fccHandler, ICMODE_COMPRESS);
 
         ICGetInfo(hic, &icinfo,
                   sizeof(ICINFO));  // Find out the compressor name
@@ -293,7 +371,7 @@ void TLevelWriterAvi::searchForCodec() {
 
         if (hic) {
           if (ICCompressQuery(hic, &inFmt, NULL) != ICERR_OK) {
-            ICClose(hic);
+            safe_ICClose(hic);
             continue;  // Skip this compressor if it can't handle the format.
           }
           if (::to_wstring(compressorName) == codecName) {
@@ -301,7 +379,7 @@ void TLevelWriterAvi::searchForCodec() {
             m_bpp = bpp;
             break;
           }
-          ICClose(hic);
+          safe_ICClose(hic);
         }
       }
     }
@@ -727,12 +805,12 @@ TLevelReaderAvi::TLevelReaderAvi(const TFilePath &path)
 
     ICINFO icinfo;
     memset(&icinfo, 0, sizeof(ICINFO));
-    ICInfo(ICTYPE_VIDEO, si.fccHandler, &icinfo);
+    safe_ICInfo(ICTYPE_VIDEO, si.fccHandler, &icinfo);
 
     char driver[2048];
     WideChar2Char(icinfo.szDriver, driver, sizeof(driver));
     if (!TSystem::isDLLBlackListed(driver))
-      m_hic = ICOpen(icinfo.fccType, icinfo.fccHandler, ICMODE_DECOMPRESS);
+      m_hic = safe_ICOpen(icinfo.fccType, icinfo.fccHandler, ICMODE_DECOMPRESS);
     if (!m_hic) {
       m_hic = findCandidateDecompressor();
       if (!m_hic)
@@ -777,7 +855,7 @@ TLevelReaderAvi::TLevelReaderAvi(const TFilePath &path)
 TLevelReaderAvi::~TLevelReaderAvi() {
   if (m_hic) {
     ICDecompressEnd(m_hic);
-    ICClose(m_hic);
+    safe_ICClose(m_hic);
   }
 
   if (m_srcBitmapInfo) free(m_srcBitmapInfo);
@@ -794,7 +872,7 @@ HIC TLevelReaderAvi::findCandidateDecompressor() {
   BITMAPINFO srcInfo = *m_srcBitmapInfo;
   BITMAPINFO dstInfo = *m_dstBitmapInfo;
 
-  for (DWORD id = 0; ICInfo(ICTYPE_VIDEO, id, &info); ++id) {
+  for (DWORD id = 0; safe_ICInfo(ICTYPE_VIDEO, id, &info); ++id) {
     info.dwSize = sizeof(
         ICINFO);  // I don't think this is necessary, but just in case....
 
@@ -806,7 +884,7 @@ HIC TLevelReaderAvi::findCandidateDecompressor() {
       continue;
     }
 
-    HIC hic = ICOpen(info.fccType, info.fccHandler, ICMODE_DECOMPRESS);
+    HIC hic = safe_ICOpen(info.fccType, info.fccHandler, ICMODE_DECOMPRESS);
 
     if (!hic) continue;
 
@@ -878,7 +956,7 @@ HIC TLevelReaderAvi::findCandidateDecompressor() {
       } else
         return hic;
     }
-    ICClose(hic);
+    safe_ICClose(hic);
   }
   return NULL;
 }
@@ -990,7 +1068,7 @@ TImageP TLevelReaderAvi::load(int frameIndex) {
 int TLevelReaderAvi::readFrameFromStream(void *bufferOut, DWORD &bufferSize,
                                          int frameIndex) const {
   assert(bufferOut && bufferSize > 0);
-  LONG bytesReaded   = 0;
+  LONG bytesReaded = 0;
   LONG samplesRead = 0;
 
   int rc = AVIStreamRead(m_videoStream, frameIndex, 1, bufferOut, bufferSize,
@@ -1048,88 +1126,6 @@ TImageP TLevelReaderAvi::load(int frameIndex) {
 
 #ifdef _WIN32
 
-namespace {
-BOOL safe_ICInfo(DWORD fccType, DWORD fccHandler, ICINFO *lpicinfo) {
-#ifdef _MSC_VER
-  __try {
-    return ICInfo(fccType, fccHandler, lpicinfo);
-  } __except (EXCEPTION_EXECUTE_HANDLER) {
-  }
-  return FALSE;
-#else
-  return ICInfo(fccType, fccHandler, lpicinfo);
-#endif
-}
-
-LRESULT safe_ICClose(HIC hic) {
-#ifdef _MSC_VER
-  __try {
-    if (hic) {
-      return ICClose(hic);
-    }
-  } __except (EXCEPTION_EXECUTE_HANDLER) {
-  }
-#else
-  if (hic) {
-    return ICClose(hic);
-  }
-#endif
-  return ICERR_OK;
-}
-
-#ifdef _MSC_VER
-typedef std::unique_ptr<std::remove_pointer_t<HIC>, decltype(&safe_ICClose)>
-    hic_t;
-#else
-typedef std::unique_ptr<std::remove_pointer<HIC>::type, decltype(&safe_ICClose)>
-    hic_t;
-#endif
-
-hic_t safe_ICOpen(DWORD fccType, DWORD fccHandler, UINT wMode) {
-#ifdef _MSC_VER
-  HIC const hic = [fccType, fccHandler, wMode]() -> HIC {
-    __try {
-      return ICOpen(fccType, fccHandler, wMode);
-    } __except (EXCEPTION_EXECUTE_HANDLER) {
-    }
-    return nullptr;
-  }();
-#else
-  HIC hic = nullptr;
-  try {
-    hic = ICOpen(fccType, fccHandler, wMode);
-  } catch (...) {
-  }
-#endif
-  return hic_t(hic, safe_ICClose);
-}
-
-LRESULT safe_ICGetInfo(hic_t const &hic, ICINFO *picinfo, DWORD cb) {
-#ifdef _MSC_VER
-  __try {
-    return ICGetInfo(hic.get(), picinfo, cb);
-  } __except (EXCEPTION_EXECUTE_HANDLER) {
-  }
-  return 0;  // return copied size in bytes (0 means an error)
-#else
-  return ICGetInfo(hic.get(), picinfo, cb);
-#endif
-}
-
-LRESULT safe_ICCompressQuery(hic_t const &hic, BITMAPINFO *lpbiInput,
-                             BITMAPINFO *lpbiOutput) {
-#ifdef _MSC_VER
-  __try {
-    return ICCompressQuery(hic.get(), lpbiInput, lpbiOutput);
-  } __except (EXCEPTION_EXECUTE_HANDLER) {
-  }
-  return ICERR_INTERNAL;
-#else
-  return ICCompressQuery(hic.get(), lpbiInput, lpbiOutput);
-#endif
-}
-}  // namespace
-
 Tiio::AviWriterProperties::AviWriterProperties() : m_codec("Codec") {
   if (m_defaultCodec.getRange().empty()) {
     char descr[2048], name[2048];
@@ -1161,8 +1157,7 @@ Tiio::AviWriterProperties::AviWriterProperties() : m_codec("Codec") {
           continue;
         }
 
-        auto const hic =
-            safe_ICOpen(icinfo.fccType, icinfo.fccHandler, ICMODE_QUERY);
+        HIC hic = safe_ICOpen(icinfo.fccType, icinfo.fccHandler, ICMODE_QUERY);
         if (!hic) {
           break;
         }
