@@ -4,7 +4,17 @@ on: [push, pull_request, workflow_dispatch]
 
 jobs:
   Windows:
-    runs-on: windows-2022
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Intel (x86_64)
+          - runner: windows-2022
+            suffix: intel
+          # ARM64
+          - runner: windows-11-arm
+            suffix: arm
+    runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v5
       - name: Install Dependencies
@@ -19,9 +29,9 @@ jobs:
         with:
           path: |
             ~/AppData/Local/ccache
-          key: ${{ runner.os }}-refs/heads/master
+          key: ${{ runner.os }}-${{ matrix.suffix }}-refs/heads/master
           restore-keys: |
-            ${{ runner.os }}-
+            ${{ runner.os }}-${{ matrix.suffix }}-
       - name: Get CanonSDK
         if: ${{ (github.repository_owner == 'tahoma2d' || github.repository_owner == 'manongjohn') && github.event_name == 'push' }}
         run: |
@@ -41,14 +51,16 @@ jobs:
       - name: Create Package
         run: |
           ci-scripts\windows\tahoma-buildpkg.bat
+          mv toonz\build\Tahoma2D-portable-win.zip toonz\build\Tahoma2D-portable-win-${{ matrix.suffix }}.zip
+          mv toonz\build\Tahoma2D-install-win.exe toonz\build\Tahoma2D-install-win-${{ matrix.suffix }}.exe
       - uses: actions/upload-artifact@v7
         with:
-          name: Tahoma2D-portable-win.zip
-          path: toonz\build\Tahoma2D-portable-win.zip
+          name: Tahoma2D-portable-win-${{ matrix.suffix }}.zip
+          path: toonz\build\Tahoma2D-portable-win-${{ matrix.suffix }}.zip
       - uses: actions/upload-artifact@v7
         with:
-          name: Tahoma2D-install-win.exe
-          path: toonz\build\Tahoma2D-install-win.exe
+          name: Tahoma2D-install-win-${{ matrix.suffix }}.exe
+          path: toonz\build\Tahoma2D-install-win-${{ matrix.suffix }}.exe
       - name: Get Nightly Release Date
         if: ${{ github.repository_owner == 'tahoma2d' && github.event_name == 'push' && github.ref == 'refs/heads/master' }}
         run: |
@@ -61,7 +73,7 @@ jobs:
         with:
           allowUpdates: true
           artifactErrorsFailBuild: false
-          artifacts: toonz\build\Tahoma2D-portable-win.zip,toonz\build\Tahoma2D-install-win.exe
+          artifacts: toonz\build\Tahoma2D-portable-win-${{ matrix.suffix }}.zip,toonz\build\Tahoma2D-install-win-${{ matrix.suffix }}.exe
           artifactContentType: "raw"
           body: ${{ github.event.head_commit.message }}
           name: Latest Nightly ${{ env.NIGHTLYDATE }}
@@ -87,7 +99,7 @@ jobs:
         with:
           allowUpdates: true
           artifactErrorsFailBuild: false
-          artifacts: toonz\build\Tahoma2D-portable-win.zip,toonz\build\Tahoma2D-install-win.exe
+          artifacts: toonz\build\Tahoma2D-portable-win-${{ matrix.suffix }}.zip,toonz\build\Tahoma2D-install-win-${{ matrix.suffix }}.exe
           artifactContentType: "raw"
           body: ${{ github.event.head_commit.message }}
           name: ${{ env.NIGHTLYDATETIME }}
@@ -101,7 +113,7 @@ jobs:
           token: ${{ secrets.TAHOMA2D_TOKEN }}
       - name: Remove existing master cache
         if: ${{ steps.restore-cache.outputs.cache-hit == 'true' && github.ref == 'refs/heads/master' }}
-        run: gh cache delete ${{ runner.os }}-refs/heads/master
+        run: gh cache delete ${{ runner.os }}-${{ matrix.suffix }}-refs/heads/master
         env:
           GH_TOKEN: ${{ github.token }}
       - name: Save cache
@@ -110,4 +122,4 @@ jobs:
         with:
           path: |
             ~/AppData/Local/ccache
-          key: ${{ runner.os }}-${{ github.ref }}
+          key: ${{ runner.os }}-${{ matrix.suffix }}-${{ github.ref }}
